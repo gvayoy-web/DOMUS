@@ -1,6 +1,6 @@
 # Jarvis local — estado de implementación
 
-`casa_inteligente_v4.ino` es la base autónoma de sensores, relés,
+`casa_inteligente_v4/casa_inteligente_v4.ino` es la base autónoma de sensores, relés,
 automatización y BLE.
 
 ## Qué está habilitado ahora

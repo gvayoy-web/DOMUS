@@ -4,7 +4,7 @@ Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla sen
 
 ## Estado actual
 
-- Firmware: [`firmware/casa_inteligente_v4.ino`](firmware/casa_inteligente_v4.ino)
+- Firmware: [`firmware/casa_inteligente_v4/casa_inteligente_v4.ino`](firmware/casa_inteligente_v4/casa_inteligente_v4.ino)
 - Voz local: [`firmware/JARVIS_LOCAL.md`](firmware/JARVIS_LOCAL.md)
 - Plan completo: [`PLAN_PROYECTO.md`](PLAN_PROYECTO.md)
 - Guía para exposición: [`EXPOSICION_PROYECTO.txt`](EXPOSICION_PROYECTO.txt)
@@ -33,7 +33,18 @@ Confirma el pinout de la placa antes de soldar. No alimentes altavoz o relés de
 
 ## Compilación
 
-Usa Arduino-ESP32/ESP-IDF en un entorno documentado para ESP32-S3 N16R8. Registra las versiones de NimBLE, DHT, pantalla, DFPlayer y el modelo TinyML. Prueba primero por USB/fuente regulada; integra el panel solar después.
+El firmware base se compila automáticamente en GitHub Actions para un
+`ESP32S3 Dev Module`, con 16 MB de flash y PSRAM OPI. La compilación usa el
+core Arduino-ESP32 3.3.10 y mantiene `JARVIS_LOCAL_HABILITADO=false`.
+
+Para compilar localmente con Arduino CLI:
+
+```powershell
+arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=default_16MB" firmware/casa_inteligente_v4
+```
+
+La compilación comprueba el software; el pinout, los relés y los sensores aún
+deben validarse físicamente con fuente regulada antes de conectar la fase solar.
 
 ## Servicios Wi‑Fi opcionales
 
