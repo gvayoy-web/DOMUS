@@ -40,7 +40,7 @@ core Arduino-ESP32 3.3.10 y mantiene `JARVIS_LOCAL_HABILITADO=false`.
 Para compilar localmente con Arduino CLI:
 
 ```powershell
-arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=default_16MB" firmware/casa_inteligente_v4
+arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" firmware/casa_inteligente_v4
 ```
 
 La compilación comprueba el software; el pinout, los relés y los sensores aún
