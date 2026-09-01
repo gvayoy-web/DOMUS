@@ -1,0 +1,24 @@
+menu "Jarvis INMP441 proof of concept"
+
+config JARVIS_MIC_WS_PIN
+    int "INMP441 WS GPIO"
+    default 15
+
+config JARVIS_MIC_SD_PIN
+    int "INMP441 SD GPIO"
+    default 16
+
+config JARVIS_MIC_SCK_PIN
+    int "INMP441 SCK GPIO"
+    default 17
+
+config JARVIS_MIC_RIGHT_CHANNEL
+    bool "INMP441 L/R conectado a 3.3 V (canal derecho)"
+    default n
+
+config JARVIS_VAD_RMS_THRESHOLD
+    int "Umbral RMS inicial para actividad de voz"
+    range 50 10000
+    default 600
+
+endmenu

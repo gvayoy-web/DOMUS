@@ -1,0 +1,705 @@
+CASA INTELIGENTE AUTOSOSTENIBLE CON JARVIS LOCAL
+Guía del proyecto, componentes y exposición
+============================================================
+
+1. ¿QUÉ ES EL PROYECTO?
+------------------------------------------------------------
+Es una maqueta de casa inteligente controlada por un ESP32-S3. El sistema mide
+condiciones ambientales, controla luces, ventilación y riego, y puede continuar
+con sus automatizaciones aunque no tenga teléfono, Wi-Fi o internet.
+
+La meta de Jarvis es permitir órdenes locales en español como:
+
+  “Jarvis, apaga la luz de la sala uno.”
+  “Jarvis, activa el ventilador.”
+  “Jarvis, ¿cuál es la temperatura?”
+
+El reconocimiento de estas órdenes será realizado mediante modelos TinyML
+especializados. Las respuestas se construirán como texto y PicoTTS las
+convertirá en voz española dentro del ESP32-S3. No se necesitan miles de frases
+MP3 pregrabadas.
+
+Jarvis no es un chatbot general ni una copia de la inteligencia ficticia de
+Iron Man. Es un asistente doméstico local, pequeño y especializado.
+
+
+2. PROBLEMA QUE BUSCA RESOLVER
+------------------------------------------------------------
+Una casa puede desperdiciar agua y electricidad cuando sus aparatos dependen
+por completo de una persona. Además, muchos asistentes comerciales necesitan
+internet y envían información de voz a servidores externos.
+
+Este proyecto demuestra que un sistema económico puede:
+
+  - regar automáticamente cuando la tierra está seca;
+  - ventilar cuando la temperatura es alta;
+  - controlar luces y otros dispositivos;
+  - responder a órdenes locales;
+  - conservar funciones esenciales cuando falla internet;
+  - utilizar energía solar como alimentación complementaria.
+
+
+3. OBJETIVO GENERAL
+------------------------------------------------------------
+Construir una casa inteligente escolar, segura y autosostenible que controle
+sensores y actuadores mediante un ESP32-S3 y que incorpore un asistente de voz
+local en español para órdenes domésticas específicas.
+
+Objetivos específicos:
+
+  - medir humedad de tierra, temperatura, humedad del aire y luz ambiental;
+  - automatizar riego y ventilación;
+  - controlar luces mediante relés;
+  - evitar que una automatización contradiga una orden manual;
+  - detener la bomba automáticamente por seguridad;
+  - reconocer “Jarvis” y un conjunto definido de órdenes;
+  - generar respuestas habladas sin depender de archivos MP3 completos;
+  - permitir servicios Wi-Fi opcionales sin hacer dependiente al sistema.
+
+
+4. COMPONENTES PRINCIPALES
+------------------------------------------------------------
+Control:
+  - ESP32-S3 N16R8 DevKitC: procesador principal, 16 MB de flash y 8 MB PSRAM.
+  - Raspberry Pi Pico y ESP8266: disponibles, pero no son necesarios para el
+    funcionamiento principal.
+
+Sensores:
+  - DHT11 para temperatura y humedad del aire.
+  - Sensor capacitivo de humedad de tierra.
+  - Fotorresistor LDR para luz ambiental.
+  - Sensor de nivel de agua.
+  - PIR para movimiento, si se añade automatización por presencia.
+  - Otros sensores disponibles para ampliaciones.
+
+Actuadores:
+  - Módulo de ocho relés.
+  - Luces de la maqueta.
+  - Bomba de agua.
+  - Ventilador.
+
+Interacción:
+  - Pantalla OLED o LCD.
+  - Aro/tira WS2812B de ocho LED para estados de Jarvis.
+  - Bluetooth Low Energy para diagnóstico o control directo.
+
+Audio que se debe añadir:
+  - INMP441: micrófono digital I2S alimentado a 3.3 V.
+  - MAX98357A: amplificador y salida de audio I2S.
+  - Altavoz de 4 ohmios y 3 W.
+
+Alimentación:
+  - Panel solar de 5 V y 1100 mA.
+  - Baterías 18650 protegidas y portabatería.
+  - Cargador solar CN3065.
+  - Convertidor MT3608.
+  - Fusible, interruptor y capacitores de filtrado.
+  - Fuente regulada de 5 V/2 A para las primeras pruebas.
+
+
+5. CÓMO FUNCIONA LA CASA
+------------------------------------------------------------
+Los sensores envían mediciones al ESP32-S3. El firmware valida esos valores y
+decide si corresponde activar un dispositivo.
+
+Ejemplo de riego:
+
+  Sensor de humedad
+          |
+          v
+  ESP32 valida y convierte el valor a porcentaje
+          |
+          v
+  ¿La tierra está demasiado seca?
+       sí |             no
+          v
+  Activa la bomba     Mantiene el estado
+          |
+          v
+  Detención por humedad suficiente o por límite de seguridad
+
+Todos los cambios pasan por un despachador central. Este sabe si la orden vino
+de automatización, BLE, voz, Wi-Fi o del propio sistema. Una orden manual toma
+prioridad para impedir que la automatización la revierta accidentalmente.
+
+La bomba tiene un límite máximo continuo de dos minutos. Este límite funciona
+incluso si el sensor falla.
+
+
+6. CÓMO FUNCIONARÁ JARVIS
+------------------------------------------------------------
+Etapa 1: el micrófono INMP441 captura audio a 16 kHz.
+
+Etapa 2: un modelo pequeño detecta la palabra “Jarvis”.
+
+Etapa 3: se abre una ventana corta para escuchar la orden.
+
+Etapa 4: un clasificador TinyML identifica una intención, por ejemplo:
+
+  LUZ_SALA_1_OFF
+  RIEGO_ON
+  VENTILADOR_OFF
+  ESTADO_TEMPERATURA
+
+Etapa 5: la orden pasa por el mismo despachador seguro utilizado por los demás
+controles.
+
+Etapa 6: el firmware construye una respuesta usando el resultado real:
+
+  “He apagado la luz de la sala.”
+  “La luz ya estaba apagada.”
+  “No pude completar la orden.”
+
+Etapa 7: PicoTTS convierte el texto en muestras de sonido. El MAX98357A las
+amplifica y el altavoz reproduce la respuesta.
+
+Mientras Jarvis habla, el micrófono se pausa. Esto evita que escuche su propia
+voz y vuelva a activarse.
+
+
+7. ¿DÓNDE SE GUARDA LA INTELIGENCIA?
+------------------------------------------------------------
+Flash del ESP32-S3:
+  - firmware;
+  - detector de “Jarvis”;
+  - clasificador de órdenes;
+  - recursos lingüísticos de PicoTTS;
+  - configuración estable.
+
+PSRAM:
+  - últimos segundos de audio;
+  - características de sonido;
+  - tensores temporales de los modelos;
+  - audio PCM generado antes de reproducirse.
+
+NVS:
+  - ajustes, calibraciones y credenciales Wi-Fi opcionales.
+
+La microSD no es necesaria para que Jarvis piense o hable. Puede utilizarse
+para registros y efectos de sonido opcionales.
+
+
+8. ¿POR QUÉ TINYML Y NO UN LLM GRANDE?
+------------------------------------------------------------
+Un LLM general requiere mucha más memoria, almacenamiento y potencia. El
+ESP32-S3 es un microcontrolador, no una computadora con gigabytes de RAM.
+
+TinyML permite ejecutar una red pequeña y cuantizada que diferencia órdenes
+concretas. Para una casa escolar tiene ventajas importantes:
+
+  - responde rápidamente;
+  - funciona sin internet;
+  - consume menos energía;
+  - es más fácil de probar;
+  - no debe inventar acciones;
+  - una intención desconocida no modifica ningún relé.
+
+PicoTTS tampoco es un LLM. Su tarea es transformar texto en voz española. La
+“inteligencia” doméstica está en las reglas, los modelos de intención, los
+sensores y las verificaciones de seguridad.
+
+
+9. QUÉ SIGNIFICA QUE SEA LOCAL
+------------------------------------------------------------
+Las funciones esenciales no necesitan internet:
+
+  - sensores;
+  - relés;
+  - riego;
+  - ventilación;
+  - palabra de activación;
+  - reconocimiento de órdenes previstas;
+  - respuestas mediante PicoTTS.
+
+Wi-Fi puede añadir MQTT, una página local, hora de red, clima o Spotify. Esos
+servicios son opcionales. Spotify sí necesita internet, autorización y otro
+dispositivo que reproduzca la música; el ESP32 no descarga canciones.
+
+
+10. ENERGÍA SOLAR
+------------------------------------------------------------
+El panel solar no alimenta mágicamente todas las cargas en cualquier momento.
+Su energía debe pasar por un cargador adecuado hacia baterías protegidas y
+después por una regulación estable.
+
+En la exposición se debe explicar:
+
+  - diferencia entre voltaje, corriente, potencia y energía;
+  - función del CN3065 como cargador solar;
+  - función de la batería como almacenamiento;
+  - función del MT3608 como elevador de voltaje;
+  - importancia del fusible y la protección de las baterías;
+  - que el consumo del altavoz, LED, relés y bomba debe medirse;
+  - que la energía solar se integra después de estabilizar el circuito.
+
+No afirmar que la casa es energéticamente autónoma hasta medir generación,
+consumo y duración de la batería.
+
+
+11. GUION SUGERIDO PARA LA EXPOSICIÓN
+------------------------------------------------------------
+1. Presentación, 20 segundos:
+
+   “Este proyecto es una casa inteligente autosostenible controlada por un
+   ESP32-S3. Automatiza riego, ventilación y luces, y su asistente Jarvis está
+   diseñado para procesar órdenes domésticas localmente.”
+
+2. Problema, 30 segundos:
+
+   Explicar desperdicio de agua y energía, dependencia de internet y privacidad.
+
+3. Componentes, 45 segundos:
+
+   Señalar físicamente ESP32, sensores, relés, bomba, pantalla, micrófono,
+   altavoz, aro LED y alimentación.
+
+4. Flujo del sistema, 60 segundos:
+
+   Mostrar una lectura de humedad, explicar la decisión automática y demostrar
+   un relé. Luego explicar cómo todas las órdenes pasan por el mismo controlador.
+
+5. Jarvis, 60 segundos:
+
+   Dar una orden preparada. Mostrar LED azul, cambio del relé y respuesta.
+   Aclarar que reconoce intenciones limitadas y genera la voz con PicoTTS.
+
+6. Seguridad, 30 segundos:
+
+   Explicar prioridad manual, relés apagados al iniciar, umbral de confianza y
+   límite máximo de la bomba.
+
+7. Energía solar, 30 segundos:
+
+   Mostrar el recorrido panel, cargador, batería, regulador y cargas.
+
+8. Cierre, 20 segundos:
+
+   “El valor del proyecto no es aparentar una IA ilimitada, sino integrar
+   sensores, automatización, voz local y seguridad en un sistema demostrable.”
+
+
+12. DEMOSTRACIÓN RECOMENDADA
+------------------------------------------------------------
+Preparar esta secuencia:
+
+  1. Encender el sistema y mostrar que los relés arrancan apagados.
+  2. Mostrar temperatura y humedad en pantalla.
+  3. Simular tierra seca y activar riego automático.
+  4. Detener el riego manualmente y mostrar que la automatización respeta la orden.
+  5. Decir “Jarvis, enciende la luz de la sala uno”.
+  6. Mostrar el aro azul, el relé y la respuesta hablada.
+  7. Repetir la orden para obtener “ya estaba encendida”.
+  8. Desconectar Wi-Fi y demostrar que la casa sigue funcionando.
+
+No improvisar preguntas abiertas a Jarvis. Utilizar frases incluidas en el
+modelo y ensayadas con el ruido real del salón.
+
+
+13. PLAN DE RESPALDO PARA EL DÍA DE LA FERIA
+------------------------------------------------------------
+Si falla el micrófono:
+  - activar la misma orden con un botón o BLE;
+  - explicar que el despachador recibe la misma intención.
+
+Si falla el altavoz:
+  - mostrar la respuesta generada en OLED y Monitor Serial.
+
+Si falla Wi-Fi:
+  - continuar la demostración local normalmente.
+
+Si la energía solar no es suficiente dentro del salón:
+  - utilizar la batería o fuente regulada;
+  - explicar que la iluminación interior reduce la generación del panel.
+
+Llevar:
+  - fuente de 5 V/2 A;
+  - cable USB adicional;
+  - batería cargada;
+  - jumpers y destornillador;
+  - copia del firmware;
+  - video corto de la demostración funcionando;
+  - diagrama impreso y lista de comandos.
+
+
+14. SEGURIDAD PARA LA DEMOSTRACIÓN
+------------------------------------------------------------
+  - Utilizar únicamente cargas de bajo voltaje en la maqueta.
+  - No conectar 110/120 V de la red eléctrica durante la feria.
+  - No alimentar relés, bomba o altavoz desde el pin de 3.3 V.
+  - Nunca alimentar el INMP441 con 5 V.
+  - No conectar SPK- del MAX98357A a tierra.
+  - Evitar agua cerca del ESP32, protoboard, baterías y conexiones.
+  - Usar fusible y baterías 18650 protegidas.
+  - Limitar el brillo de los WS2812 para reducir consumo y calentamiento.
+  - Sujetar los cables para evitar desconexiones durante la exposición.
+
+
+15. LIMITACIONES QUE SE DEBEN DECIR CON HONESTIDAD
+------------------------------------------------------------
+  - Jarvis entiende un conjunto definido de órdenes, no conversación libre.
+  - La voz de PicoTTS será sintética, no idéntica a una voz cinematográfica.
+  - El modelo necesita grabaciones y pruebas antes de activarse.
+  - La lectura del GPIO confirma la señal del ESP32, no que el contacto físico
+    del relé o la carga funcionen; para eso haría falta realimentación adicional.
+  - El DHT11 es económico y menos preciso que sensores profesionales.
+  - Spotify y clima dependen de internet.
+  - La autonomía solar debe demostrarse con mediciones, no suposiciones.
+
+Reconocer estas limitaciones mejora la calidad científica del proyecto.
+
+
+16. PREGUNTAS POSIBLES DEL JURADO
+------------------------------------------------------------
+¿Por qué utilizar ESP32-S3?
+Porque incorpora Wi-Fi, BLE, soporte para procesamiento vectorial, 16 MB de
+flash y 8 MB de PSRAM en la placa elegida. Eso permite sensores, audio y modelos
+pequeños en un solo controlador.
+
+¿La voz se envía a internet?
+No para las órdenes domésticas previstas. La captura, clasificación y respuesta
+se diseñaron para ejecutarse localmente.
+
+¿Es realmente inteligencia artificial?
+El reconocimiento utiliza modelos TinyML entrenados para clasificar audio. Las
+decisiones de seguridad y automatización son reglas deterministas. PicoTTS es
+síntesis de voz, no razonamiento.
+
+¿Por qué no instalar ChatGPT o un modelo de 800 MB?
+Porque el ESP32-S3 tiene megabytes, no gigabytes de memoria. Un modelo grande
+sería lento o imposible de ejecutar y quitaría recursos a las funciones críticas.
+
+¿Qué sucede si Jarvis no entiende?
+La orden se clasifica como desconocida o se rechaza por baja confianza. Ningún
+GPIO cambia y el sistema solicita repetirla.
+
+¿Qué pasa si internet falla?
+La automatización, sensores, relés y voz local continúan. Solo fallan servicios
+opcionales como Spotify o clima en línea.
+
+¿Cómo se evita desperdiciar agua?
+El riego depende de humedad calibrada, respeta órdenes manuales y tiene un tiempo
+máximo independiente del sensor.
+
+¿Por qué no usar únicamente MP3?
+Los MP3 son adecuados para frases fijas, pero PicoTTS permite pronunciar valores
+y respuestas variables sin grabar cada combinación.
+
+¿La energía solar mantiene todo el sistema?
+Eso depende de la radiación, consumo y batería. El proyecto incluye el circuito
+para aprovechar energía solar, pero la autonomía se afirma únicamente después
+de medirla.
+
+
+17. DATOS QUE CONVIENE MEDIR Y MOSTRAR
+------------------------------------------------------------
+  - humedad de tierra seca y húmeda usada en la calibración;
+  - temperatura comparada con otro termómetro;
+  - consumo en reposo, escuchando, hablando y con la bomba activa;
+  - tiempo de respuesta desde “Jarvis” hasta el cambio del relé;
+  - porcentaje de órdenes correctas a 50 cm y a un metro;
+  - falsas activaciones durante una hora;
+  - duración de batería;
+  - voltaje y corriente entregados por el panel bajo distintas condiciones.
+
+Una tabla con estas mediciones da más valor científico que añadir funciones sin
+pruebas.
+
+
+18. ESTADO ACTUAL DEL SOFTWARE
+------------------------------------------------------------
+Ya está preparado:
+  - firmware de sensores, relés, automatización, pantalla y BLE;
+  - despachador central de órdenes;
+  - prioridad manual/automática;
+  - límite de seguridad de la bomba;
+  - respuestas dinámicas como texto;
+  - proyecto de prueba PicoTTS español y MAX98357A;
+  - proyecto de prueba INMP441 con búfer en PSRAM y mediciones de audio.
+
+Pendiente de pruebas físicas:
+  - comprobar el pinout en la placa exacta;
+  - conectar INMP441, MAX98357A y altavoz;
+  - compilar y ejecutar las dos pruebas de audio;
+  - grabar el dataset;
+  - entrenar y convertir los modelos TinyML;
+  - integrar el aro WS2812 y el flujo completo;
+  - medir consumo y terminar la alimentación solar.
+
+
+19. ¿POR QUÉ SE ELIGIÓ CADA TECNOLOGÍA?
+------------------------------------------------------------
+ESP32-S3 N16R8:
+Se eligió porque reúne procesamiento, Wi-Fi, Bluetooth Low Energy, periféricos
+I2S, 16 MB de flash y 8 MB de PSRAM en una sola placa. Un Arduino Uno puede
+leer sensores y activar relés, pero su memoria no es suficiente para almacenar
+y ejecutar cómodamente la cadena de audio y los modelos planteados. Una
+Raspberry Pi completa tendría más potencia, pero consumiría más energía, tardaría
+más en iniciar y sería innecesaria para órdenes domésticas limitadas.
+
+TinyML:
+Se utiliza para reconocer patrones de audio con modelos pequeños y cuantizados.
+Permite detectar “Jarvis” y clasificar órdenes definidas sin enviar la voz a la
+nube. Se eligió en lugar de un LLM grande porque las acciones de una casa deben
+ser rápidas, predecibles y verificables. Un modelo que puede inventar respuestas
+no debe controlar directamente una bomba o un relé.
+
+PicoTTS:
+Se eligió porque puede sintetizar voz española dentro del ESP32-S3. A diferencia
+de almacenar cada respuesta como MP3, permite pronunciar valores variables como
+temperaturas, porcentajes y nombres de habitaciones. Es más flexible, aunque su
+voz sea menos natural que la de un servicio conectado a internet.
+
+INMP441:
+Es un micrófono digital I2S. La señal llega al ESP32 como datos digitales, lo
+que reduce problemas de ruido y calibración presentes en micrófonos analógicos
+económicos. Además, I2S permite fijar con precisión la frecuencia de muestreo
+necesaria para los modelos de voz.
+
+MAX98357A:
+Combina conversión digital a audio y amplificación. Recibe directamente el PCM
+generado por PicoTTS mediante I2S y puede alimentar un altavoz pequeño. Se eligió
+porque el altavoz no puede conectarse directamente a un GPIO del ESP32.
+
+WS2812B:
+Permite controlar individualmente ocho LED utilizando una sola línea de datos.
+El aro comunica el estado sin llenar la maqueta de indicadores separados:
+esperando, escuchando, procesando, hablando o error.
+
+Relés:
+Aíslan la señal de control del ESP32 de las cargas de la maqueta y permiten
+manejar bomba, ventilador y luces. Para la feria se utilizarán únicamente cargas
+de bajo voltaje. En una casa real se necesitarían dispositivos certificados,
+gabinetes, protecciones y trabajo de un electricista.
+
+Sensores locales:
+El DHT11, humedad de tierra, LDR y nivel de agua permiten que la casa tome
+decisiones usando su entorno real. Se eligieron por disponibilidad y costo. El
+proyecto reconoce que para una instalación permanente convendrían sensores más
+precisos, resistentes y calibrables.
+
+Bluetooth Low Energy:
+Sirve como control y diagnóstico cercano sin depender del router. Consume menos
+energía que mantener una conexión Wi-Fi continua y permite comprobar sensores y
+relés desde un teléfono con una herramienta BLE genérica.
+
+Wi-Fi y MQTT:
+Wi-Fi permite integrar la maqueta con una red doméstica. MQTT es adecuado porque
+utiliza mensajes pequeños y separa al dispositivo que publica datos del que los
+visualiza. Son opcionales: si el router falla, las reglas locales continúan.
+
+Despachador central de órdenes:
+No es un componente físico, sino una decisión de software. Todas las órdenes
+pasan por el mismo punto de validación. Esto evita que voz, BLE y automatización
+den órdenes contradictorias y facilita aplicar límites de seguridad.
+
+PSRAM y flash:
+La flash conserva firmware, recursos de voz y modelos aunque se apague el
+sistema. La PSRAM se utiliza como espacio temporal para audio y cálculos. Esta
+separación permite explicar la diferencia entre almacenamiento permanente y
+memoria de trabajo.
+
+Energía solar y baterías:
+El panel demuestra generación renovable y la batería permite almacenar energía
+para momentos sin suficiente iluminación. El cargador y el regulador son
+necesarios porque el panel no entrega una tensión completamente constante.
+
+
+20. ¿CÓMO SE APLICARÍA EN UNA CASA DE VERDAD?
+------------------------------------------------------------
+La maqueta funciona como prueba de concepto. Para convertirla en una instalación
+real se conservarían las ideas principales, pero se cambiarían componentes y
+medidas de seguridad.
+
+Control distribuido:
+En lugar de conectar toda la vivienda a una sola protoboard, habría módulos por
+habitación. Cada módulo controlaría sensores y dispositivos cercanos. Podrían
+comunicarse por Wi-Fi, Ethernet, Zigbee, Thread, RS-485 o MQTT según distancia y
+confiabilidad necesaria.
+
+Instalación eléctrica:
+Los relés escolares se sustituirían por contactores, relés de estado sólido o
+módulos domóticos certificados para la corriente y voltaje correspondientes.
+Todo iría dentro de gabinetes aislantes, con fusibles, interruptores, conexión a
+tierra y separación física entre baja tensión y red eléctrica. La instalación
+debe realizarla un electricista autorizado.
+
+Iluminación:
+Jarvis podría controlar luces por habitación, escenas nocturnas, horarios,
+presencia y nivel de luz. Los interruptores físicos seguirían funcionando; una
+casa real nunca debería depender exclusivamente de la voz.
+
+Riego:
+El sensor de tierra podría controlar jardines por zonas. Se añadirían válvulas,
+medidor de caudal, detección de fugas y pronóstico climático. La bomba tendría
+protección contra funcionamiento en seco y realimentación física.
+
+Ventilación y clima:
+Sensores más precisos podrían controlar extractores o enviar solicitudes a un
+sistema HVAC. Se añadirían histéresis, límites horarios y detección de ventanas
+abiertas para evitar ciclos constantes y desperdicio energético.
+
+Seguridad y presencia:
+PIR, Reed, RFID y sensores de agua podrían generar alertas locales. Sin embargo,
+un prototipo escolar no debe presentarse como sistema profesional contra robos,
+incendios o inundaciones sin certificaciones y redundancia.
+
+Asistente de voz:
+Podrían instalarse varios satélites de micrófono, pero el control crítico seguiría
+siendo local. Las órdenes se convertirían en intenciones autorizadas; ninguna
+frase debería ejecutar una acción peligrosa sin reglas adicionales. Acciones como
+abrir una puerta exterior podrían requerir confirmación o autenticación.
+
+Privacidad:
+El procesamiento local evita enviar continuamente conversaciones a empresas
+externas. Se añadiría un interruptor físico que corte eléctricamente el micrófono
+y un indicador imposible de ocultar cuando esté escuchando.
+
+Red y mantenimiento:
+Una instalación real requeriría contraseñas seguras, firmware firmado,
+actualizaciones controladas, copias de configuración, registro de fallos y una
+red separada para dispositivos IoT. La vivienda debe continuar en modo manual si
+el servidor, router o asistente dejan de funcionar.
+
+Energía:
+Antes de afirmar autosuficiencia se haría un presupuesto energético: potencia de
+cada dispositivo, horas de uso, pérdidas del convertidor, capacidad útil de la
+batería y producción solar diaria. En una vivienda real el sistema solar tendría
+controlador, baterías y protecciones dimensionadas por profesionales.
+
+Arquitectura posible para una casa real:
+
+  Sensores y controles por habitación
+                  |
+                  v
+        Red doméstica protegida
+                  |
+       +----------+----------+
+       |                     |
+       v                     v
+  Automatización local   Panel de control
+       |                     |
+       +----------+----------+
+                  |
+                  v
+      Actuadores certificados y controles manuales
+
+
+21. COMPARACIÓN CON PROYECTOS ESCOLARES MÁS SIMPLES
+------------------------------------------------------------
+La comparación debe hacerse con respeto. No se trata de decir que otros
+proyectos son “malos”, sino de explicar qué problemas adicionales intenta
+resolver este diseño.
+
+Proyecto simple: una luz controlada por Bluetooth.
+Este proyecto: mantiene varias cargas, sensores y automatizaciones; además,
+confirma el resultado lógico y conserva funcionamiento sin teléfono.
+
+Proyecto simple: una bomba que se activa cuando un valor ADC cruza un umbral.
+Este proyecto: calibra la humedad a porcentaje, distingue control manual y
+automático, valida el sensor y detiene la bomba por tiempo máximo independiente.
+
+Proyecto simple: un asistente que reproduce MP3 al presionar botones.
+Este proyecto: plantea detección de palabra, clasificación TinyML y generación
+de respuestas variables mediante PicoTTS. Un mismo motor puede pronunciar
+diferentes temperaturas y estados sin grabar cada frase.
+
+Proyecto simple: una aplicación que necesita internet para funcionar.
+Este proyecto: mantiene sensores, automatización y órdenes previstas localmente.
+Wi-Fi y Spotify son extensiones, no requisitos del núcleo.
+
+Proyecto simple: varios bloques que escriben directamente en los relés.
+Este proyecto: utiliza un despachador central con origen, confianza, propiedad y
+reglas de seguridad. Eso reduce contradicciones entre automatización, voz y BLE.
+
+Proyecto simple: encender un LED con energía solar.
+Este proyecto: intenta integrar generación, carga de batería, regulación y
+medición de consumo de sensores, procesamiento, audio y actuadores. La autonomía
+se evaluará con datos y no únicamente mostrando un panel conectado.
+
+Proyecto simple: mostrar sensores en una pantalla.
+Este proyecto: utiliza las mediciones para tomar decisiones, reportar errores y
+crear respuestas habladas relacionadas con el estado real.
+
+Resumen comparativo:
+
+  ASPECTO                 PROYECTO SIMPLE          ESTE PROYECTO
+  -------------------------------------------------------------------------
+  Control                 Un botón o una app       Voz, BLE y automático
+  Funcionamiento offline  A veces limitado         Núcleo local obligatorio
+  Voz                     MP3 fijo o servicio web  TinyML + PicoTTS español
+  Automatización          Umbral directo           Origen y prioridad
+  Seguridad de bomba      Depende del sensor       Límite independiente
+  Respuesta               “Comando enviado”        Estado lógico resultante
+  Memoria                 Variables básicas        Flash + PSRAM + modelos
+  Energía solar           Demostración visual      Medición y regulación
+  Fallos de red           Puede dejar de operar    Modo local conservado
+  Escalabilidad           Una sola función         Arquitectura ampliable
+
+Ventajas que sí se pueden defender:
+
+  - integración de varias áreas en un solo sistema coherente;
+  - funcionamiento local y privacidad;
+  - seguridad y manejo explícito de fallos;
+  - separación entre funciones esenciales y servicios opcionales;
+  - voz generada dinámicamente;
+  - criterios de prueba medibles;
+  - documentación honesta de limitaciones.
+
+Cosas que NO se deben decir:
+
+  - “Nuestra IA entiende cualquier cosa.”
+  - “Es exactamente igual a Alexa o Jarvis de Iron Man.”
+  - “Es totalmente autosuficiente” sin mediciones energéticas.
+  - “Es más seguro que un producto comercial.”
+  - “Los demás proyectos no sirven.”
+
+Una buena forma de expresarlo es:
+
+  “Otros proyectos pueden demostrar correctamente una función individual. El
+  nuestro se diferencia porque integra automatización, seguridad, voz local y
+  energía en una arquitectura común, y define cómo responde cuando algo falla.”
+
+
+22. CÓMO MOSTRAR LAS DIFERENCIAS DURANTE LA EXPOSICIÓN
+------------------------------------------------------------
+No basta con enumerar componentes. La diferencia debe verse en la demostración.
+
+Prueba 1: prioridad manual.
+Permitir que el automático encienda un dispositivo, enviar después una orden
+manual y demostrar que la automatización no contradice al usuario.
+
+Prueba 2: respuesta según estado.
+Encender una luz con Jarvis y repetir la orden. La segunda respuesta debe decir
+que ya estaba encendida, demostrando que no reproduce siempre el mismo audio.
+
+Prueba 3: funcionamiento sin red.
+Desconectar Wi-Fi y ejecutar sensores, automatización y una orden local.
+
+Prueba 4: seguridad.
+Explicar el límite de bomba mediante un tiempo reducido para la demostración o
+mostrar un registro previo. No es necesario dejar correr la bomba dos minutos
+frente al jurado.
+
+Prueba 5: datos medidos.
+Mostrar una pequeña tabla con precisión, consumo, aciertos de voz y falsas
+activaciones. Esto convierte la maqueta en un experimento y no solo en decoración.
+
+Prueba 6: modo degradado.
+Simular un servicio opcional no disponible y demostrar que la casa sigue
+respondiendo. Explicar que diseñar los fallos también es parte de la ingeniería.
+
+
+23. RECOMENDACIÓN FINAL
+------------------------------------------------------------
+Para la feria es mejor demostrar cinco funciones estables que quince a medias.
+La demostración mínima sólida debe incluir:
+
+  - sensores visibles;
+  - una automatización;
+  - prioridad manual;
+  - seguridad de bomba;
+  - una orden de Jarvis completa;
+  - respuesta hablada o, como respaldo, respuesta visible en pantalla.
+
+No activar ni anunciar una función hasta haberla probado tres veces seguidas con
+el mismo cableado, alimentación y ruido que se utilizarán en la exposición.

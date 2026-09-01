@@ -1,0 +1,15 @@
+menu "Jarvis PicoTTS proof of concept"
+
+config JARVIS_I2S_BCLK_PIN
+    int "MAX98357A BCLK GPIO"
+    default 40
+
+config JARVIS_I2S_WS_PIN
+    int "MAX98357A LRC/WS GPIO"
+    default 41
+
+config JARVIS_I2S_DOUT_PIN
+    int "MAX98357A DIN GPIO"
+    default 42
+
+endmenu

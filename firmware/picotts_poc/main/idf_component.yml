@@ -1,0 +1,3 @@
+dependencies:
+  idf: ">=5.1"
+  jmattsson/picotts: "1.1.3"

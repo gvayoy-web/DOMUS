@@ -1,0 +1,29 @@
+# Credenciales y configuración local
+.env
+.env.*
+!.env.example
+secrets.h
+credentials.h
+
+# Compilaciones ESP-IDF / Arduino
+build/
+.pio/
+firmware/**/build/
+firmware/**/.pio/
+
+# Archivos temporales y cachés
+__pycache__/
+*.py[cod]
+*.tmp
+*.bak
+~$*
+.DS_Store
+Thumbs.db
+
+# Renderizados usados solamente para control de calidad
+qa_docx/
+.codex-*.md
+
+# Editores
+.vscode/
+.idea/
