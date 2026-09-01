@@ -10,6 +10,7 @@ Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla sen
 - Guía para exposición: [`EXPOSICION_PROYECTO.txt`](EXPOSICION_PROYECTO.txt)
 - Prueba de micrófono: [`firmware/inmp441_poc`](firmware/inmp441_poc)
 - Prueba de voz española: [`firmware/picotts_poc`](firmware/picotts_poc)
+- Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)
 - `JARVIS_LOCAL_HABILITADO=false` hasta tener micrófono, modelos TinyML, PicoTTS y pruebas reales.
 
 ## Meta de Jarvis

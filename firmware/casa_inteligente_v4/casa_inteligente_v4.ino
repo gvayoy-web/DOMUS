@@ -1119,8 +1119,6 @@ void inicializarBLE() {
     NIMBLE_PROPERTY::NOTIFY
   );
 
-  servicio->start();
-
   NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
   advertising->addServiceUUID(BLE_UUID_SERVICIO);
   advertising->setName(BLE_NOMBRE_DISPOSITIVO);

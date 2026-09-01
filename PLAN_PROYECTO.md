@@ -15,6 +15,10 @@
 
 ### Implementado
 
+- Compilación reproducible del firmware doméstico en GitHub Actions para
+  ESP32-S3 N16R8: Arduino-ESP32 3.3.10, flash de 16 MB y PSRAM OPI.
+- Binarios generados correctamente: 650,223 bytes de programa y 35,200 bytes
+  de memoria dinámica global con Jarvis desactivado.
 - Ocho relés, sensores, OLED/LCD, BLE, riego y ventilación automáticos.
 - Estado seguro de relés durante el arranque.
 - Despachador común `OrdenActuador` para manual, automatización, voz y Wi-Fi.
@@ -43,8 +47,10 @@ española funcional y será sustituido, no activado.
 ## Orden de implementación
 
 1. Confirmar el pinout exacto y adquirir INMP441, MAX98357A y altavoz 4 Ω/3 W.
-2. Compilar y probar el firmware doméstico actual sin módulos de voz.
-3. Validar relés, prioridad manual, corte de bomba y sensores.
+2. **Completado en software:** compilar el firmware doméstico sin módulos de
+   voz y generar binarios para ESP32-S3 N16R8.
+3. **Siguiente fase física:** cargarlo en la placa y validar cinco arranques,
+   relés, prioridad manual, corte de bomba y sensores.
 4. Compilar, cablear y validar la prueba preparada del INMP441 a 16 kHz.
 5. Compilar, cablear y validar la prueba preparada del MAX98357A/PicoTTS.
 6. Integrar PicoTTS y pronunciar “Hola, soy Jarvis” en español.
