@@ -31,7 +31,7 @@ son compatibles; no sustituye las pruebas eléctricas con la placa conectada.
 - Programa: 650,223 bytes de 3,145,728 bytes disponibles, aproximadamente 20 %.
 - Memoria dinámica global: 35,200 bytes de 327,680, aproximadamente 10 %.
 - Resultado de GitHub Actions: compilación y generación de binarios correctas.
-- Ejecución de referencia: https://github.com/gvayoy-web/proyecto-domus/actions/runs/33523336979
+- Ejecución final de referencia: https://github.com/gvayoy-web/proyecto-domus/actions/runs/33523880928
 
 Los avisos restantes proceden de LiquidCrystal I2C y del core de Espressif al
 compilar con `--warnings all`; no impiden generar el firmware. La llamada
