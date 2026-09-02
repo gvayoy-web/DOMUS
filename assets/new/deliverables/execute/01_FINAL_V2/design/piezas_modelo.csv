@@ -1,0 +1,100 @@
+name,x,y,z,w,d,h,material,layer,note,rx,ry,rz
+Base negra 1000x650,0,0,0,1000,650,12,base,base,MDF 12 mm pintado negro,0,0,0
+Frente rotulado PROJECT DOMUS,0,0,12,1000,22,75,roof,base,Letras de vinilo o acrílico,0,0,0
+Canal técnico oculto,285,28,12,690,28,16,blue,systems,Canaleta con tapa removible,0,0,0
+Piso vivienda,300,300,12,430,325,7,floor,house,Plywood 3 mm sobre bastidor,0,0,0
+Muro posterior vivienda,300,622,19,430,3,225,wood_light,house,,0,0,0
+Muro lateral izquierdo,300,300,19,3,325,225,wood_light,house,,0,0,0
+Muro lateral derecho,727,300,19,3,325,225,wood_light,house,,0,0,0
+Techo plano removible,292,292,244,446,341,10,roof,roof,Se retira para mantenimiento,0,0,0
+Alero frontal,285,280,238,460,22,14,wood,roof,,0,0,0
+Mueble bajo cocina,325,572,19,178,42,68,wood,furniture,,0,0,0
+Encimera cocina,322,568,87,184,48,7,wood_light,furniture,,0,0,0
+Gabinete alto cocina,325,594,130,130,24,72,wood,furniture,,0,0,0
+Refrigerador,515,548,19,48,66,138,metal,furniture,,0,0,0
+Isla cocina,405,465,19,118,48,70,wood,furniture,,0,0,0
+Cubierta isla,400,460,89,128,58,6,wood_light,furniture,,0,0,0
+Sofá sala,330,350,19,122,55,52,blue,furniture,,0,0,0
+Mesa sala,462,370,19,70,48,31,wood,furniture,,0,0,0
+Cama base,545,405,19,118,178,37,wood,furniture,,0,0,0
+Colchón,550,410,56,108,168,24,white,furniture,,0,0,0
+Cabecero,542,567,19,124,10,86,wood,furniture,,0,0,0
+Mesa de noche,675,520,19,38,38,42,wood,furniture,,0,0,0
+Mampara baño,680,305,19,3,290,190,glass,bath,,0,0,0
+Ducha piso,688,500,19,34,94,8,glass,bath,,0,0,0
+Lavamanos,689,430,19,32,48,62,white,bath,,0,0,0
+Inodoro,690,340,19,30,52,43,white,bath,,0,0,0
+Panel solar izquierdo,355,380,255,145,105,7,solar,solar,Panel didáctico 5 V,0,0,0
+Panel solar derecho,535,380,255,145,105,7,solar,solar,Panel didáctico 5 V,0,0,0
+Plataforma porche,340,72,12,250,195,8,floor,porch,,0,0,0
+Cubierta porche,332,62,154,266,210,9,roof,porch,,0,0,0
+Poste porche izquierdo,345,75,20,8,8,134,wood,porch,,0,0,0
+Poste porche derecho,575,75,20,8,8,134,wood,porch,,0,0,0
+Pasarela,440,22,12,58,110,6,wood_light,porch,,0,0,0
+Jardinera izquierda,360,92,20,38,135,26,soil,landscape,,0,0,0
+Jardinera derecha,530,92,20,38,135,26,soil,landscape,,0,0,0
+PIR entrada,605,235,60,28,15,28,white,sensors,Detección local de presencia,0,0,0
+Depósito de agua,25,65,12,92,92,100,water,water,,0,0,0
+Mini bomba 5V,130,95,12,48,34,31,blue,water,,0,0,0
+Tubería a invernadero,105,170,40,150,10,10,blue_light,water,,0,0,0
+Sensor nivel depósito,68,80,50,7,7,74,metal,sensors,,0,0,0
+Base invernadero,25,230,12,250,350,7,wood,greenhouse,,0,0,0
+Bancal izquierdo,48,265,19,76,280,42,soil,greenhouse,,0,0,0
+Bancal derecho,155,265,19,76,280,42,soil,greenhouse,,0,0,0
+Panel transparente izquierdo,25,230,19,3,350,165,glass,greenhouse,,0,0,0
+Panel transparente derecho,272,230,19,3,350,165,glass,greenhouse,,0,0,0
+Panel transparente posterior,25,577,19,250,3,165,glass,greenhouse,,0,0,0
+Cubierta inclinada izquierda,26,230,176,134,350,3,glass,greenhouse,,0,-22,0
+Cubierta inclinada derecha,140,230,176,134,350,3,glass,greenhouse,,0,22,0
+Viga cumbrera,146,230,225,8,350,8,metal,greenhouse,,0,0,0
+Poste invernadero 25-230,25,230,19,7,7,170,metal,greenhouse,,0,0,0
+Poste invernadero 25-577,25,577,19,7,7,170,metal,greenhouse,,0,0,0
+Poste invernadero 150-230,150,230,19,7,7,170,metal,greenhouse,,0,0,0
+Poste invernadero 150-577,150,577,19,7,7,170,metal,greenhouse,,0,0,0
+Poste invernadero 272-230,272,230,19,7,7,170,metal,greenhouse,,0,0,0
+Poste invernadero 272-577,272,577,19,7,7,170,metal,greenhouse,,0,0,0
+Planta 48,48,330,61,10,10,58,green,plants,,0,0,0
+Planta 88,88,330,61,10,10,58,green,plants,,0,0,0
+Planta 172,172,330,61,10,10,58,green,plants,,0,0,0
+Planta 212,212,330,61,10,10,58,green,plants,,0,0,0
+Sensor humedad suelo,105,410,56,8,8,70,metal,sensors,,0,0,0
+Línea de riego izquierda,84,270,70,7,270,7,blue_light,water,,0,0,0
+Línea de riego derecha,190,270,70,7,270,7,blue_light,water,,0,0,0
+Torre Jarvis cuerpo,750,245,12,105,118,290,roof,jarvis,,0,0,0
+Panel azul central,766,239,55,73,7,220,blue,jarvis,,0,0,0
+Pantalla de estado,773,236,82,60,7,32,blue_light,jarvis,,0,0,0
+Botón físico MIC OFF,790,233,38,25,12,25,red,jarvis,Corte físico del micrófono,0,0,0
+Micrófono INMP441,799,235,222,9,6,9,electronics,sensors,,0,0,0
+Altavoz local,784,235,160,37,7,37,metal,jarvis,,0,0,0
+LED aro 1,835.0,232,222.0,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 2,832.2596631704063,232,235.77660356514323,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 3,824.4558441227157,232,247.45584412271572,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 4,812.7766035651432,232,255.25966317040633,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 5,799.0,232,258.0,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 6,785.2233964348568,232,255.25966317040633,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 7,773.5441558772843,232,247.45584412271572,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 8,765.7403368295937,232,235.77660356514323,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 9,763.0,232,222.0,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 10,765.7403368295936,232,208.22339643485677,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 11,773.5441558772843,232,196.54415587728428,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 12,785.2233964348568,232,188.74033682959367,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 13,799.0,232,186.0,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 14,812.7766035651432,232,188.74033682959367,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 15,824.4558441227157,232,196.54415587728428,7,7,7,blue_light,jarvis,,0,0,0
+LED aro 16,832.2596631704063,232,208.22339643485674,7,7,7,blue_light,jarvis,,0,0,0
+Gabinete técnico base,870,235,12,110,150,7,metal,electronics,,0,0,0
+Gabinete fondo,870,382,19,110,3,250,wood,electronics,,0,0,0
+Gabinete lateral izquierdo,870,235,19,3,150,250,glass,electronics,,0,0,0
+Gabinete lateral derecho,977,235,19,3,150,250,glass,electronics,,0,0,0
+Gabinete frontal removible,870,235,19,110,3,250,glass,electronics,,0,0,0
+ESP32-S3 N16R8,887,335,55,43,23,72,electronics,boards,,0,0,0
+Módulo relés 4 canales,937,330,55,30,30,105,relay,boards,,0,0,0
+Fusible 3A,887,292,55,30,18,22,red,boards,,0,0,0
+Distribuidor 5V-GND,927,292,55,40,18,22,metal,boards,,0,0,0
+Regleta de terminales,887,252,55,80,18,20,blue,boards,,0,0,0
+Interruptor general,944,229,222,22,12,26,red,electronics,,0,0,0
+DHT11 interior,570,610,145,20,12,28,white,sensors,,0,0,0
+LDR bajo alero,704,286,208,16,10,16,green,sensors,,0,0,0
+LED sala,425,520,220,18,18,6,blue_light,lights,,0,0,0
+LED dormitorio,615,520,220,18,18,6,blue_light,lights,,0,0,0
+LED invernadero,142,420,218,18,18,6,blue_light,lights,,0,0,0

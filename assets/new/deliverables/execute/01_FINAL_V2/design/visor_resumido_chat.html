@@ -1,0 +1,33 @@
+<div id="domus-v2">
+  <div class="viz-controls" aria-label="Vista del modelo">
+    <button class="btn btn-primary" type="button" data-view="iso">Isométrica</button>
+    <button class="btn" type="button" data-view="front">Frontal</button>
+    <button class="btn" type="button" data-view="top">Superior</button>
+    <label class="form-check form-switch"><input class="form-check-input" id="dv-roof" type="checkbox" checked><span class="form-check-label">Techos</span></label>
+  </div>
+  <canvas id="dv-canvas" role="img" aria-label="Modelo 3D de una casa Domus de una planta con invernadero, porche, torre Jarvis y gabinete electrónico"></canvas>
+  <div id="dv-status" class="text-small text-muted" aria-live="polite">Una planta · frente abierto · arrastra para girar</div>
+</div>
+<style>
+#domus-v2{width:100%;color:var(--foreground)}#domus-v2 .viz-controls{margin-bottom:8px}#dv-canvas{display:block;width:100%;height:520px;max-height:66vw;background:var(--card);border:1px solid var(--border);border-radius:12px;touch-action:none}#dv-status{margin-top:6px;text-align:center}@media(max-width:520px){#dv-canvas{height:360px;max-height:none}}
+</style>
+<script>
+(() => {
+  const root=document.getElementById('domus-v2'),canvas=document.getElementById('dv-canvas'),ctx=canvas.getContext('2d');
+  const css=()=>getComputedStyle(root), color=n=>css().getPropertyValue(n).trim();
+  const P=[
+    ['base',0,0,0,1000,650,12,'--muted',0],['fascia',0,0,12,1000,22,70,'--foreground',0],
+    ['houseFloor',300,300,12,430,325,7,'--viz-series-2',0],['backWall',300,622,19,430,3,225,'--viz-series-2',0],['leftWall',300,300,19,3,325,225,'--viz-series-2',0],['rightWall',727,300,19,3,325,225,'--viz-series-2',0],['houseRoof',292,292,244,446,341,10,'--foreground',1],
+    ['kitchen',325,565,19,180,48,75,'--viz-series-4',0],['sofa',330,350,19,122,55,52,'--viz-series-1',0],['bed',545,405,19,118,178,61,'--card-foreground',0],['bath',680,305,19,3,290,190,'--viz-series-3',0],
+    ['greenhouse',25,230,12,250,350,180,'--viz-series-3',0],['porch',340,72,12,250,195,142,'--viz-series-4',0],['porchRoof',332,62,154,266,210,9,'--foreground',1],
+    ['jarvis',750,245,12,105,118,290,'--viz-series-1',0],['cabinet',870,235,12,110,150,257,'--muted-foreground',0],['solar1',355,380,255,145,105,7,'--viz-series-1',1],['solar2',535,380,255,145,105,7,'--viz-series-1',1]
+  ];
+  const F=[[0,1,2,3],[4,7,6,5],[0,4,5,1],[1,5,6,2],[2,6,7,3],[4,0,3,7]];
+  let rot=-35,elev=31,zoom=.83,drag=false,lx=0,ly=0;
+  function verts(p){const[,x,y,z,w,d,h]=p;return [[x,y,z],[x+w,y,z],[x+w,y+d,z],[x,y+d,z],[x,y,z+h],[x+w,y,z+h],[x+w,y+d,z+h],[x,y+d,z+h]]}
+  function project(v){let a=rot*Math.PI/180,e=elev*Math.PI/180,x=v[0]-500,y=v[1]-325,z=v[2]-140,xr=x*Math.cos(a)-y*Math.sin(a),yr=x*Math.sin(a)+y*Math.cos(a),yy=yr*Math.sin(e)-z*Math.cos(e),dep=yr*Math.cos(e)+z*Math.sin(e),s=Math.min(canvas.clientWidth/1120,canvas.clientHeight/720)*zoom;return[canvas.clientWidth/2+xr*s,canvas.clientHeight/2+yy*s,dep]}
+  function draw(){const d=devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*d)||canvas.height!==Math.round(h*d)){canvas.width=Math.round(w*d);canvas.height=Math.round(h*d);ctx.setTransform(d,0,0,d,0,0)}ctx.clearRect(0,0,w,h);const roof=document.getElementById('dv-roof').checked,polys=[];P.filter(p=>roof||!p[8]).forEach(p=>{const vv=verts(p).map(project);F.forEach((f,i)=>{const pts=f.map(k=>vv[k]);polys.push({pts,dep:pts.reduce((s,q)=>s+q[2],0)/4,p,i})})});polys.sort((a,b)=>a.dep-b.dep);polys.forEach(o=>{ctx.beginPath();o.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();const glass=o.p[0]==='greenhouse'||o.p[0]==='cabinet'||o.p[0]==='bath';ctx.fillStyle=color(o.p[7]);ctx.globalAlpha=glass ? .28 : .88;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=color('--border');ctx.lineWidth=.7;ctx.stroke()})}
+  root.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{root.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('btn-primary',x===b));if(b.dataset.view==='front'){rot=0;elev=16;zoom=.94}else if(b.dataset.view==='top'){rot=0;elev=70;zoom=.84}else{rot=-35;elev=31;zoom=.83}draw()});
+  document.getElementById('dv-roof').onchange=draw;canvas.onpointerdown=e=>{drag=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!drag)return;rot+=(e.clientX-lx)*.35;elev=Math.max(10,Math.min(70,elev-(e.clientY-ly)*.25));lx=e.clientX;ly=e.clientY;draw()};canvas.onpointerup=()=>drag=false;canvas.onwheel=e=>{e.preventDefault();zoom=Math.max(.5,Math.min(1.4,zoom-e.deltaY*.0009));draw()};new ResizeObserver(draw).observe(canvas);draw();
+})();
+</script>

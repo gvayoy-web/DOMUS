@@ -26,6 +26,7 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 4. [[04 - Energia bateria y solar]]
 5. [[05 - Auditoria de pines y cableado]]
 6. [[06 - Jarvis audio pantalla y microSD]]
+7. [[11 - Migracion de deliverables y chat]]
 7. [[07 - Precios y fuentes Honduras]]
 8. [[08 - Errores y contradicciones encontradas]]
 9. [[09 - Plan de montaje y pruebas]]

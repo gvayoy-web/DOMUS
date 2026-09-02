@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120">
+<style>text{font-family:Arial,sans-serif;fill:#102a56}.title{font-size:38px;font-weight:bold}.sub{font-size:18px;fill:#53657e}.h{font-size:20px;font-weight:bold}.lbl{font-size:14px}.small{font-size:12px}.outline{fill:none;stroke:#14233a;stroke-width:3}.wall{fill:#e8d8bd;stroke:#14233a;stroke-width:2}.module{fill:#d8e7f7;stroke:#205ec8;stroke-width:2}.greenhouse{fill:#dff4ea;stroke:#1f7a4d;stroke-width:2}.service{fill:#e4e8ed;stroke:#14233a;stroke-width:2}.jarvis{fill:#dce8ff;stroke:#123d8d;stroke-width:2}.dim{stroke:#26364a;stroke-width:1.5;marker-start:url(#a);marker-end:url(#a)}.dt{font-size:13px;text-anchor:middle;fill:#26364a}.cut{stroke:#cf2d2d;stroke-width:1.5;stroke-dasharray:6 4;fill:none}.note{font-size:13px;fill:#8a2a2a}.room{font-size:16px;font-weight:bold;text-anchor:middle}</style>
+<defs><marker id="a" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,3 L6,0 L6,6 Z" fill="#26364a"/></marker></defs>
+<rect width="1600" height="1120" fill="white"/>
+<text x="60" y="60" class="title">PROJECT DOMUS · PLANO TÉCNICO ACOTADO</text>
+<text x="60" y="92" class="sub">Maqueta de dos pisos · sistema 100 % local · cotas en milímetros · escala gráfica 1:10</text>
+<text x="80" y="155" class="h">A · PLANTA GENERAL / PLANTA BAJA</text>
+<rect x="80.0" y="190.0" width="720.0" height="504.0" class="outline"/>
+<rect x="98.0" y="211.6" width="208.79999999999998" height="324.0" class="greenhouse"/>
+<text x="202.39999999999998" y="373.6" class="room">INVERNADERO</text>
+<rect x="332.0" y="211.6" width="446.4" height="273.59999999999997" class="wall"/>
+<text x="555.2" y="348.4" class="room">CASA · PB</text>
+<rect x="332.0" y="506.8" width="194.4" height="147.6" class="module"/>
+<text x="429.2" y="580.6" class="room">ENTRADA</text>
+<rect x="548.0" y="506.8" width="100.8" height="158.4" class="jarvis"/>
+<text x="598.4" y="586.0" class="room">JARVIS</text>
+<rect x="663.1999999999999" y="506.8" width="115.19999999999999" height="158.4" class="service"/>
+<text x="720.8" y="586.0" class="room">SERVICIO</text>
+<rect x="119.6" y="560.8" width="79.2" height="68.39999999999999" class="module"/>
+<text x="159.2" y="595.0" class="room">DEPÓSITO</text>
+<line x1="332.0" y1="334.0" x2="641.6" y2="334.0" class="outline"/>
+<text x="490.4" y="262.0" class="lbl" text-anchor="middle">COCINA + BARRA</text>
+<text x="483.2" y="413.2" class="lbl" text-anchor="middle">SALA / ESCALERA</text>
+<line x1="80" y1="724.0" x2="800.0" y2="724.0" class="dim"/>
+<line x1="80" y1="716.0" x2="80" y2="732.0" class="dim"/>
+<line x1="800.0" y1="716.0" x2="800.0" y2="732.0" class="dim"/>
+<text x="440.0" y="717.0" class="dt">1000</text>
+<line x1="45" y1="190" x2="45" y2="694.0" class="dim"/>
+<line x1="37" y1="190" x2="53" y2="190" class="dim"/>
+<line x1="37" y1="694.0" x2="53" y2="694.0" class="dim"/>
+<text x="33" y="442.0" class="dt" transform="rotate(-90 33 442.0)">700</text>
+<line x1="332.0" y1="467.2" x2="778.4" y2="467.2" class="dim"/>
+<line x1="332.0" y1="459.2" x2="332.0" y2="475.2" class="dim"/>
+<line x1="778.4" y1="459.2" x2="778.4" y2="475.2" class="dim"/>
+<text x="555.2" y="460.2" class="dt">620</text>
+<line x1="98.0" y1="517.5999999999999" x2="306.79999999999995" y2="517.5999999999999" class="dim"/>
+<line x1="98.0" y1="509.5999999999999" x2="98.0" y2="525.5999999999999" class="dim"/>
+<line x1="306.79999999999995" y1="509.5999999999999" x2="306.79999999999995" y2="525.5999999999999" class="dim"/>
+<text x="202.39999999999998" y="510.5999999999999" class="dt">290</text>
+<text x="900" y="155" class="h">B · SEGUNDA PLANTA</text>
+<rect x="900" y="205" width="558.0" height="342.0" class="wall"/>
+<line x1="1269.0" y1="205" x2="1269.0" y2="547.0" class="outline"/>
+<text x="1084.5" y="376.0" class="room">DORMITORIO</text>
+<text x="1363.5" y="376.0" class="room">BAÑO / DUCHA</text>
+<rect x="949.5" y="313.0" width="198.0" height="135.0" class="module"/>
+<rect x="1300.5" y="394.0" width="108.0" height="99.0" class="greenhouse"/>
+<line x1="900" y1="575.0" x2="1458.0" y2="575.0" class="dim"/>
+<line x1="900" y1="567.0" x2="900" y2="583.0" class="dim"/>
+<line x1="1458.0" y1="567.0" x2="1458.0" y2="583.0" class="dim"/>
+<text x="1179.0" y="568.0" class="dt">620</text>
+<line x1="872" y1="205" x2="872" y2="547.0" class="dim"/>
+<line x1="864" y1="205" x2="880" y2="205" class="dim"/>
+<line x1="864" y1="547.0" x2="880" y2="547.0" class="dim"/>
+<text x="860" y="376.0" class="dt" transform="rotate(-90 860 376.0)">380</text>
+<line x1="900" y1="185" x2="1269.0" y2="185" class="dim"/>
+<line x1="900" y1="177" x2="900" y2="193" class="dim"/>
+<line x1="1269.0" y1="177" x2="1269.0" y2="193" class="dim"/>
+<text x="1084.5" y="178" class="dt">410 dormitorio</text>
+<line x1="1269.0" y1="185" x2="1458.0" y2="185" class="dim"/>
+<line x1="1269.0" y1="177" x2="1269.0" y2="193" class="dim"/>
+<line x1="1458.0" y1="177" x2="1458.0" y2="193" class="dim"/>
+<text x="1363.5" y="178" class="dt">210 baño</text>
+<text x="80" y="770" class="h">C · ELEVACIÓN FRONTAL</text>
+<rect x="80" y="1040" width="520.0" height="4.68" class="outline"/>
+<rect x="93.0" y="923.0" width="150.8" height="117.0" class="greenhouse"/>
+<rect x="262.0" y="811.2" width="322.40000000000003" height="228.8" class="wall"/>
+<line x1="262.0" y1="925.6" x2="584.4000000000001" y2="925.6" class="outline"/>
+<rect x="418.0" y="873.6" width="72.8" height="166.4" class="jarvis"/>
+<rect x="501.2" y="894.4" width="83.2" height="145.6" class="service"/>
+<rect x="363.40000000000003" y="800.8" width="124.80000000000001" height="5.2" fill="#08245f"/>
+<line x1="237.0" y1="1040" x2="237.0" y2="925.6" class="dim"/>
+<line x1="229.0" y1="1040" x2="245.0" y2="1040" class="dim"/>
+<line x1="229.0" y1="925.6" x2="245.0" y2="925.6" class="dim"/>
+<text x="225.0" y="982.8" class="dt" transform="rotate(-90 225.0 982.8)">220 PB</text>
+<line x1="237.0" y1="925.6" x2="237.0" y2="816.4" class="dim"/>
+<line x1="229.0" y1="925.6" x2="245.0" y2="925.6" class="dim"/>
+<line x1="229.0" y1="816.4" x2="245.0" y2="816.4" class="dim"/>
+<text x="225.0" y="871.0" class="dt" transform="rotate(-90 225.0 871.0)">210 PA</text>
+<line x1="35" y1="1040" x2="35" y2="800.8" class="dim"/>
+<line x1="27" y1="1040" x2="43" y2="1040" class="dim"/>
+<line x1="27" y1="800.8" x2="43" y2="800.8" class="dim"/>
+<text x="23" y="920.4" class="dt" transform="rotate(-90 23 920.4)">≈460 total</text>
+<text x="880" y="765" class="h">D · COTAS Y CONSTRUCCIÓN</text>
+<text x="880" y="800" class="lbl">Base: 1000 × 700 × 9 · casa: 620 × 380 · frente abierto para exposición</text>
+<text x="880" y="828" class="lbl">PB: 220 de altura · PA: 210 · paredes/entrepiso: plywood 3</text>
+<text x="880" y="856" class="lbl">Invernadero: 290 × 450 × 225 · acrílico/acetato 1–2</text>
+<text x="880" y="884" class="lbl">Jarvis: 140 × 220 × 320 · servicio: 160 × 220 × 280</text>
+<text x="880" y="912" class="lbl">Canal técnico: 30 de ancho · electrónica elevada y separada del agua</text>
+<text x="880" y="952" class="h">Arquitectura local</text>
+<text x="880" y="982" class="lbl">ESP32-S3 N16R8 · LCD1602 · botones · sensores · 5 relés · Jarvis local</text>
+<text x="880" y="1010" class="note">SIN Bluetooth · SIN Wi-Fi · SIN teléfono · SIN nube · solo 5 V DC</text>
+<text x="880" y="1050" class="small">Tolerancia inicial de corte: ±0.5 mm. Medir espesor real del material antes de generar pestañas.</text>
+<text x="60" y="1090" class="small">PROJECT DOMUS · revisión offline 1.0 · plano conceptual de fabricación sujeto a verificación física de componentes</text>
+</svg>
