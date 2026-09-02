@@ -517,7 +517,7 @@ def cover(doc, kicker, title, subtitle, hero: Path | None, status):
         r.bold = True; r.font.size = Pt(10); r.font.color.rgb = RGBColor.from_string(INK)
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run("Documento actualizado · 31 de agosto de 2026 · Honduras")
+    r = p.add_run("Documento actualizado · 1 de septiembre de 2026 · Honduras")
     r.font.size = Pt(8.5); r.font.color.rgb = RGBColor.from_string(MUTED)
     doc.add_page_break()
 
@@ -670,15 +670,44 @@ def build_technical():
         ("Aro WS2812 de 8 LED", "0", "Ya tienes tira; puede doblarse o montarse como arco.", "Comprar aro solo por estética."),
     ], widths=[1.45, .4, 2.75, 2.05], font_size=8)
     doc.add_heading("C. Fase solar — comprar después de medir", 2)
-    add_table(doc, ["Compra", "Cant.", "Función", "Nota"], [
-        ("Panel 5–6 V, ≥1 A", "1", "Generación", "No se encontró una variante compatible en C&D. No sustituir por sus paneles de 18 V conectados directamente al CN3065."),
-        ("18650 protegida y auténtica", "1", "Almacenamiento", "C&D EVE 2550 mAh cuesta L190, pero es sin protección: usar BMS/portacelda protegido o elegir otra celda protegida."),
-        ("Portabatería 1S", "1", "Montaje reemplazable", "No localizado en C&D. No usar un portador 2S/3S con CN3065; confirmar continuidad antes de comprar."),
-        ("BMS 1S", "1", "Protección de la celda", "C&D: BMS 1S 20 A L85. Sigue las conexiones B+/B− y P+/P− del módulo real."),
-        ("CN3065", "1", "Carga solar 1S", "C&D: L135; entrada 4.4–6 V y hasta 500 mA."),
-        ("Convertidor 5 V continuo", "1", "Regulación", "MT3608 C&D L90; no asumir 2 A continuos sin medir temperatura y caída."),
-        ("Interruptor KCD1", "1", "Corte general en batería", "C&D: L25; verificar que la variante sea ON/OFF de dos pines."),
-    ], widths=[1.55, .4, 1.65, 3.05], font_size=8)
+    doc.add_paragraph("La capacidad se dimensiona desde la carga real de 5 V, no desde el número de módulos: C[mAh] = (5 V × Ipromedio × 2 h ÷ 3.7 V ÷ 0.85) × 1.25. Se supone 85 % de eficiencia del elevador y 25 % de reserva por envejecimiento, temperatura y picos.")
+    add_table(doc, ["Consumo medio a 5 V", "Capacidad calculada", "Decisión para 2 h"], [
+        ("0.40 A · electrónica ligera", "≈3,180 mAh", "Una celda de 2,500–2,800 mAh no alcanza con margen; usar ≥4,000 mAh."),
+        ("0.70 A · demostración realista", "≈5,560 mAh", "Mínimo práctico 6,000 mAh; medir antes de comprar."),
+        ("1.00 A · bomba/voz/LED frecuentes", "≈7,950 mAh", "Objetivo 7,500–8,000 mAh y convertidor probado para los picos."),
+    ], widths=[2.1, 1.55, 3.1], font_size=8)
+    callout(doc, "Respuesta directa: autonomía", "Para prometer dos horas sin reinicios, diseña para 6,000 mAh como mínimo y para 7,500–8,000 mAh si la bomba, el amplificador o varios LEDs funcionarán con frecuencia. Una sola 18650 de 2,500–2,800 mAh no es suficiente. La cifra final se confirma midiendo la corriente media y el pico con la maqueta completa.")
+    callout(doc, "Panel de la captura: no comprar esa variante", "El panel seleccionado de 3 V/110 mA entrega solo 0.33 W en condiciones nominales. No alcanza la entrada mínima de 4.4 V del CN3065 y tampoco puede sostener la casa. En C&D sí aparece una variante 5 V/1,100 mA por L280; la página mezcla 1,100 mA con 4.5 W, por lo que se debe confirmar la etiqueta y medir voltaje/corriente antes de conectarlo.", RED)
+
+    doc.add_heading("Arquitectura eléctrica correcta", 3)
+    doc.add_paragraph("Panel 5–6 V → CN3065 → paquete 1S en paralelo → BMS 1S → fusible → interruptor general → elevador estable a 5 V → capacitor y distribución de cargas. El panel nunca se conecta directamente a la batería. La batería tampoco se conecta directamente al ESP32 ni al panel.")
+    add_table(doc, ["Elemento / opción", "Tienda y precio visto", "Decisión exacta"], [
+        ("Panel 5 V / 1,100 mA", "C&D · L280", "Opción local preferida para CN3065; comprobar que bajo sol mantenga ≥4.4 V. La corriente disponible puede exceder 500 mA: el CN3065 limita la carga."),
+        ("2 × 18650 Steren 2,800 mAh", "Steren HN · 2 × L249 = L498", "Pack 1S2P de 5,600 mAh: solo aceptarlo si la medición media es ≤0.65 A; queda justo para 2 h."),
+        ("3 × 18650 BAK 2,500 mAh", "C&D · 3 × L180 = L540", "Pack 1S3P de 7,500 mAh: opción con más margen. Usar celdas nuevas, idénticas y al mismo voltaje."),
+        ("Portacelda 18650 individual", "C&D · L55 c/u", "Preferible para construir 1S2P/1S3P verificable. El portador doble con tapa e interruptor cuesta L110, pero no se compra hasta confirmar con multímetro que sea paralelo, no serie."),
+        ("BMS 1S 20 A", "C&D · L85", "Protección del paquete frente a sobrecarga, sobredescarga y sobrecorriente. No sustituye al cargador solar."),
+        ("CN3065", "C&D · L135", "Cargador solar para litio 1S, entrada 4.4–6 V y carga de hasta 500 mA. No sustituye al BMS."),
+        ("MT3608 USB-C", "C&D · L90", "Eleva 3–4.2 V a 5 V. Usarlo solo si mantiene 5.0 V durante el pico real sin calentamiento excesivo; la cifra comercial de 2 A no garantiza 2 A continuos."),
+        ("Módulo power-bank 5 V/2.1 A", "C&D · L120", "Alternativa más integrada con protección y salida USB. Es más cómoda para respaldo USB, pero no se considera controlador solar ni sistema con reparto de carga sin prueba/documentación adicional."),
+        ("Interruptor KCD1-101 ON/OFF", "C&D · L25", "Es suficiente y económico como corte general entre P+ del BMS y el elevador."),
+        ("Palanca SPST 82600, 15 A", "Steren HN · L55", "Alternativa mecánicamente más robusta. No mejora el voltaje: solo ofrece mejor montaje y accionamiento."),
+        ("Capacitor 4,700 µF / 25 V", "C&D · L60", "Valor estándar cercano a 4,000 µF. Montarlo en la barra de 5 V respetando polaridad."),
+        ("Capacitor 6,800 µF / 25 V", "C&D · L35", "Alternativa local de mayor capacidad y menor precio visto; confirmar tamaño físico y existencia."),
+    ], widths=[1.65, 1.6, 3.5], font_size=7.4)
+
+    callout(doc, "¿Sirve un capacitor de unos 4,000 µF?", "Sí, como apoyo frente a picos muy breves; 4,700 µF es el valor comercial cercano. A 1 A, 4,700 µF pierde ≈0.21 V en 1 ms y ≈1.06 V en 5 ms: no reemplaza una batería ni corrige un convertidor insuficiente. Añade también 100 nF junto a cada módulo y 10–100 µF cerca del ESP32 y del audio; separa bomba/relés en otra rama y usa cables cortos.")
+    callout(doc, "Carga y uso simultáneos", "El módulo CN3065 consultado no documenta una salida con reparto de carga (power-path). Para la demostración segura, cargar con la casa apagada y después operar desde la batería. Si se desea funcionamiento continuo mientras carga, comprar un gestor solar 1S con power-path explícito; no asumir que cualquier placa power-bank lo incorpora.", RED)
+
+    doc.add_heading("Baterías recicladas y pilas normales", 3)
+    bullets(doc, [
+        "No mezclar celdas recicladas de distinta marca, capacidad, edad o voltaje. Para una maqueta escolar se recomiendan celdas nuevas y auténticas; una celda reciclada solo se acepta tras medir capacidad, resistencia interna y autodescarga, y si no tiene golpes, óxido, calentamiento o deformación.",
+        "No soldar con cautín directamente sobre una 18650 desnuda. Usar portaceldas o un paquete unido por soldadura por puntos por una persona con experiencia.",
+        "Las alcalinas AA/9 V no son recargables y nunca se conectan al CN3065. La batería rectangular de 9 V tampoco entrega bien los picos de ESP32, relés, bomba y audio.",
+        "Las NiMH recargables requieren cargador NiMH y otra regulación; una batería de plomo de 12 V requiere cargador de plomo y un convertidor reductor. Ninguna usa CN3065 ni BMS 1S.",
+        "El fusible sigue siendo obligatorio aunque exista BMS. Verificar polaridad y ajustar el elevador a 5.0 V con multímetro antes de conectar el ESP32.",
+    ])
+    callout(doc, "Presupuesto solar orientativo", "Con 3 celdas BAK (7,500 mAh), panel, tres portaceldas, BMS, CN3065, MT3608, KCD1 y capacitor de 6,800 µF: L1,355 antes de fusible, cableado y envío. Con 2 celdas Steren (5,600 mAh) y dos portaceldas: L1,258, pero solo es válida si la medición demuestra ≤0.65 A de consumo medio.")
     doc.add_heading("D. Opcional", 2)
     doc.add_paragraph("La microSD es opcional para registros o efectos. Ya tienes DFPlayer Mini con ranura, así que no compres otro lector salvo que quieras registro independiente. El módulo C&D de L149 declara SDHC de hasta 32 GB; por eso una tarjeta de 64 GB no es una combinación garantizada. Busca 8–32 GB SDHC y confirma compatibilidad/formato FAT32.")
     callout(doc, "Envío a Choluteca", "C&D tiene venta en línea y publica una sección de entregas, pero el costo, plazo y cobertura exacta a Choluteca deben confirmarse por teléfono/WhatsApp o en el carrito antes de pagar. El inventario y los precios pueden cambiar.", RED)
@@ -814,13 +843,22 @@ def build_technical():
         "C&D · fuente USB‑C 5 V/3 A con switch L350: https://sps.cdtechnologia.net/2985-1225-fuente-para-raspberry-pi3-pi4.html#/833-valor-5v_3a_usb_c_con_switch",
         "C&D · altavoz 4 Ω/3 W: https://sps.cdtechnologia.net/4094-parlante-4ohm-3w.html",
         "C&D · CN3065: https://sps.cdtechnologia.net/4804-modulo-de-carga-baterias-de-litio-cn3065.html",
+        "CONSONANCE · hoja de datos CN3065 (entrada 4.4–6 V, litio 1S): https://files.seeedstudio.com/wiki/Lipo_Rider_Pro/res/DSE-CN3065.pdf",
         "C&D · 18650 EVE: https://test.cdtechnologia.net/baterias/4855-bateria-eve-18650-26v-2550mah-75a.html",
+        "C&D · 18650 BAK 2500 mAh L180: https://sps.cdtechnologia.net/5255-bateria-recargable-bak-18650-36v-2500mah-30a.html",
+        "C&D · panel solar, variante 5 V/1100 mA L280: https://sps.cdtechnologia.net/4506-panel-solar-3v-55v.html",
+        "C&D · portacelda 18650 individual L55: https://sps.cdtechnologia.net/51-baterias",
+        "C&D · módulo power-bank 5 V/2.1 A L120: https://sps.cdtechnologia.net/1926-modulo-de-carga-usb-para-baterias-18650-con-pantalla-bms.html",
+        "C&D · capacitores 4700 µF L60 y 6800 µF L35: https://sps.cdtechnologia.net/1701-capacitores-electroliticos-de-1000uf-2200uf-3300uf-4700uf-o-10000uf-1-valor-1-unidad.html",
+        "C&D · interruptor KCD1-101 L25: https://sps.cdtechnologia.net/1612-interruptor-de-corriente-250v-6a-kcd1-101.html",
         "C&D · portafusible L40: https://sps.cdtechnologia.net/110-fusibles?page=2",
         "C&D · fusible cerámico 3 A L15: https://sps.cdtechnologia.net/4176-fusible-ceramico-01-30a-250v-5x20-mm-1u.html",
         "C&D · BMS 1S L85: https://sps.cdtechnologia.net/51-baterias",
+        "Steren Honduras · 18650 2800 mAh L249: https://www.steren.com.hn/bateria-recargable-li-ion-2800-mah-tipo-18650-1.html",
+        "Steren Honduras · interruptor SPST 82600 L55: https://www.steren.com.hn/linea-estudiantil/switches-y-relevadores",
     ]
     bullets(doc, sources)
-    doc.add_paragraph("Consulta realizada el 31 de agosto de 2026. Precios, variantes, existencias y entrega deben reconfirmarse con la tienda antes de comprar.")
+    doc.add_paragraph("Consulta realizada el 1 de septiembre de 2026. Precios, variantes, existencias y entrega deben reconfirmarse con la tienda antes de comprar.")
 
     path = OUT / "Proyecto_Tecnico_PROJECT_DOMUS_ACTUALIZADO.docx"
     doc.save(path)

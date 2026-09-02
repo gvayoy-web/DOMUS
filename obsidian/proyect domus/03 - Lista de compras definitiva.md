@@ -1,0 +1,75 @@
+---
+proyecto: PROJECT DOMUS
+tipo: compras
+moneda: HNL
+actualizado: 2026-09-01
+---
+
+# Lista de compras definitiva
+
+Los precios son referencias web consultadas el 1 de septiembre de 2026. No incluyen envío a Choluteca y deben reconfirmarse antes de pagar.
+
+## A. Comprar primero — casa funcional sin Jarvis ni solar
+
+| Compra | Cant. | Precio visto | Subtotal | Motivo |
+|---|---:|---:|---:|---|
+| Fuente 5 V/3 A USB-C con interruptor | 1 | C&D L350 | L350 | Alimentación estable de feria. |
+| Relé 4 canales, 5 V/10 A, entrada 3.3 V/5 V | 1 | C&D L250 | L250 | Completa las cinco cargas junto al relé que ya tienes. |
+| Portafusible aéreo 5×20 mm | 1 | C&D L15 | L15 | Protección de la entrada de 5 V. |
+| Fusible cerámico 3 A, 5×20 mm | 3 | C&D L15 | L45 | Uno instalado y dos repuestos. |
+| Capacitores 1000 µF/25 V, paquete de 5 | 1 | C&D L35 | L35 | Uno en barra principal y otros cerca de audio/actuadores. |
+| Conectores PCT, 4 unidades | 1 | C&D L40 | L40 | Distribución desmontable. |
+| Cable 22 AWG | 1 lote | C&D desde L35 | L35+ | Alimentación; no pasar bomba/relés por jumpers finos largos. |
+| Jumpers H/H | 1 faja | Confirmar variante; set completo C&D L250 | hasta L250 | Tus módulos y el ESP32 tienen pines macho. Comprar solo H/H si la tienda separa variantes. |
+
+**Subtotal mínimo confirmado:** L735 sin cable nuevo ni H/H.  
+**Subtotal conservador:** hasta L1,020 incluyendo cable desde L35 y el set completo de jumpers.
+
+> [!WARNING]
+> La fuente USB-C alimenta bien el ESP32, pero hace falta derivar los 5 V hacia una barra de distribución. No obligar a que toda la corriente de bomba, relés y audio atraviese el regulador de 3.3 V ni pistas pequeñas del ESP32.
+
+## B. Comprar para Jarvis local
+
+| Compra | Cant. | Precio visto | Prioridad | Nota |
+|---|---:|---:|---|---|
+| INMP441 I2S | 1 | Sin oferta hondureña verificada | Obligatorio | Importar o consultar directamente a C&D; no sustituir por KY-037. |
+| MAX98357A | 1 | C&D L130 | Obligatorio | Amplificador/DAC I2S. |
+| Altavoz 4 Ω/3 W | 1 | C&D L90 | Obligatorio | Conectar solo a SPK+ y SPK−. |
+| 74AHCT125 o 74HCT14 | 1 | Sin oferta hondureña verificada | Recomendado | Nivel lógico estable para WS2812 a 5 V; 74HC595 no es sustituto. |
+| Lector/escritor microSD SPI | 1 | C&D L149 | Obligatorio | Almacenamiento que el ESP32 sí puede montar y leer/escribir. |
+| microSD 4 GB FAT32 | 1 | Sin oferta local verificada; usar 32 GB Steren L159 | Obligatorio | Archivos, configuraciones y registros del ESP32. |
+| Segunda microSD FAT32 | 1 | Steren L159 | Opcional | Solo si se activa el DFPlayer como respaldo de audio. |
+
+**Subtotal local de voz y almacenamiento:** L528 + precio/importación del INMP441. Con segunda microSD para DFPlayer: L687 + INMP441.  
+El lector SPI y el DFPlayer no comparten tarjeta: cada ranura tiene una función distinta.
+
+## C. Solar y batería — comprar solo después de medir
+
+### Opción robusta aproximada de 7,500 mAh
+
+| Compra | Cant. | Precio visto | Subtotal |
+|---|---:|---:|---:|
+| Panel 5 V/1,100 mA | 1 | C&D L280 | L280 |
+| 18650 BAK 2,500 mAh nuevas e idénticas | 3 | C&D L180 | L540 |
+| Portacelda 18650 individual | 3 | C&D L55 | L165 |
+| Protección BMS 1S | 1 | C&D L85 | L85 |
+| CN3065 solar | 1 | C&D L135 | L135 |
+| MT3608 elevador a 5 V | 1 | C&D L90 | L90 |
+| Interruptor KCD1 ON/OFF | 1 | C&D L25 | L25 |
+| Capacitor 6800 µF/25 V | 1 | C&D L35 | L35 |
+
+**Subtotal solar:** L1,355, sin cableado, fusible ni envío.
+
+No uses los TP4056 a la vez que CN3065+BMS. Los TP4056 quedan para una arquitectura USB separada o para pruebas de una sola celda.
+
+## D. Materiales todavía no confirmados
+
+- Plywood 6–9 mm o cartón corrugado doble para base y casa.
+- Acrílico transparente para invernadero y bahía electrónica.
+- Pintura negra, azul cobalto, madera y sellador.
+- Silicón caliente, pegamento para madera, cinta doble cara y bridas.
+- Depósito de agua cerrado, bandeja antifugas y tubo adicional si hace falta.
+- Separadores M3, tornillos, tuercas y tapa transparente.
+- Cautín, estaño, termorretráctil, pelacables y destornilladores si no están disponibles en el equipo.
+
+Véase [[10 - Materiales de maqueta y exposicion]].
