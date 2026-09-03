@@ -1,0 +1,43 @@
+{
+  "desktop": {
+    "title": "PROJECT DOMUS · gemelo digital v3",
+    "pieces": "203 PIEZAS",
+    "overflow": false,
+    "canvas": {
+      "x": 286,
+      "y": 58,
+      "width": 910,
+      "height": 738,
+      "top": 58,
+      "right": 1196,
+      "bottom": 796,
+      "left": 286
+    },
+    "layerHeight": 42,
+    "spanishMode": "RADIOGRAFÍA / AGUA · ENERGÍA · SEÑAL",
+    "selectedBefore": "Celda solar 355-0-0",
+    "selectedAfterWater": "Ninguna pieza seleccionada"
+  },
+  "mobile": {
+    "overflow": false,
+    "views": 8,
+    "layers": 20,
+    "layerHeight": 44,
+    "inspector": {
+      "x": 0,
+      "y": 800,
+      "width": 375.20001220703125,
+      "height": 44,
+      "top": 800,
+      "right": 375.20001220703125,
+      "bottom": 844,
+      "left": 0
+    },
+    "spanishMode": "RADIOGRAFÍA / AGUA · ENERGÍA · SEÑAL",
+    "inspectorClosedInitial": 44,
+    "inspectorOpen": 81.36250305175781,
+    "inspectorClosedByUser": 44,
+    "secondaryNote": "Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta."
+  },
+  "errors": []
+}

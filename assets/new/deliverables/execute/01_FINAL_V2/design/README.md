@@ -46,8 +46,22 @@ Todas las medidas del modelo están expresadas en milímetros.
 - `project_domus_render.png`: vista general.
 - `project_domus_cutaway.png`: vista sin techo para inspeccionar el único nivel.
 - `project_domus_exploded.png`: módulos removibles separados para revisar la distribución.
-- `plano_tecnico_domus.svg` y `.pdf`: plano acotado.
+- `plano_tecnico_domus.svg`: preview vectorial de implantación.
+- `plano_tecnico_domus.pdf`: copia canónica compatible del juego multipágina.
+- `../../../../../../output/pdf/planos_tecnicos_project_domus.pdf`: juego final A3 apaisado de 6 páginas.
+- `visor_desktop_1440x900.png` y `visor_mobile_390x844.png`: comprobaciones visuales del visor.
+- `verificacion_visor.json`: resultado reproducible de la prueba responsive.
 - `piezas_modelo.csv`: inventario geométrico de cada pieza del modelo.
 - `lista_corte.csv`: lista de corte estructural resumida.
 - `bom_componentes.csv`: lista de materiales y electrónica.
 - `GUIA_MONTAJE.md`: explicación completa de la maqueta.
+
+## Regeneración
+
+Desde la raíz del repositorio, ejecutar un único comando:
+
+```powershell
+python assets/new/deliverables/execute/01_FINAL_V2/design/generate_design.py
+```
+
+El generador vuelve a crear el visor autónomo, el inventario de 203 elementos, OBJ/MTL, tres renders, el SVG y el PDF técnico. Requiere Python con Pillow y ReportLab; no descarga recursos ni usa red.

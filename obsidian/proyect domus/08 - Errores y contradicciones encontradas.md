@@ -6,11 +6,17 @@ actualizado: 2026-09-01
 
 # Errores y contradicciones encontradas
 
+## Estado tras la primera implementación
+
+- Corregidos en software: GPIO22, ocho relés lógicos, sensor de viento inexistente, identificación del sensor resistivo, PIR y nivel de agua.
+- Pendientes de hardware: confirmar los pines provisionales GPIO13/GPIO9/GPIO2, calibrar sensores y validar las cinco cargas en placa.
+- Jarvis, la fuente definitiva y la energía solar continúan pendientes según las fases del plan.
+
 ## Críticos
 
-1. **GPIO22 no existe en ESP32-S3.** El firmware lo usa como I2C SCL; el LCD no puede cablearse así.
-2. **El software declara ocho relés, pero solo hay uno y el diseño necesita cinco.** Comprar un módulo de cuatro canales y corregir la cuenta lógica.
-3. **PIR y nivel de agua aparecen en la documentación, pero no tienen pines ni lógica en el firmware principal.** No afirmar que funcionan hasta integrarlos.
+1. **GPIO22 no existe en ESP32-S3.** Corregido en software a GPIO13 provisional; falta confirmación física.
+2. **El software declaraba ocho relés, pero solo hay uno y el diseño necesita cinco.** Corregido a cinco salidas; aún falta comprar el módulo de cuatro canales.
+3. **PIR y nivel de agua no tenían pines ni lógica.** Integrados provisionalmente en GPIO9/GPIO2; no afirmar validación física hasta probarlos.
 4. **La voz no está integrada.** Existen PoC separados, pero faltan INMP441, MAX98357A, altavoz y modelos.
 5. **La fuente de protoboard no es una fuente general de alta corriente.** Puede causar resets si se conectan bomba, relés, audio y LEDs.
 

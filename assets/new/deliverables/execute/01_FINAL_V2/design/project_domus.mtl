@@ -82,3 +82,33 @@ newmtl solar
 Kd 0.020 0.100 0.280
 d 1.000
 illum 2
+
+newmtl signal
+Kd 0.960 0.550 0.070
+d 1.000
+illum 2
+
+newmtl cable_power
+Kd 0.930 0.160 0.160
+d 1.000
+illum 2
+
+newmtl cable_ground
+Kd 0.080 0.100 0.140
+d 1.000
+illum 2
+
+newmtl acrylic
+Kd 0.650 0.880 0.940
+d 0.280
+illum 2
+
+newmtl magnet
+Kd 0.750 0.790 0.840
+d 1.000
+illum 2
+
+newmtl yellow
+Kd 0.960 0.740 0.080
+d 1.000
+illum 2

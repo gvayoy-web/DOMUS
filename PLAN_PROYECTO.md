@@ -17,15 +17,20 @@
 
 - Compilación reproducible del firmware doméstico en GitHub Actions para
   ESP32-S3 N16R8: Arduino-ESP32 3.3.10, flash de 16 MB y PSRAM OPI.
-- Binarios generados correctamente: 650,223 bytes de programa y 35,200 bytes
-  de memoria dinámica global con Jarvis desactivado.
-- Ocho relés, sensores, OLED/LCD, BLE, riego y ventilación automáticos.
+- Binarios generados correctamente: 399,078 bytes de programa y 24,948 bytes
+  de memoria dinámica global con Jarvis y microSD desactivados hasta disponer
+  del hardware validado.
+- Cinco cargas lógicas, LCD, riego, ventilación y luces automáticas. La
+  validación física de relés y sensores sigue pendiente.
 - Estado seguro de relés durante el arranque.
 - Despachador común `OrdenActuador` para manual, automatización, voz y Wi-Fi.
 - Propiedad manual/automática por actuador.
 - Corte de seguridad de la bomba tras dos minutos continuos.
 - Rechazo de órdenes de voz con confianza inferior a 0.75.
+- BLE, Wi-Fi y aplicación móvil retirados del núcleo; diagnóstico por USB Serial.
+- LCD1602 como única pantalla; soporte OLED retirado.
 - DFPlayer desactivado como salida principal.
+- Paro físico, MIC OFF, botón local de demostración y contrato microSD integrados.
 - Prueba ESP-IDF de PicoTTS español con salida I2S configurable.
 - Prueba ESP-IDF del INMP441 a 16 kHz, con búfer de dos segundos en PSRAM,
   medición RMS/pico/DC/saturación y VAD inicial.
@@ -48,7 +53,8 @@ española funcional y será sustituido, no activado.
 
 1. Confirmar el pinout exacto y adquirir INMP441, MAX98357A y altavoz 4 Ω/3 W.
 2. **Completado en software:** compilar el firmware doméstico sin módulos de
-   voz y generar binarios para ESP32-S3 N16R8.
+   voz y generar binarios para ESP32-S3 N16R8. La versión actual de cinco
+   relés, PIR y nivel de agua fue recompilada correctamente.
 3. **Siguiente fase física:** cargarlo en la placa y validar cinco arranques,
    relés, prioridad manual, corte de bomba y sensores.
 4. Compilar, cablear y validar la prueba preparada del INMP441 a 16 kHz.

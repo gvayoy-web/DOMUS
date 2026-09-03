@@ -107,6 +107,58 @@ class DomusCoreTests(unittest.TestCase):
         self.assertTrue(all(not state for state in self.domus.states.values()))
         self.assertTrue(all(mode == Mode.MANUAL_OFF for mode in self.domus.modes.values()))
 
+    def test_all_five_actuators_accept_manual_on_and_off(self):
+        commands = {
+            Actuator.PUMP: ("RIEGO_ON", "RIEGO_OFF"),
+            Actuator.LIVING_LIGHT: ("LUZ_SALA_ON", "LUZ_SALA_OFF"),
+            Actuator.BEDROOM_LIGHT: ("LUZ_CUARTO_ON", "LUZ_CUARTO_OFF"),
+            Actuator.FAN: ("VENTILADOR_ON", "VENTILADOR_OFF"),
+            Actuator.GREENHOUSE_LIGHT: ("INVERNADERO_ON", "INVERNADERO_OFF"),
+        }
+        for actuator, (on_command, off_command) in commands.items():
+            self.assertTrue(self.domus.apply_local_command(on_command, from_voice=False))
+            self.assertTrue(self.domus.states[actuator])
+            self.assertTrue(self.domus.apply_local_command(off_command, from_voice=False))
+            self.assertFalse(self.domus.states[actuator])
+
+    def test_mic_off_rejects_voice_but_not_physical_control(self):
+        self.domus.sensors.mic_enabled = False
+        self.assertFalse(self.domus.apply_local_command("VENTILADOR_ON"))
+        self.assertFalse(self.domus.states[Actuator.FAN])
+        self.assertTrue(
+            self.domus.apply_local_command("VENTILADOR_ON", from_voice=False)
+        )
+        self.assertTrue(self.domus.states[Actuator.FAN])
+
+    def test_micro_sd_read_write_contract(self):
+        self.assertFalse(self.domus.write_storage("estado.txt", "ok"))
+        self.assertTrue(self.domus.mount_storage())
+        self.assertTrue(self.domus.write_storage("estado.txt", "ok"))
+        self.assertEqual(self.domus.read_storage("estado.txt"), "ok")
+
+    def test_jarvis_response_matches_result(self):
+        self.assertTrue(self.domus.apply_local_command("LUZ_SALA_ON"))
+        self.assertEqual(self.domus.last_response, "He encendido Luz sala.")
+        self.domus.sensors.water_level_pct = 0
+        self.assertTrue(self.domus.apply_local_command("RIEGO_ON"))
+        self.assertEqual(
+            self.domus.last_response,
+            "No puedo regar: el depósito no tiene agua suficiente.",
+        )
+
+    def test_emergency_blocks_reactivation_until_rearmed(self):
+        self.domus.emergency_stop()
+        self.assertFalse(
+            self.domus.apply_local_command("VENTILADOR_ON", from_voice=False)
+        )
+        self.assertFalse(self.domus.states[Actuator.FAN])
+        self.assertTrue(self.domus.emergency_active)
+        self.domus.rearm_emergency()
+        self.assertFalse(self.domus.emergency_active)
+        self.assertEqual(self.domus.modes[Actuator.FAN], Mode.MANUAL_OFF)
+        self.domus.apply_local_command("VENTILADOR_ON", from_voice=False)
+        self.assertTrue(self.domus.states[Actuator.FAN])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

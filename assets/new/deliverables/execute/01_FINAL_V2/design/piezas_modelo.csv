@@ -3,98 +3,202 @@ Base negra 1000x650,0,0,0,1000,650,12,base,base,MDF 12 mm pintado negro,0,0,0
 Frente rotulado PROJECT DOMUS,0,0,12,1000,22,75,roof,base,Letras de vinilo o acrílico,0,0,0
 Canal técnico oculto,285,28,12,690,28,16,blue,systems,Canaleta con tapa removible,0,0,0
 Piso vivienda,300,300,12,430,325,7,floor,house,Plywood 3 mm sobre bastidor,0,0,0
-Muro posterior vivienda,300,622,19,430,3,225,wood_light,house,,0,0,0
-Muro lateral izquierdo,300,300,19,3,325,225,wood_light,house,,0,0,0
-Muro lateral derecho,727,300,19,3,325,225,wood_light,house,,0,0,0
+Muro posterior vivienda,300,622,19,430,3,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
+Muro lateral izquierdo,300,300,19,3,325,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
+Muro lateral derecho,727,300,19,3,325,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
 Techo plano removible,292,292,244,446,341,10,roof,roof,Se retira para mantenimiento,0,0,0
-Alero frontal,285,280,238,460,22,14,wood,roof,,0,0,0
-Mueble bajo cocina,325,572,19,178,42,68,wood,furniture,,0,0,0
-Encimera cocina,322,568,87,184,48,7,wood_light,furniture,,0,0,0
-Gabinete alto cocina,325,594,130,130,24,72,wood,furniture,,0,0,0
-Refrigerador,515,548,19,48,66,138,metal,furniture,,0,0,0
-Isla cocina,405,465,19,118,48,70,wood,furniture,,0,0,0
-Cubierta isla,400,460,89,128,58,6,wood_light,furniture,,0,0,0
-Sofá sala,330,350,19,122,55,52,blue,furniture,,0,0,0
-Mesa sala,462,370,19,70,48,31,wood,furniture,,0,0,0
-Cama base,545,405,19,118,178,37,wood,furniture,,0,0,0
-Colchón,550,410,56,108,168,24,white,furniture,,0,0,0
-Cabecero,542,567,19,124,10,86,wood,furniture,,0,0,0
-Mesa de noche,675,520,19,38,38,42,wood,furniture,,0,0,0
-Mampara baño,680,305,19,3,290,190,glass,bath,,0,0,0
-Ducha piso,688,500,19,34,94,8,glass,bath,,0,0,0
-Lavamanos,689,430,19,32,48,62,white,bath,,0,0,0
-Inodoro,690,340,19,30,52,43,white,bath,,0,0,0
+Alero frontal,285,280,238,460,22,14,wood,roof,Elemento superior removible para inspección y mantenimiento del interior.,0,0,0
+Mueble bajo cocina,325,572,19,178,42,68,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Encimera cocina,322,568,87,184,48,7,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Gabinete alto cocina,325,594,130,130,24,72,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Refrigerador,515,548,19,48,66,138,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Isla cocina,405,465,19,118,48,70,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cubierta isla,400,460,89,128,58,6,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Sofá sala,330,350,19,122,55,52,blue,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mesa sala,462,370,19,70,48,31,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cama base,545,405,19,118,178,37,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Colchón,550,410,56,108,168,24,white,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cabecero,542,567,19,124,10,86,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mesa de noche,675,520,19,38,38,42,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mampara baño,680,305,19,3,290,190,glass,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Ducha piso,688,500,19,34,94,8,glass,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Lavamanos,689,430,19,32,48,62,white,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Inodoro,690,340,19,30,52,43,white,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
 Panel solar izquierdo,355,380,255,145,105,7,solar,solar,Panel didáctico 5 V,0,0,0
 Panel solar derecho,535,380,255,145,105,7,solar,solar,Panel didáctico 5 V,0,0,0
-Plataforma porche,340,72,12,250,195,8,floor,porch,,0,0,0
-Cubierta porche,332,62,154,266,210,9,roof,porch,,0,0,0
-Poste porche izquierdo,345,75,20,8,8,134,wood,porch,,0,0,0
-Poste porche derecho,575,75,20,8,8,134,wood,porch,,0,0,0
-Pasarela,440,22,12,58,110,6,wood_light,porch,,0,0,0
-Jardinera izquierda,360,92,20,38,135,26,soil,landscape,,0,0,0
-Jardinera derecha,530,92,20,38,135,26,soil,landscape,,0,0,0
-PIR entrada,605,235,60,28,15,28,white,sensors,Detección local de presencia,0,0,0
-Depósito de agua,25,65,12,92,92,100,water,water,,0,0,0
-Mini bomba 5V,130,95,12,48,34,31,blue,water,,0,0,0
-Tubería a invernadero,105,170,40,150,10,10,blue_light,water,,0,0,0
-Sensor nivel depósito,68,80,50,7,7,74,metal,sensors,,0,0,0
-Base invernadero,25,230,12,250,350,7,wood,greenhouse,,0,0,0
-Bancal izquierdo,48,265,19,76,280,42,soil,greenhouse,,0,0,0
-Bancal derecho,155,265,19,76,280,42,soil,greenhouse,,0,0,0
-Panel transparente izquierdo,25,230,19,3,350,165,glass,greenhouse,,0,0,0
-Panel transparente derecho,272,230,19,3,350,165,glass,greenhouse,,0,0,0
-Panel transparente posterior,25,577,19,250,3,165,glass,greenhouse,,0,0,0
-Cubierta inclinada izquierda,26,230,176,134,350,3,glass,greenhouse,,0,-22,0
-Cubierta inclinada derecha,140,230,176,134,350,3,glass,greenhouse,,0,22,0
-Viga cumbrera,146,230,225,8,350,8,metal,greenhouse,,0,0,0
-Poste invernadero 25-230,25,230,19,7,7,170,metal,greenhouse,,0,0,0
-Poste invernadero 25-577,25,577,19,7,7,170,metal,greenhouse,,0,0,0
-Poste invernadero 150-230,150,230,19,7,7,170,metal,greenhouse,,0,0,0
-Poste invernadero 150-577,150,577,19,7,7,170,metal,greenhouse,,0,0,0
-Poste invernadero 272-230,272,230,19,7,7,170,metal,greenhouse,,0,0,0
-Poste invernadero 272-577,272,577,19,7,7,170,metal,greenhouse,,0,0,0
-Planta 48,48,330,61,10,10,58,green,plants,,0,0,0
-Planta 88,88,330,61,10,10,58,green,plants,,0,0,0
-Planta 172,172,330,61,10,10,58,green,plants,,0,0,0
-Planta 212,212,330,61,10,10,58,green,plants,,0,0,0
-Sensor humedad suelo,105,410,56,8,8,70,metal,sensors,,0,0,0
-Línea de riego izquierda,84,270,70,7,270,7,blue_light,water,,0,0,0
-Línea de riego derecha,190,270,70,7,270,7,blue_light,water,,0,0,0
-Torre Jarvis cuerpo,750,245,12,105,118,290,roof,jarvis,,0,0,0
-Panel azul central,766,239,55,73,7,220,blue,jarvis,,0,0,0
-Pantalla de estado,773,236,82,60,7,32,blue_light,jarvis,,0,0,0
+Plataforma porche,340,72,12,250,195,8,floor,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Cubierta porche,332,62,154,266,210,9,roof,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Poste porche izquierdo,345,75,20,8,8,134,wood,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Poste porche derecho,575,75,20,8,8,134,wood,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Pasarela,440,22,12,58,110,6,wood_light,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Jardinera izquierda,360,92,20,38,135,26,soil,landscape,Elemento paisajístico de presentación sin función eléctrica o hidráulica activa.,0,0,0
+Jardinera derecha,530,92,20,38,135,26,soil,landscape,Elemento paisajístico de presentación sin función eléctrica o hidráulica activa.,0,0,0
+PIR entrada,605,235,60,28,15,28,white,sensors,Detección local de presencia en el acceso para iluminación y demostración.,0,0,0
+Depósito de agua,25,65,12,92,92,100,water,water,"Reserva 92 × 92 × 100 mm sobre bandeja de contención, separada del gabinete electrónico.",0,0,0
+Mini bomba 5V,130,95,12,48,34,31,blue,water,Riego local con bloqueo por nivel bajo y tiempo máximo continuo de 120 s.,0,0,0
+Tubería a invernadero,105,170,40,150,10,10,blue_light,water,Componente del recorrido de riego; revisar uniones y fugas lejos de la electrónica.,0,0,0
+Sensor nivel depósito,68,80,50,7,7,74,metal,sensors,Inhibe la bomba cuando detecta nivel bajo; comprobar su actuación antes de exhibir.,0,0,0
+Base invernadero,25,230,12,250,350,7,wood,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Bancal izquierdo,48,265,19,76,280,42,soil,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Bancal derecho,155,265,19,76,280,42,soil,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente izquierdo,25,230,19,3,350,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente derecho,272,230,19,3,350,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente posterior,25,577,19,250,3,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Cubierta inclinada izquierda,26,230,176,134,350,3,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,-22,0
+Cubierta inclinada derecha,140,230,176,134,350,3,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,22,0
+Viga cumbrera,146,230,225,8,350,8,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 25-230,25,230,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 25-577,25,577,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 150-230,150,230,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 150-577,150,577,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 272-230,272,230,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 272-577,272,577,19,7,7,170,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Planta 48,48,330,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 88,88,330,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 172,172,330,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 212,212,330,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Sensor humedad suelo,105,410,56,8,8,70,metal,sensors,Solicita riego por debajo de 30 % y lo detiene al alcanzar 45 %.,0,0,0
+Línea de riego izquierda,84,270,70,7,270,7,blue_light,water,Componente del recorrido de riego; revisar uniones y fugas lejos de la electrónica.,0,0,0
+Línea de riego derecha,190,270,70,7,270,7,blue_light,water,Componente del recorrido de riego; revisar uniones y fugas lejos de la electrónica.,0,0,0
+Torre Jarvis cuerpo,750,245,12,105,118,290,roof,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+Panel azul central,766,239,55,73,7,220,blue,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+Pantalla de estado,773,236,82,60,7,32,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
 Botón físico MIC OFF,790,233,38,25,12,25,red,jarvis,Corte físico del micrófono,0,0,0
-Micrófono INMP441,799,235,222,9,6,9,electronics,sensors,,0,0,0
-Altavoz local,784,235,160,37,7,37,metal,jarvis,,0,0,0
-LED aro 1,835.0,232,222.0,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 2,832.2596631704063,232,235.77660356514323,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 3,824.4558441227157,232,247.45584412271572,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 4,812.7766035651432,232,255.25966317040633,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 5,799.0,232,258.0,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 6,785.2233964348568,232,255.25966317040633,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 7,773.5441558772843,232,247.45584412271572,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 8,765.7403368295937,232,235.77660356514323,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 9,763.0,232,222.0,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 10,765.7403368295936,232,208.22339643485677,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 11,773.5441558772843,232,196.54415587728428,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 12,785.2233964348568,232,188.74033682959367,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 13,799.0,232,186.0,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 14,812.7766035651432,232,188.74033682959367,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 15,824.4558441227157,232,196.54415587728428,7,7,7,blue_light,jarvis,,0,0,0
-LED aro 16,832.2596631704063,232,208.22339643485674,7,7,7,blue_light,jarvis,,0,0,0
-Gabinete técnico base,870,235,12,110,150,7,metal,electronics,,0,0,0
-Gabinete fondo,870,382,19,110,3,250,wood,electronics,,0,0,0
-Gabinete lateral izquierdo,870,235,19,3,150,250,glass,electronics,,0,0,0
-Gabinete lateral derecho,977,235,19,3,150,250,glass,electronics,,0,0,0
-Gabinete frontal removible,870,235,19,110,3,250,glass,electronics,,0,0,0
-ESP32-S3 N16R8,887,335,55,43,23,72,electronics,boards,,0,0,0
-Módulo relés 4 canales,937,330,55,30,30,105,relay,boards,,0,0,0
-Fusible 3A,887,292,55,30,18,22,red,boards,,0,0,0
-Distribuidor 5V-GND,927,292,55,40,18,22,metal,boards,,0,0,0
-Regleta de terminales,887,252,55,80,18,20,blue,boards,,0,0,0
-Interruptor general,944,229,222,22,12,26,red,electronics,,0,0,0
-DHT11 interior,570,610,145,20,12,28,white,sensors,,0,0,0
-LDR bajo alero,704,286,208,16,10,16,green,sensors,,0,0,0
-LED sala,425,520,220,18,18,6,blue_light,lights,,0,0,0
-LED dormitorio,615,520,220,18,18,6,blue_light,lights,,0,0,0
-LED invernadero,142,420,218,18,18,6,blue_light,lights,,0,0,0
+Micrófono INMP441,799,235,222,9,6,9,electronics,sensors,Sensor local del sistema; confirmar orientación y conexión en la tabla de cableado validada.,0,0,0
+Altavoz local,784,235,160,37,7,37,metal,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 1,835.0,232,222.0,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 2,832.2596631704063,232,235.77660356514323,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 3,824.4558441227157,232,247.45584412271572,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 4,812.7766035651432,232,255.25966317040633,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 5,799.0,232,258.0,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 6,785.2233964348568,232,255.25966317040633,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 7,773.5441558772843,232,247.45584412271572,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 8,765.7403368295937,232,235.77660356514323,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 9,763.0,232,222.0,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 10,765.7403368295936,232,208.22339643485677,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 11,773.5441558772843,232,196.54415587728428,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 12,785.2233964348568,232,188.74033682959367,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 13,799.0,232,186.0,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 14,812.7766035651432,232,188.74033682959367,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 15,824.4558441227157,232,196.54415587728428,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+LED aro 16,832.2596631704063,232,208.22339643485674,7,7,7,blue_light,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+Gabinete técnico base,870,235,12,110,150,7,metal,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete fondo,870,382,19,110,3,250,wood,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete lateral izquierdo,870,235,19,3,150,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete lateral derecho,977,235,19,3,150,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete frontal removible,870,235,19,110,3,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+ESP32-S3 N16R8,887,335,55,43,23,72,electronics,boards,"Controlador central local; sin Wi-Fi, Bluetooth, teléfono ni nube. Consultar la tabla validada antes de asignar GPIO.",0,0,0
+Módulo relés 4 canales,937,330,55,30,30,105,relay,boards,Conmuta actuadores de 5 V; verificar estado seguro al arranque y separación de rutas de señal.,0,0,0
+Fusible 3A,887,292,55,30,18,22,red,boards,Protección principal colocada antes del bus de distribución 5 V/GND.,0,0,0
+Distribuidor 5V-GND,927,292,55,40,18,22,metal,boards,Punto de distribución de baja tensión; conservar polaridad y retorno común.,0,0,0
+Regleta de terminales,887,252,55,80,18,20,blue,boards,"Interfaz de servicio etiquetada; usar la tabla de cableado validada, sin inventar pines.",0,0,0
+Interruptor general,944,229,222,22,12,26,red,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+DHT11 interior,570,610,145,20,12,28,white,sensors,Mide ambiente interior; ventilación activa a 29 °C y se detiene a 27 °C.,0,0,0
+LDR bajo alero,704,286,208,16,10,16,green,sensors,Mide luz exterior protegido por el alero; control autónomo sin servicio remoto.,0,0,0
+LED sala,425,520,220,18,18,6,blue_light,lights,Indicador o luminaria local de 5 V controlada por el sistema.,0,0,0
+LED dormitorio,615,520,220,18,18,6,blue_light,lights,Indicador o luminaria local de 5 V controlada por el sistema.,0,0,0
+LED invernadero,142,420,218,18,18,6,blue_light,lights,Indicador o luminaria local de 5 V controlada por el sistema.,0,0,0
+Junta de tablón 310,310,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 352,352,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 394,394,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 436,436,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 478,478,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 520,520,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 562,562,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 604,604,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 646,646,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 688,688,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 730,730,621,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Tabique dormitorio,532,392,19,3,228,188,wood_light,house,Panel interior desmontable,0,0,0
+Puerta interior,529,315,19,7,72,174,wood,house,Hoja señalada en planta,0,0,0
+Frente cajón cocina 1,340,567,36,66,4,20,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Frente cajón cocina 2,410,567,36,66,4,20,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Fregadero,452,563,94,40,30,5,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Grifo,470,594,98,5,5,30,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Almohada,563,537,80,82,34,12,white,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Respaldo sofá,330,390,55,122,14,38,blue,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Lavamanos cubeta,691,435,82,27,37,8,acrylic,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Ducha columna,714,566,27,6,6,138,metal,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Celda solar 355-0-0,360.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-0-1,382.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-0-2,405.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-0-3,427.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-0-4,450.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-0-5,472.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-0,360.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-1,382.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-2,405.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-3,427.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-4,450.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-1-5,472.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-0,360.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-1,382.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-2,405.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-3,427.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-4,450.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-2-5,472.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-0,360.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-1,382.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-2,405.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-3,427.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-4,450.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 355-3-5,472.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-0,540.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-1,562.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-2,585.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-3,607.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-4,630.0,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-0-5,652.5,386,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-0,540.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-1,562.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-2,585.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-3,607.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-4,630.0,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-1-5,652.5,410,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-0,540.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-1,562.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-2,585.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-3,607.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-4,630.0,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-2-5,652.5,434,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-0,540.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-1,562.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-2,585.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-3,607.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-4,630.0,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Celda solar 535-3-5,652.5,458,262.2,18,18,1.2,blue,solar,Retícula didáctica del panel,0,0,0
+Imán techo 300-300,300,300,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 724-300,724,300,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 300-620,300,620,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 724-620,724,620,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Bisagra gabinete izquierda,872,232,72,8,7,24,magnet,removable,Herraje o fijación de un componente removible para inspección sin dañar la maqueta.,0,0,0
+Bisagra gabinete derecha,963,232,72,8,7,24,magnet,removable,Herraje o fijación de un componente removible para inspección sin dañar la maqueta.,0,0,0
+Bandeja antiderrame,18,58,10,106,106,4,blue_light,water,Bandeja separada de la electrónica,0,0,0
+Drenaje bandeja,18,109,10,22,8,6,water,water,Salida hacia borde exterior,0,0,0
+Tallo planta 48,51,333,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 48,41,327,92,20,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 48,49,337,108,22,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 88,91,333,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 88,81,327,92,20,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 88,89,337,108,22,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 172,175,333,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 172,165,327,92,20,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 172,173,337,108,22,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 212,215,333,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 212,205,327,92,20,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 212,213,337,108,22,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Bus 5V canal técnico,295,38,29,670,4,4,cable_power,power,Ruta 5 V DC; consultar tabla de cableado validada,0,0,0
+Bus GND canal técnico,295,46,29,670,4,4,cable_ground,power,Retorno común GND,0,0,0
+Señal gabinete-casa,705,54,31,250,4,4,signal,signal,Ruta lógica; sin asignar GPIO no verificado,0,0,0
+Señal sensores casa,575,60,33,4,550,4,signal,signal,"DHT11, LDR y PIR",0,0,0
+Alimentación invernadero,245,55,31,4,445,4,cable_power,power,"Bomba, humedad y luz",0,0,0
+Manguera depósito-bomba,103,111,48,30,8,8,water,water,Línea de aspiración,0,0,0
+Manguera principal riego,158,130,48,8,150,8,blue_light,water,Impulsión hacia invernadero,0,0,0
+Chip ESP32-S3,899,343,128,19,14,5,metal,boards,Procesamiento 100 % local,0,0,0
+Conector USB servicio,902,332,70,14,7,8,metal,boards,Solo programación/mantenimiento,0,0,0
+Bornera 5V roja,932,289,79,13,8,8,cable_power,boards,Bus protegido por fusible 3 A,0,0,0
+Bornera GND negra,950,289,79,13,8,8,cable_ground,boards,Retorno común,0,0,0
+Terminal relé CH1,941,326,72,22,8,7,yellow,boards,Canal de actuador,0,0,0
+Terminal relé CH2,941,326,94,22,8,7,yellow,boards,Canal de actuador,0,0,0
+Terminal relé CH3,941,326,116,22,8,7,yellow,boards,Canal de actuador,0,0,0
+Terminal relé CH4,941,326,138,22,8,7,yellow,boards,Canal de actuador,0,0,0

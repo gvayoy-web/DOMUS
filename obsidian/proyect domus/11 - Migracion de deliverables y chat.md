@@ -15,17 +15,17 @@ La carpeta `assets/new/deliverables/execute` contiene el paquete más completo g
 
 | Recurso | Uso recomendado | Estado |
 |---|---|---|
-| `01_FINAL_V2/design/plano_tecnico_domus.pdf` y `.svg` | Medidas, distribución y revisión antes de cortar | Usar como propuesta; medir componentes reales primero |
+| `output/pdf/planos_tecnicos_project_domus.pdf` y `01_FINAL_V2/design/plano_tecnico_domus.svg` | Juego v3 A3: planta, elevaciones, electricidad, riego y montaje | Usar como propuesta; medir componentes reales primero |
 | `01_FINAL_V2/design/lista_corte.csv` | Comprar/cortar base, paredes, techo, torre y gabinete | Usar; ajustar al espesor real |
 | `01_FINAL_V2/design/bom_componentes.csv` | Comparar electrónica prevista con el inventario confirmado | Usar como BOM de diseño, no como inventario de compras |
 | `01_FINAL_V2/design/GUIA_MONTAJE.md` | Orden físico, separación de agua/electrónica y pruebas | Usar |
-| `01_FINAL_V2/design/modelo_3d_interactivo.html` | Exposición y comprobación visual del diseño | Usar offline |
+| `01_FINAL_V2/design/modelo_3d_interactivo.html` | Gemelo digital v3 con ocho vistas, 20 capas e inspector | Usar offline; verificado en escritorio y móvil |
 | `01_FINAL_V2/design/project_domus.obj/.mtl` | Editar o mostrar el modelo 3D | Usar |
-| `01_FINAL_V2/design/project_domus_render.png` | Banner, portada y referencia visual | Usar |
+| `01_FINAL_V2/design/project_domus_render.png`, `project_domus_cutaway.png` y `project_domus_exploded.png` | Banner, interior y secuencia de montaje | Usar |
 | `01_FINAL_V2/simulator/domus_core.py` | Fuente de comportamiento para migrar reglas al ESP32 | Usar como especificación lógica |
 | `01_FINAL_V2/simulator/test_domus.py` | Pruebas de regresión de riego, luces, ventilador y seguridad | Mantener verdes y ampliar |
 | `01_FINAL_V2/ARQUITECTURA_OFFLINE.md` | Decisiones de operación local | Usar, con las correcciones de inventario de esta bóveda |
-| `01_FINAL_V2/VALIDACION.md` | Evidencia de 13 pruebas lógicas y geométricas | Usar con sus límites explícitos |
+| `01_FINAL_V2/VALIDACION.md` | Evidencia de 17 pruebas lógicas y geométricas | Usar con sus límites explícitos |
 
 ## Qué no debe tomarse como diseño final
 
@@ -56,8 +56,8 @@ El BOM de `01_FINAL_V2` describe un sensor capacitivo de suelo y un aro WS2812 d
 
 ### Fase 1 — simulador como contrato
 
-1. Ejecutar las 13 pruebas de `simulator/test_domus.py`.
-2. Añadir casos para los cinco relés, MIC OFF, lectura/escritura microSD y respuestas de Jarvis.
+1. Ejecutar las 17 pruebas de `simulator/test_domus.py`.
+2. Casos para los cinco relés, MIC OFF, lectura/escritura microSD y respuestas de Jarvis: completados en software.
 3. No añadir una regla al firmware si antes no existe un caso reproducible en el simulador.
 
 ### Fase 2 — migración al ESP32-S3
@@ -128,4 +128,4 @@ Antes de proponer una compra o cambiar el plano, comprobar esta bóveda y el inv
 
 ## Próximo paso recomendado
 
-Ejecutar el simulador y cerrar el mapa de GPIO antes de cortar la maqueta. Después comprar solo la fase estable: fuente 5 V, módulo de cuatro relés, fusible, cableado, lector microSD SPI y tarjeta FAT32; Jarvis de voz y el sistema solar quedan detrás de esa prueba.
+Usar el plano v3 y el gemelo digital para presentar la distribución, pero cerrar el mapa de GPIO y medir espesores/componentes físicos antes de cortar o cablear. Después comprar solo la fase estable: fuente 5 V, módulo de cuatro relés, fusible, cableado, lector microSD SPI y tarjeta FAT32; Jarvis de voz y el sistema solar quedan detrás de esa prueba.

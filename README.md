@@ -1,6 +1,6 @@
 # Casa inteligente — Jarvis local v5
 
-Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla sensores, relés, automatización, BLE y la futura voz local de Jarvis. No hay aplicación móvil ni dependencia de internet para las funciones críticas.
+Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla cinco cargas, sensores, automatización local y la futura voz local de Jarvis. No hay aplicación móvil, BLE ni dependencia de internet para las funciones críticas. Los comandos de diagnóstico se aceptan localmente por USB Serial.
 
 ## Estado actual
 
@@ -30,7 +30,7 @@ Ambas frases producen `LUZ_SALA_1_OFF`, apagan el relé y generan una respuesta 
 - Fuente regulada de 5 V/2 A para pruebas.
 - 74AHCT125/74HCT14 recomendado para datos del WS2812B.
 
-Confirma el pinout de la placa antes de soldar. No alimentes altavoz o relés desde 3.3 V del ESP32.
+Confirma el pinout de la placa antes de soldar. GPIO13 (SCL), GPIO9 (PIR) y GPIO2 (nivel de agua) son asignaciones provisionales. No alimentes altavoz o relés desde 3.3 V del ESP32.
 
 ## Compilación
 
@@ -46,6 +46,15 @@ arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,Partitio
 
 La compilación comprueba el software; el pinout, los relés y los sensores aún
 deben validarse físicamente con fuente regulada antes de conectar la fase solar.
+
+La compilación offline actual ocupa 399,078 bytes de programa y 24,948 bytes
+de memoria global. Los binarios generados están en `build/firmware/`.
+
+## Comandos locales por USB
+
+El monitor Serial debe usar 115200 baudios y enviar cada orden con salto de línea.
+Admite las órdenes ON/OFF/AUTO de las cinco cargas, además de `ESTADO`,
+`DIAGNOSTICO`, `PARO`, `REARMAR`, `MIC_ESTADO` y `SD_PRUEBA`.
 
 ## Servicios Wi‑Fi opcionales
 

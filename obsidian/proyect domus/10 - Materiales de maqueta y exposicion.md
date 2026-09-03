@@ -8,17 +8,17 @@ actualizado: 2026-09-01
 
 ## Estructura
 
-- Base de 100 × 70 cm: plywood 6–9 mm recomendado; alternativa, doble cartón corrugado con vetas cruzadas.
-- Casa de 60 × 35 cm, paredes de 25 cm de alto y techo removible.
-- Invernadero aproximado de 30 × 45 cm.
-- Torre Jarvis de 15 × 28 cm y bahía electrónica contigua.
-- Entrada cubierta de 31 × 25 cm.
+- Base de 100 × 65 cm: MDF de 12 mm según la lista de corte vigente; alternativa provisional, doble cartón corrugado con vetas cruzadas.
+- Vivienda de 43 × 32.5 cm, paredes de 22.5 cm de alto y techo removible de 44.6 × 34.1 cm.
+- Invernadero de 25 × 35 cm.
+- Torre Jarvis de 10.5 × 29 cm y bahía electrónica contigua.
+- Entrada cubierta aproximada de 25 × 19.5 cm.
 
 ## Materiales físicos todavía no confirmados
 
 | Material | Cantidad orientativa | Uso |
 |---|---:|---|
-| Plywood/cartón base | 1 pieza 100×70 cm | Base rígida. |
+| MDF/cartón base | 1 pieza 100×65 cm | Base rígida. |
 | Plywood/cartón paredes | según plano | Casa y divisiones. |
 | Acrílico transparente | 1–2 láminas | Invernadero y tapa electrónica. |
 | Listones/bajantes reciclados | lote | Refuerzos y techo. |
@@ -49,12 +49,22 @@ actualizado: 2026-09-01
 ## Qué mostrar al público
 
 1. Sensores reales cambiando valores en LCD.
-2. Una orden manual/BLE que pasa por el mismo despachador que la automatización.
+2. Una orden manual/USB Serial que pasa por el mismo despachador que la automatización.
 3. Riego por humedad con corte seguro.
 4. Funcionamiento local al desconectar Wi-Fi.
-5. Jarvis solo si supera las pruebas; de lo contrario, explicar su arquitectura y usar respaldo de botón/BLE.
+5. Jarvis solo si supera las pruebas; de lo contrario, explicar su arquitectura y usar respaldo de botón/USB Serial.
 6. Ruta de energía visible y separada del agua.
 7. Panel solar presentado como recarga medida, no decoración ni autosuficiencia inventada.
+8. Gemelo digital v3 en la vista Radiografía para explicar agua, energía, señal, sensores y piezas removibles.
+9. Juego de planos A3 v3 abierto en planta, esquema eléctrico o riego según la explicación del momento.
+
+## Recursos visuales terminados
+
+- Visor offline: `assets/new/deliverables/execute/01_FINAL_V2/design/modelo_3d_interactivo.html`.
+- Plano A3 de seis páginas: `output/pdf/planos_tecnicos_project_domus.pdf`.
+- Capturas verificadas: `visor_desktop_1440x900.png`, `visor_mobile_390x844.png` y `visor_mobile_390x844_cerrado.png`.
+- Renders: general, interior sin techo y vista explotada dentro de `01_FINAL_V2/design`.
+- Modelo editable: `project_domus.obj` y `project_domus.mtl`.
 
 ## Etiquetas recomendadas
 
@@ -68,4 +78,3 @@ actualizado: 2026-09-01
 - Relés — separación entre control y cargas.
 - Jarvis — voz local limitada y segura.
 - Fusible / corte general — seguridad.
-

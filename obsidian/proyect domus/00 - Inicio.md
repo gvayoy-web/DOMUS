@@ -31,6 +31,7 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 8. [[08 - Errores y contradicciones encontradas]]
 9. [[09 - Plan de montaje y pruebas]]
 10. [[10 - Materiales de maqueta y exposicion]]
+11. [[12 - Bitacora de implementacion]]
 
 ## Regla de control
 

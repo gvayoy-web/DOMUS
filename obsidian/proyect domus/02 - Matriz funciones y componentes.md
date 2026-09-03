@@ -25,7 +25,7 @@ actualizado: 2026-09-01
 | Jarvis habla | PicoTTS + MAX98357A + altavoz | Parcial | PoC existe; falta hardware e integración. |
 | Aro azul | WS2812 + 330 Ω + desacoplo | Sí/Parcial | Tira y resistencia sí; adaptar nivel lógico es recomendado. |
 | Respaldo de voz MP3 | DFPlayer + microSD + altavoz | Parcial | DFPlayer sí; tarjeta y salida de audio no. Es opcional. |
-| BLE | ESP32-S3 | Sí | Firmware preparado; validar con cliente BLE. |
+| Diagnóstico local | USB Serial del ESP32-S3 | Sí | Comandos y respuestas locales sin aplicación ni radio. |
 | Wi-Fi/MQTT | ESP32-S3 + router | Sí en hardware | Software opcional pendiente. |
 | Solar | panel, cargador solar, batería, protección y elevador | No | Fase posterior a medición. |
 
@@ -53,5 +53,4 @@ Asignación recomendada:
 
 ## Qué se mostrará aunque Jarvis aún no esté listo
 
-La demostración mínima defendible funciona con LCD, DHT, LDR, humedad de suelo, bomba, ventilador, luces, botones/BLE y reglas locales. Jarvis se habilita únicamente después de validar micrófono, modelo y audio.
-
+La demostración mínima defendible funciona con LCD, DHT, LDR, humedad de suelo, bomba, ventilador, luces, botones/USB Serial y reglas locales. Jarvis se habilita únicamente después de validar micrófono, modelo y audio.

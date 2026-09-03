@@ -25,12 +25,12 @@ actualizado: 2026-09-01
 ## Fase 2 — corregir firmware base
 
 - [ ] Sustituir GPIO22 por un pin válido confirmado en la placa.
-- [ ] Cambiar de ocho relés a cinco.
-- [ ] Eliminar/deshabilitar sensor de viento inexistente.
-- [ ] Adaptar humedad de suelo resistiva.
-- [ ] Añadir PIR.
-- [ ] Añadir nivel de agua.
-- [ ] Compilar con LCD como pantalla real.
+- [x] Cambiar de ocho relés a cinco en software.
+- [x] Eliminar/deshabilitar sensor de viento inexistente.
+- [x] Adaptar el firmware al sensor de humedad de suelo resistivo; calibración física pendiente.
+- [x] Añadir lógica PIR con GPIO9 provisional; prueba física pendiente.
+- [x] Añadir nivel de agua con GPIO2 y umbral provisionales; prueba física pendiente.
+- [x] Compilar con LCD1602 como única pantalla; prueba física pendiente.
 
 ## Fase 3 — pruebas de cinco funciones
 
@@ -72,4 +72,4 @@ actualizado: 2026-09-01
 - [ ] Paño absorbente y bandeja bajo depósito.
 - [ ] Firmware y video corto de respaldo.
 - [ ] LCD muestra estado aunque falle Jarvis.
-- [ ] Botón/BLE ejecuta la misma orden si falla el micrófono.
+- [x] Botón/USB Serial usa el mismo despachador si falla el micrófono; prueba física pendiente.

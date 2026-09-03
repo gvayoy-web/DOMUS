@@ -35,10 +35,7 @@ jobs:
           arduino-cli config set network.connection_timeout 240s
           arduino-cli core update-index
           arduino-cli core install esp32:esp32@3.3.10
-          arduino-cli lib install "NimBLE-Arduino@2.5.1"
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
-          arduino-cli lib install "Adafruit GFX Library@1.12.6"
-          arduino-cli lib install "Adafruit SSD1306@2.5.17"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
 

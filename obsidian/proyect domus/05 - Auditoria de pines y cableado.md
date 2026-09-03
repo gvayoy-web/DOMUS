@@ -11,28 +11,29 @@ actualizado: 2026-09-01
 | Función | GPIO actual | Auditoría |
 |---|---:|---|
 | Humedad suelo | 1 | Disponible; el sensor real es resistivo, no capacitivo. |
-| “Viento” | 2 | No hay sensor de viento confirmado. Debe deshabilitarse o reasignarse al nivel de agua. |
+| Nivel de agua | 2 | Reasignado en software; entrada analógica provisional y umbral pendiente de calibrar. |
 | LDR | 3 | Disponible; usar divisor con 10 kΩ. |
-| Relés | 4–11 | El código reserva ocho, pero físicamente solo se necesitan cinco. |
+| Relés | 4–8 | Cinco cargas lógicas: bomba, sala, dormitorio, ventilador e invernadero. |
+| PIR | 9 | Entrada digital provisional; confirmar nivel activo y pin expuesto. |
 | DHT11 | 14 | Disponible. |
 | INMP441 WS/SD/SCK | 15/16/17 | Provisional; falta hardware. |
 | DFPlayer RX/TX | 18/19 | DFPlayer está deshabilitado. GPIO19 puede interferir con USB nativo en algunos montajes S3. |
 | I2C SDA | 21 | GPIO válido. |
-| I2C SCL | 22 | **ERROR CRÍTICO: GPIO22 no existe en ESP32-S3.** |
+| I2C SCL | 13 | Sustituye a GPIO22 en software; confirmar que está expuesto antes de cablear. |
 
 ## Problemas que deben resolverse antes de cablear
 
-1. Cambiar I2C SCL a un GPIO realmente expuesto en tu placa.
+1. Confirmar físicamente que GPIO13 está expuesto y usarlo como I2C SCL, o reasignarlo.
 2. Confirmar la serigrafía/pinout exacto del DevKitC N16R8; no asumir que todos los GPIO del chip están disponibles.
-3. Reducir los relés físicos a cinco y liberar tres GPIO.
-4. Asignar pines a PIR y nivel de agua; hoy no existen en el firmware.
-5. Decidir si se elimina por completo el “sensor de viento”. El motor con aspa no es automáticamente un anemómetro calibrado.
+3. Verificar las cinco salidas de relé ya reducidas en software.
+4. Validar GPIO9 para PIR y GPIO2 para nivel de agua con los módulos reales.
+5. El “sensor de viento” ya fue eliminado del firmware; no reintroducirlo sin hardware real.
 6. Reservar tres GPIO para salida MAX98357A. El PoC propone 40/41/42 como valores iniciales, no definitivos.
 7. Asignar WS2812 sin usar un pin de arranque o un pin ocupado por USB/flash/PSRAM.
 8. Mantener tierra común entre ESP32, relés, sensores, MAX98357A y fuente.
 
 > [!DANGER]
-> No construir el mazo final usando el mapa actual: GPIO22 hace imposible el I2C tal como está escrito.
+> No construir el mazo final hasta confirmar GPIO13, GPIO9 y GPIO2 en la serigrafía de la placa. El error de GPIO22 ya fue retirado del software.
 
 ## Reglas eléctricas
 
@@ -47,4 +48,3 @@ actualizado: 2026-09-01
 ## Distribución sugerida de relés
 
 El relé de un canal existente controla la bomba. El nuevo módulo de cuatro canales controla sala, dormitorio, ventilador e invernadero. No controlar tensión de red en la exposición; todas las cargas serán de baja tensión.
-

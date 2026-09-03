@@ -1,6 +1,6 @@
 # Compilación validada del firmware doméstico
 
-Fecha: 1 de septiembre de 2026.
+Fecha de última validación: 2 de septiembre de 2026.
 
 La fase de compilación del núcleo doméstico se validó en GitHub Actions para
 la placa ESP32-S3 N16R8. Esta prueba confirma que el programa y sus dependencias
@@ -19,23 +19,27 @@ son compatibles; no sustituye las pruebas eléctricas con la placa conectada.
 
 ## Dependencias fijadas
 
-- NimBLE-Arduino 2.5.1.
 - LiquidCrystal I2C 1.1.2.
-- Adafruit GFX Library 1.12.6.
-- Adafruit SSD1306 2.5.17.
 - DHT sensor library 1.4.7.
 - Adafruit Unified Sensor 1.1.15.
 
-## Resultado
+## Resultado actual
 
-- Programa: 650,223 bytes de 3,145,728 bytes disponibles, aproximadamente 20 %.
-- Memoria dinámica global: 35,200 bytes de 327,680, aproximadamente 10 %.
+- Programa: 399,078 bytes de 3,145,728 bytes disponibles, aproximadamente 12 %.
+- Memoria dinámica global: 24,948 bytes de 327,680, aproximadamente 7 %.
+- Binario principal: 399,232 bytes.
+- SHA-256: `FBF52C10664BBF1400045FF52B11EC98F894AFFCC543D5DACAF2EF280D5F3D10`.
 - Resultado de GitHub Actions: compilación y generación de binarios correctas.
 - Ejecución final de referencia: https://github.com/gvayoy-web/proyecto-domus/actions/runs/33523880928
 
-Los avisos restantes proceden de LiquidCrystal I2C y del core de Espressif al
-compilar con `--warnings all`; no impiden generar el firmware. La llamada
-obsoleta `NimBLEService::start()` sí pertenecía al proyecto y fue eliminada.
+La versión actual incluye cinco cargas, PIR, nivel de agua, `MANUAL_OFF`, paro
+de emergencia, MIC OFF, control por USB Serial y soporte microSD. Se compiló
+localmente con Arduino CLI 1.5.1 y Arduino-ESP32 3.3.10. Los binarios quedaron
+en `build/firmware/`.
+
+El aviso final procede de los metadatos de LiquidCrystal I2C 1.1.2, que declara
+solo arquitectura AVR aunque compila para ESP32. No quedaron advertencias del
+archivo principal al repetir la compilación con `--warnings all`.
 
 ## Siguiente prueba física
 

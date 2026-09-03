@@ -71,6 +71,10 @@ class DomusCore:
     events: List[Event] = field(default_factory=list)
     pump_started_s: Optional[float] = None
     last_presence_s: Optional[float] = None
+    storage_mounted: bool = False
+    storage_files: Dict[str, str] = field(default_factory=dict)
+    last_response: str = ""
+    emergency_active: bool = False
 
     def log(self, level: str, message: str) -> None:
         if self.events and self.events[-1].message == message:
@@ -88,6 +92,10 @@ class DomusCore:
         self.log("ACT", f"{actuator.value}: {'ON' if enabled else 'OFF'} — {reason}")
 
     def set_mode(self, actuator: Actuator, mode: Mode) -> None:
+        if self.emergency_active and mode == Mode.MANUAL_ON:
+            self._set_state(actuator, False, "bloqueada por paro de emergencia")
+            self.log("SAFE", f"Orden rechazada para {actuator.value}: emergencia activa")
+            return
         self.modes[actuator] = mode
         self.log("MODE", f"{actuator.value} → {mode.value}")
         if mode == Mode.MANUAL_ON:
@@ -103,9 +111,17 @@ class DomusCore:
         self.set_mode(actuator, Mode.AUTO)
         self.evaluate()
 
-    def apply_local_command(self, intent: str, confidence: float = 1.0) -> bool:
-        """Aplica una intención local de botones o Jarvis, sin transporte de red."""
-        if confidence < self.thresholds.voice_min_confidence:
+    def apply_local_command(
+        self, intent: str, confidence: float = 1.0, *, from_voice: bool = True
+    ) -> bool:
+        """Aplica una intención de Jarvis o un control físico, sin red."""
+        self.last_response = ""
+        if from_voice and not self.sensors.mic_enabled:
+            self.last_response = "Micrófono desactivado."
+            self.log("VOICE", "Orden ignorada: MIC OFF")
+            return False
+        if from_voice and confidence < self.thresholds.voice_min_confidence:
+            self.last_response = "No entendí la orden."
             self.log("VOICE", f"Orden rechazada por confianza baja ({confidence:.2f})")
             return False
         mapping = {
@@ -127,10 +143,44 @@ class DomusCore:
         }
         target = mapping.get(intent.strip().upper())
         if target is None:
+            self.last_response = "No entendí la orden."
             self.log("VOICE", f"Intención desconocida: {intent}")
             return False
+        if self.emergency_active and target[1] == Mode.MANUAL_ON:
+            self.last_response = "No puedo encender dispositivos: paro de emergencia activo."
+            self.log("SAFE", "Orden rechazada: paro de emergencia activo")
+            return False
         self.set_mode(*target)
+        actuator, mode = target
+        if mode == Mode.AUTO:
+            self.last_response = f"{actuator.value} volvió a modo automático."
+        elif self.states[actuator]:
+            self.last_response = f"He encendido {actuator.value}."
+        elif actuator == Actuator.PUMP and not self._water_available():
+            self.last_response = "No puedo regar: el depósito no tiene agua suficiente."
+        else:
+            self.last_response = f"He apagado {actuator.value}."
         return True
+
+    def mount_storage(self, available: bool = True) -> bool:
+        """Simula el lector microSD independiente del ESP32."""
+        self.storage_mounted = available
+        self.log("SD", "microSD montada" if available else "microSD no disponible")
+        return self.storage_mounted
+
+    def write_storage(self, path: str, content: str) -> bool:
+        if not self.storage_mounted or not path:
+            self.log("SD", "Escritura rechazada: microSD no montada o ruta vacía")
+            return False
+        self.storage_files[path] = content
+        self.log("SD", f"Archivo escrito: {path}")
+        return True
+
+    def read_storage(self, path: str) -> Optional[str]:
+        if not self.storage_mounted:
+            self.log("SD", "Lectura rechazada: microSD no montada")
+            return None
+        return self.storage_files.get(path)
 
     def _water_available(self) -> bool:
         level = self.sensors.water_level_pct
@@ -210,6 +260,10 @@ class DomusCore:
             self._set_state(Actuator.BEDROOM_LIGHT, False, "AUTO seguro sin presencia dedicada")
 
     def evaluate(self) -> None:
+        if self.emergency_active:
+            for actuator in Actuator:
+                self._set_state(actuator, False, "PARO DE EMERGENCIA")
+            return
         self._evaluate_pump()
         self._evaluate_fan()
         self._evaluate_lights()
@@ -221,10 +275,16 @@ class DomusCore:
         self.evaluate()
 
     def emergency_stop(self) -> None:
+        self.emergency_active = True
         for actuator in Actuator:
             self.modes[actuator] = Mode.MANUAL_OFF
             self._set_state(actuator, False, "PARO DE EMERGENCIA")
         self.log("SAFE", "Todos los actuadores apagados")
+
+    def rearm_emergency(self) -> None:
+        """Libera el bloqueo, sin encender cargas ni cambiar MANUAL_OFF."""
+        self.emergency_active = False
+        self.log("SAFE", "Emergencia rearmada; actuadores permanecen apagados")
 
     def reset(self) -> None:
         self.time_s = 0.0
@@ -233,6 +293,8 @@ class DomusCore:
         self.events.clear()
         self.pump_started_s = None
         self.last_presence_s = None
+        self.last_response = ""
+        self.emergency_active = False
         self.log("BOOT", "Arranque seguro: todas las salidas apagadas")
 
     def snapshot(self) -> dict:
@@ -242,4 +304,7 @@ class DomusCore:
             "states": {a.name: self.states[a] for a in Actuator},
             "modes": {a.name: self.modes[a].value for a in Actuator},
             "last_event": self.events[-1].message if self.events else "",
+            "last_response": self.last_response,
+            "storage_mounted": self.storage_mounted,
+            "emergency_active": self.emergency_active,
         }

@@ -1,6 +1,6 @@
 /*
   ============================================================================
-  CASA INTELIGENTE AUTOSOSTENIBLE - FIRMWARE v5 (JARVIS LOCAL + BLE + WIFI)
+  PROJECT DOMUS - FIRMWARE v6 OFFLINE
   ============================================================================
   Placa: ESP32-S3 N16R8 (16MB Flash / 8MB PSRAM OPI)
   Autor: Isaac | Proyecto de feria de ciencias
@@ -19,20 +19,14 @@
   para variantes S3. Es decir: v3 no podía funcionar en este hardware, sin
   importar cuánto se depurara el resto del código.
 
-  v4 reemplaza toda la capa de comunicación por BLE GATT (NimBLE-Arduino),
-  manteniendo el mismo vocabulario de comandos de texto (RIEGO_ON, ESTADO, etc.).
+  v6 elimina las dependencias de aplicación móvil y BLE. El mismo vocabulario
+  de comandos (RIEGO_ON, ESTADO, etc.) queda disponible localmente por USB
+  Serial para diagnóstico y pruebas, además de los controles físicos.
 
-  NOVEDADES DE v3 -> v4:
-    - BLE GATT en vez de Bluetooth Classic: única forma de que este código
-      corra en un ESP32-S3 real. Un solo servicio con dos características:
-      una donde el celular escribe comandos (WRITE) y otra donde el ESP32
-      notifica respuestas (NOTIFY) - el celular se suscribe a esa notificación.
+  CAMBIOS PRINCIPALES DE v6:
     - ACK/NACK REAL POR COMANDO: cada comando de control ahora responde
       "ACK;<comando>;<estado_logico_gpio>" o "NACK;<comando>;<motivo>"
-      inmediatamente, en vez de depender de que la app adivine comparando
-      snapshots de ESTADO. Esto resuelve el problema #6 del feedback: ya
-      no se confirman comandos "por casualidad" cuando llega cualquier
-      ESTADO no relacionado.
+      inmediatamente por Serial, sin transporte de red.
     - HUMEDAD CALIBRADA EN PORCENTAJE: además del valor crudo ADC, el
       firmware ahora expone HUM_PCT (0-100%) usando dos constantes de
       calibración (tierra seca / tierra húmeda) en vez de mostrar un
@@ -62,7 +56,7 @@
 
   Todo lo de v3 se mantiene igual: watchdog, verificación de estado lógico
   de relés (renombrada para no prometer más de lo que hace), sistema de
-  errores circular, recuperación I2C, detección automática OLED/LCD,
+  errores circular, recuperación I2C, detección automática del LCD1602,
   riego automático, módulo MP3.
 
   ============================================================================
@@ -74,12 +68,9 @@
     un esquema OTA hasta definir una tabla compatible con los 16 MB de flash.
 
   LIBRERÍAS A INSTALAR (ver versiones exactas probadas en el README):
-    1. "NimBLE-Arduino"      - h2zero (BLE ligero, reemplaza BluetoothSerial)
-    2. "LiquidCrystal I2C"   - Frank de Brabander (para BLOQUE LCD)
-    3. "Adafruit SSD1306"    - Adafruit (para BLOQUE OLED)
-    4. "Adafruit GFX Library"- Adafruit (dependencia de SSD1306)
-    5. "DHT sensor library"  - Adafruit (para el DHT11 de temperatura/humedad)
-    6. "Adafruit Unified Sensor" - Adafruit (dependencia de DHT sensor library)
+    1. "LiquidCrystal I2C"   - Frank de Brabander (para BLOQUE LCD)
+    2. "DHT sensor library"  - Adafruit (para el DHT11 de temperatura/humedad)
+    3. "Adafruit Unified Sensor" - Adafruit (dependencia de DHT sensor library)
 
   VOZ FINAL PENDIENTE:
     - detector TinyML de "Jarvis" + clasificador español int8
@@ -93,9 +84,11 @@
 // hardware. Mientras no exista ese artefacto, el resto de la casa debe seguir
 // compilando y funcionando sin el SDK de voz.
 #define JARVIS_LOCAL_HABILITADO false
+#define MICROSD_HABILITADA false
 
 #include <Wire.h>
-#include <NimBLEDevice.h>
+#include <SPI.h>
+#include <SD.h>
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
@@ -107,10 +100,8 @@
 #include "esp_task_wdt.h"   // watchdog de hardware
 #include "esp_system.h"     // esp_get_free_heap_size(), esp_restart()
 
-// ---- Librerías de pantalla (ambos bloques, se usa el que corresponda) ----
-#include <LiquidCrystal_I2C.h>      // ==== BLOQUE LCD ====
-#include <Adafruit_GFX.h>           // ==== BLOQUE OLED ====
-#include <Adafruit_SSD1306.h>       // ==== BLOQUE OLED ====
+// ---- Pantalla oficial del proyecto ----
+#include <LiquidCrystal_I2C.h>
 
 // ---- Sensor de temperatura/humedad ambiental ----
 #include <DHT.h>                    // "DHT sensor library" de Adafruit (DHT11/DHT22)
@@ -118,16 +109,12 @@
 // ============================================================================
 // SECCIÓN 1: MAPA DE PINES - REVISAR/CALIBRAR A MANO
 // ============================================================================
-// A diferencia de v3: con BLE (no Bluetooth Classic) el ADC2 NO se desactiva,
-// pero se mantienen los sensores en pines ADC1 de todas formas por ser más
-// estables y porque ya está cableado así en el kit.
+// Los sensores analógicos permanecen en ADC1 para reducir conflictos.
 
 // --- Bus I2C compartido (pantalla, sea cual sea) ---
 #define I2C_SDA_PIN     21   // GPIO21
-#define I2C_SCL_PIN     22   // GPIO22
+#define I2C_SCL_PIN     13   // GPIO13 provisional: confirmar que está expuesto antes de cablear
 // Direcciones esperadas (se detectan automáticamente, no hace falta tocarlas):
-#define DIR_OLED_1      0x3C
-#define DIR_OLED_2      0x3D
 #define DIR_LCD_1       0x27
 #define DIR_LCD_2       0x3F
 
@@ -139,12 +126,13 @@
 //   VDD -> 3.3V (¡JAMÁS 5V, se quema el chip!)   GND -> GND   L/R -> GND
 
 // --- Sensores analógicos (ADC1) ---
-#define PIN_HUMEDAD     1    // GPIO1 - ADC1_CH0 (humedad de TIERRA, capacitivo)
-#define PIN_VIENTO      2    // GPIO2 - ADC1_CH1
+#define PIN_HUMEDAD     1    // GPIO1 - ADC1_CH0 (humedad de TIERRA, sensor resistivo)
+#define PIN_NIVEL_AGUA  2    // GPIO2 - ADC1_CH1 (salida analogica del sensor de nivel)
 #define PIN_LDR         3    // GPIO3 - ADC1_CH2 (fotoresistor / luz ambiental)
-// RECORDATORIO FÍSICO: el motor DC del sensor de viento SIEMPRE debe pasar
-// primero por el divisor de voltaje (resistencias del kit, ej. 10k+10k) o el
-// diodo Zener de 3.3V antes de tocar este pin. Nunca directo.
+#define PIN_PIR         9    // GPIO9 - salida digital del sensor de presencia
+#define PIN_PARO_EMERGENCIA 10 // pulsador a GND, INPUT_PULLUP
+#define PIN_MIC_OFF          11 // switch a GND: LOW = microfono bloqueado
+#define PIN_BOTON_DEMO       12 // pulsador a GND: alterna la luz de sala
 // RECORDATORIO FÍSICO (LDR): el fotoresistor va en divisor de voltaje con
 // una resistencia fija (típicamente 10k) entre 3.3V y GND; PIN_LDR lee el
 // punto medio del divisor, nunca el LDR solo contra 3.3V.
@@ -156,25 +144,22 @@
 #define TIPO_DHT        DHT11
 DHT dht(PIN_DHT11, TIPO_DHT);
 
-// --- Módulo de relés de 8 canales (5V, activo en LOW en la mayoría) ---
+// --- Cinco cargas: relé existente para bomba + módulo nuevo de 4 canales ---
 #define RELE_ACTIVO_EN_LOW true   // CALIBRAR: cambiar a false si tu módulo es al revés
+#define CANTIDAD_RELES 5
 
 #define PIN_RELE_BOMBA           4
 #define PIN_RELE_LUZ_SALA        5
 #define PIN_RELE_LUZ_CUARTO      6
 #define PIN_RELE_VENTILADOR      7
 #define PIN_RELE_LUZ_INVERNADERO 8
-#define PIN_RELE_LIBRE_1         9
-#define PIN_RELE_LIBRE_2         10
-#define PIN_RELE_LIBRE_3         11
-
-const int PINES_RELES[8] = {
+const int PINES_RELES[CANTIDAD_RELES] = {
   PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO, PIN_RELE_VENTILADOR,
-  PIN_RELE_LUZ_INVERNADERO, PIN_RELE_LIBRE_1, PIN_RELE_LIBRE_2, PIN_RELE_LIBRE_3
+  PIN_RELE_LUZ_INVERNADERO
 };
-const char* NOMBRES_RELES[8] = {
+const char* NOMBRES_RELES[CANTIDAD_RELES] = {
   "Bomba", "Luz Sala", "Luz Cuarto", "Ventilador",
-  "Luz Inv.", "Libre1", "Libre2", "Libre3"
+  "Luz Inv."
 };
 
 // --- Módulo MP3 (DFPlayer / TF-16P) - respuestas habladas, OPCIONAL ---
@@ -195,18 +180,18 @@ const char* NOMBRES_RELES[8] = {
 // en tierra recién regada y anota el número en HUMEDAD_LECTURA_HUMEDA.
 // El firmware convierte cualquier lectura entre esos dos extremos a un
 // porcentaje 0-100% (0% = tan seco como tu medición seca, 100% = tan húmedo
-// como tu medición húmeda). Los sensores capacitivos típicos dan MENOS
-// voltaje (número más bajo) cuanta más humedad hay, por eso "seca" suele ser
-// el número MÁS ALTO. Si tu sensor es al revés, simplemente estos dos
-// números quedan invertidos y la fórmula se ajusta sola.
+// como tu medición húmeda). El sensor confirmado es resistivo; la polaridad
+// exacta se determina con estas dos mediciones y la fórmula acepta ambos casos.
 #define HUMEDAD_LECTURA_SECA     2800   // ADC crudo en tierra seca (0% humedad)
 #define HUMEDAD_LECTURA_HUMEDA   1200   // ADC crudo en tierra recién regada (100%)
 #define UMBRAL_HUMEDAD_SECA_PCT  35     // el riego automático se activa por debajo de este %
 
 #define HUMEDAD_MIN_VALIDA      50     // por debajo/encima de este rango, se asume
 #define HUMEDAD_MAX_VALIDA      4095   // sensor desconectado o en corto -> se ignora
-#define VIENTO_MIN_VALIDO       0
-#define VIENTO_MAX_VALIDO       4095
+#define NIVEL_AGUA_MIN_VALIDO          0
+#define NIVEL_AGUA_MAX_VALIDO          4095
+#define NIVEL_AGUA_MINIMO_CRUDO        600 // PROVISIONAL: calibrar con deposito casi vacio
+#define PIR_RETENCION_MS              30000UL
 
 // Calibración del LDR (fotoresistor), mismo principio que la humedad de
 // tierra: dos lecturas de referencia se convierten a un 0-100% de luz.
@@ -218,6 +203,7 @@ const char* NOMBRES_RELES[8] = {
 #define LDR_MIN_VALIDO          0
 #define LDR_MAX_VALIDO          4095
 #define UMBRAL_LUZ_OSCURO_PCT   25     // por debajo de este % se considera "oscuro" para automatización
+#define UMBRAL_LUZ_CLARO_PCT    40     // histéresis: apagar solo al superar este valor
 
 // DHT11: rango físico real del sensor (fuera de esto, se descarta la lectura)
 #define DHT_TEMP_MIN_VALIDA_C    0.0
@@ -227,7 +213,7 @@ const char* NOMBRES_RELES[8] = {
 #define DHT_INTERVALO_LECTURA_MS 2500   // el DHT11 no soporta lecturas más rápidas que ~1s, se deja margen
 
 // Ventilador automático por temperatura ambiental (además de su control
-// manual por BLE/voz, igual que el riego automático respeta el modo manual)
+// manual por controles físicos/Serial/voz, igual que el riego automático)
 #define UMBRAL_TEMP_ALTA_C       28.0   // por encima de esto, se enciende el ventilador solo
 
 // Anti-rebote de voz: exige que el mismo comando no se repita antes de este
@@ -255,41 +241,42 @@ const char* NOMBRES_RELES[8] = {
 #define I2C_MAX_REINTENTOS      3
 #define I2C_ESPERA_REINTENTO_MS 150
 
-// --- BLE ---
-#define BLE_NOMBRE_DISPOSITIVO  "CasaInteligente"
-// UUIDs propios (generados para este proyecto, no son estándar de ningún
-// perfil BLE conocido - es lo correcto para un servicio custom).
-#define BLE_UUID_SERVICIO       "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
-#define BLE_UUID_CARAC_ESCRITURA "6e400002-b5a3-f393-e0a9-e50e24dcca9e" // celular -> ESP32
-#define BLE_UUID_CARAC_NOTIFICAR "6e400003-b5a3-f393-e0a9-e50e24dcca9e" // ESP32 -> celular
+// --- Lector microSD SPI independiente (pines provisionales) ---
+#define SD_SCK_PIN   38
+#define SD_MISO_PIN  39
+#define SD_MOSI_PIN  47
+#define SD_CS_PIN    48
 
 // ============================================================================
 // SECCIÓN 3: OBJETOS GLOBALES
 // ============================================================================
 HardwareSerial SerialMP3(1); // UART1 para el módulo MP3
-
-// ---- BLE ----
-NimBLEServer* servidorBLE = nullptr;
-NimBLECharacteristic* caracNotificar = nullptr;
-volatile bool clienteBleConectado = false;
+SPIClass spiMicroSD(FSPI);
+bool microSdMontada = false;
+String bufferComandoSerial;
+bool micHabilitado = true;
+bool paroEmergenciaActivo = false;
+bool ultimoBotonDemo = HIGH;
+unsigned long ultimoCambioBotonDemoMs = 0;
 
 // ---- Pantalla: solo se crea el objeto del tipo que se detectó ----
-enum TipoPantalla { PANTALLA_NINGUNA, PANTALLA_OLED, PANTALLA_LCD };
+enum TipoPantalla { PANTALLA_NINGUNA, PANTALLA_LCD };
 TipoPantalla pantallaActiva = PANTALLA_NINGUNA;
 
-LiquidCrystal_I2C* lcd = nullptr;                       // ==== BLOQUE LCD ====
-Adafruit_SSD1306* oled = nullptr;                        // ==== BLOQUE OLED ====
-#define OLED_ANCHO 128
-#define OLED_ALTO  64   // cambiar a 32 si tu OLED es de 128x32
-#define OLED_RESET -1
+LiquidCrystal_I2C* lcd = nullptr;
 
-// Estado de los 8 relés
-bool estadoReles[8] = {false, false, false, false, false, false, false, false};
+// Estado de las cinco cargas físicas del diseño vigente.
+bool estadoReles[CANTIDAD_RELES] = {false, false, false, false, false};
 
-// Toda fuente de control pasa por el mismo contrato. Esto evita que BLE,
-// automatización y voz mantengan estados incompatibles entre sí.
+// Toda fuente de control pasa por el mismo contrato. Esto evita que controles
+// físicos, Serial, automatización y voz mantengan estados incompatibles.
 enum OrigenOrden { ORIGEN_SISTEMA, ORIGEN_MANUAL, ORIGEN_AUTOMATICO, ORIGEN_VOZ, ORIGEN_WIFI };
-enum PropietarioActuador { PROPIETARIO_NINGUNO, PROPIETARIO_MANUAL, PROPIETARIO_AUTOMATICO };
+enum PropietarioActuador {
+  PROPIETARIO_NINGUNO,
+  PROPIETARIO_MANUAL_ON,
+  PROPIETARIO_MANUAL_OFF,
+  PROPIETARIO_AUTOMATICO
+};
 
 struct OrdenActuador {
   int indiceRele;
@@ -305,9 +292,9 @@ struct ResultadoOrden {
   const char* motivo;
 };
 
-PropietarioActuador propietarioReles[8] = {
-  PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO,
-  PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO
+PropietarioActuador propietarioReles[CANTIDAD_RELES] = {
+  PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO,
+  PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO
 };
 unsigned long bombaEncendidaDesdeMs = 0;
 
@@ -328,7 +315,9 @@ unsigned long inicioVentanaEscuchaMs = 0;
 // Últimas lecturas válidas de sensores (para no mostrar basura si un sensor
 // falla momentáneamente)
 int ultimaHumedadValida = -1;       // ADC crudo, humedad de TIERRA
-int ultimoVientoValido = -1;
+int ultimoNivelAguaValido = -1;
+bool ultimaPresenciaValida = false;
+unsigned long ultimaPresenciaMs = 0;
 int ultimoHumedadPctValido = -1;    // % calibrado, humedad de TIERRA
 int ultimoLdrCrudoValido = -1;
 int ultimoLuzPctValido = -1;        // % calibrado, luz ambiental (LDR)
@@ -350,7 +339,12 @@ int indiceErrorActual = 0;
 unsigned long totalErroresAcumulados = 0; // contador histórico, no se resetea al sobreescribir
 
 void log(const String &etiqueta, const String &mensaje);
-void enviarPorBLE(const String &linea); // adelantado, se define en Sección 11
+void emitirEventoLocal(const String &linea);
+bool leerNivelAgua(int &valorSalida);
+bool probarMicroSD();
+void registrarLineaMicroSD(const String &linea);
+void activarParoEmergencia(const char* motivo);
+bool rearmarSistema();
 
 void registrarError(const String &origen, const String &mensaje) {
   String completo = origen + ": " + mensaje;
@@ -377,7 +371,7 @@ String construirReporteDiagnostico() {
   r += "MEM_LIBRE=" + String(esp_get_free_heap_size()) + ";";
   r += "ERRORES_TOTAL=" + String(totalErroresAcumulados) + ";";
   r += "ULTIMO_ERROR=" + (obtenerUltimoError().length() > 0 ? obtenerUltimoError() : "ninguno") + ";";
-  r += "PANTALLA=" + String(pantallaActiva == PANTALLA_OLED ? "OLED" : (pantallaActiva == PANTALLA_LCD ? "LCD" : "NINGUNA")) + ";";
+  r += "PANTALLA=" + String(pantallaActiva == PANTALLA_LCD ? "LCD" : "NINGUNA") + ";";
   return r;
 }
 
@@ -406,10 +400,62 @@ void log(const String &etiqueta, const String &mensaje) {
 }
 
 // ============================================================================
-// SECCIÓN 6: DETECCIÓN AUTOMÁTICA DE PANTALLA (I2C SCAN)
+// SECCIÓN 5B: ALMACENAMIENTO MICROSD LOCAL
 // ============================================================================
-bool escanearBusI2C(bool &hayOled, bool &hayLcd, uint8_t &dirOled, uint8_t &dirLcd) {
-  hayOled = false;
+void registrarLineaMicroSD(const String &linea) {
+  if (!microSdMontada) return;
+  File archivo = SD.open("/domus.log", FILE_APPEND);
+  if (!archivo) return;
+  archivo.print(millis());
+  archivo.print(';');
+  archivo.println(linea);
+  archivo.close();
+}
+
+bool probarMicroSD() {
+  if (!microSdMontada) return false;
+  const char* ruta = "/domus_selftest.txt";
+  const char* marca = "PROJECT_DOMUS_SD_OK";
+
+  SD.remove(ruta);
+  File salida = SD.open(ruta, FILE_WRITE);
+  if (!salida) return false;
+  salida.println(marca);
+  salida.close();
+
+  File entrada = SD.open(ruta, FILE_READ);
+  if (!entrada) return false;
+  String contenido = entrada.readStringUntil('\n');
+  entrada.close();
+  contenido.trim();
+  return contenido == marca;
+}
+
+void inicializarMicroSD() {
+  if (!MICROSD_HABILITADA) {
+    log("SD", "Deshabilitada hasta confirmar lector y pines SPI");
+    return;
+  }
+
+  spiMicroSD.begin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+  microSdMontada = SD.begin(SD_CS_PIN, spiMicroSD, 4000000U);
+  if (!microSdMontada) {
+    registrarError("SD", "No se pudo montar la tarjeta FAT16/FAT32");
+    return;
+  }
+
+  if (!probarMicroSD()) {
+    microSdMontada = false;
+    registrarError("SD", "Fallo la prueba de escritura/lectura");
+    return;
+  }
+  log("SD", "Montada y verificada por escritura/lectura");
+}
+
+// ============================================================================
+// SECCIÓN 6: DETECCIÓN DEL LCD1602 (I2C SCAN)
+// ============================================================================
+bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd) {
   hayLcd = false;
   int dispositivosEncontrados = 0;
 
@@ -419,7 +465,6 @@ bool escanearBusI2C(bool &hayOled, bool &hayLcd, uint8_t &dirOled, uint8_t &dirL
     if (error == 0) {
       dispositivosEncontrados++;
       log("I2C", "Dispositivo encontrado en 0x" + String(dir, HEX));
-      if (dir == DIR_OLED_1 || dir == DIR_OLED_2) { hayOled = true; dirOled = dir; }
       if (dir == DIR_LCD_1  || dir == DIR_LCD_2)  { hayLcd = true;  dirLcd  = dir; }
     }
   }
@@ -430,12 +475,12 @@ void detectarPantalla() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
   delay(50);
 
-  bool hayOled = false, hayLcd = false;
-  uint8_t dirOledEncontrada = 0, dirLcdEncontrada = 0;
+  bool hayLcd = false;
+  uint8_t dirLcdEncontrada = 0;
   bool busRespondio = false;
 
   for (int intento = 1; intento <= I2C_MAX_REINTENTOS && !busRespondio; intento++) {
-    busRespondio = escanearBusI2C(hayOled, hayLcd, dirOledEncontrada, dirLcdEncontrada);
+    busRespondio = escanearBusI2C(hayLcd, dirLcdEncontrada);
     if (!busRespondio) {
       log("I2C", "Intento " + String(intento) + "/" + String(I2C_MAX_REINTENTOS) + ": bus I2C sin respuesta, reintentando...");
       delay(I2C_ESPERA_REINTENTO_MS);
@@ -446,19 +491,7 @@ void detectarPantalla() {
     registrarError("I2C", "Bus sin ningun dispositivo tras " + String(I2C_MAX_REINTENTOS) + " intentos. Revisar cableado SDA/SCL.");
   }
 
-  if (hayOled) {
-    // ==== BLOQUE OLED ====
-    oled = new Adafruit_SSD1306(OLED_ANCHO, OLED_ALTO, &Wire, OLED_RESET);
-    if (oled->begin(SSD1306_SWITCHCAPVCC, dirOledEncontrada)) {
-      pantallaActiva = PANTALLA_OLED;
-      log("PANTALLA", "OLED SSD1306 detectada en 0x" + String(dirOledEncontrada, HEX));
-    } else {
-      log("PANTALLA", "OLED detectada en el bus pero begin() falló");
-      delete oled;
-      oled = nullptr;
-    }
-  } else if (hayLcd) {
-    // ==== BLOQUE LCD ====
+  if (hayLcd) {
     lcd = new LiquidCrystal_I2C(dirLcdEncontrada, 16, 2);
     lcd->init();
     lcd->backlight();
@@ -472,88 +505,40 @@ void detectarPantalla() {
 
 // ---- Pantalla de bienvenida ----
 void mostrarBienvenida() {
-  if (pantallaActiva == PANTALLA_OLED) {
-    oled->clearDisplay();
-    oled->setTextSize(1);
-    oled->setTextColor(SSD1306_WHITE);
-    oled->setCursor(0, 0);
-    oled->println("CASA INTELIGENTE");
-    oled->drawLine(0, 10, 128, 10, SSD1306_WHITE);
-    oled->setCursor(0, 20);
-    oled->println("Autosostenible");
-    oled->setCursor(0, 40);
-    oled->println("Iniciando sistema...");
-    oled->display();
-  } else if (pantallaActiva == PANTALLA_LCD) {
-    lcd->clear();
-    lcd->setCursor(0, 0);
-    lcd->print("Casa Inteligente");
-    lcd->setCursor(0, 1);
-    lcd->print("Iniciando...");
-  }
+  if (pantallaActiva != PANTALLA_LCD) return;
+  lcd->clear();
+  lcd->setCursor(0, 0);
+  lcd->print("PROJECT DOMUS");
+  lcd->setCursor(0, 1);
+  lcd->print("Iniciando...");
 }
 
 // ---- Pantalla principal de estado (llamada periódicamente en el loop) ----
-void actualizarPantallaEstado(int humedadPct, int viento, bool humedadValida, bool vientoValido, float tempC = -1.0, bool tempValida = false) {
-  if (pantallaActiva == PANTALLA_OLED) {
-    oled->clearDisplay();
-    oled->setTextSize(1);
-    oled->setTextColor(SSD1306_WHITE);
+void actualizarPantallaEstado(int humedadPct, int nivelAgua, bool humedadValida, bool nivelValido, float tempC = -1.0, bool tempValida = false) {
+  if (pantallaActiva != PANTALLA_LCD) return;
+  lcd->clear();
+  lcd->setCursor(0, 0);
+  lcd->print("H:");
+  lcd->print(humedadValida ? (String(humedadPct) + "%") : "ERR");
+  lcd->print(" T:");
+  lcd->print(tempValida ? (String(tempC, 0) + "C") : "ERR");
 
-    oled->setCursor(0, 0);
-    oled->print("CASA INTELIGENTE");
-    oled->drawLine(0, 9, 128, 9, SSD1306_WHITE);
-
-    oled->setCursor(0, 14);
-    oled->print("Hum.tierra: ");
-    oled->print(humedadValida ? (String(humedadPct) + "%") : "ERR");
-
-    oled->setCursor(0, 24);
-    oled->print("Viento:");
-    oled->print(vientoValido ? String(viento) : "ERR");
-    oled->print(" Temp:");
-    oled->print(tempValida ? (String(tempC, 0) + "C") : "ERR");
-
-    oled->drawLine(0, 34, 128, 34, SSD1306_WHITE);
-    oled->setCursor(0, 38);
-    oled->print("Activo:");
-
-    String activos = "";
-    for (int i = 0; i < 8; i++) {
-      if (estadoReles[i]) {
-        activos += NOMBRES_RELES[i];
-        activos += " ";
-      }
-    }
-    if (activos == "") activos = "(nada encendido)";
-    oled->setCursor(0, 48);
-    if (activos.length() > 21) activos = activos.substring(0, 21);
-    oled->print(activos);
-
-    oled->setCursor(0, 57);
-    oled->print(JARVIS_LOCAL_HABILITADO ? "Voz: ON " : "Voz: OFF");
-    oled->print(clienteBleConectado ? " BLE:ON" : " BLE:--");
-
-    oled->display();
-
-  } else if (pantallaActiva == PANTALLA_LCD) {
-    lcd->clear();
-    lcd->setCursor(0, 0);
-    lcd->print("H:");
-    lcd->print(humedadValida ? (String(humedadPct) + "%") : "ERR");
-    lcd->print(" T:");
-    lcd->print(tempValida ? (String(tempC, 0) + "C") : "ERR");
-
-    lcd->setCursor(0, 1);
-    String linea2 = "";
+  lcd->setCursor(0, 1);
+  String linea2 = "";
+  if (paroEmergenciaActivo) linea2 = "!! EMERGENCIA !!";
+  else {
     if (estadoReles[0]) linea2 += "B ";
     if (estadoReles[1]) linea2 += "LS ";
     if (estadoReles[2]) linea2 += "LC ";
     if (estadoReles[3]) linea2 += "V ";
     if (estadoReles[4]) linea2 += "LI ";
-    if (linea2 == "") linea2 = "Todo apagado";
-    lcd->print(linea2);
+    if (linea2 == "") {
+      if (!nivelValido) linea2 = "Nivel ERR";
+      else if (nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) linea2 = "Nivel bajo";
+      else linea2 = "Todo apagado";
+    }
   }
+  lcd->print(linea2.substring(0, 16));
 }
 
 // ---- Pantalla de error: muestra el último error registrado ----
@@ -561,51 +546,22 @@ void mostrarPantallaError() {
   String ultimoError = obtenerUltimoError();
   if (ultimoError.length() == 0) return;
 
-  if (pantallaActiva == PANTALLA_OLED) {
-    oled->clearDisplay();
-    oled->setTextSize(1);
-    oled->setTextColor(SSD1306_WHITE);
-    oled->setCursor(0, 0);
-    oled->print("!! ERROR !!");
-    oled->drawLine(0, 9, 128, 9, SSD1306_WHITE);
-
-    int inicio = 0;
-    int lineaY = 14;
-    while (inicio < (int)ultimoError.length() && lineaY < 60) {
-      int fin = min(inicio + 21, (int)ultimoError.length());
-      oled->setCursor(0, lineaY);
-      oled->print(ultimoError.substring(inicio, fin));
-      inicio = fin;
-      lineaY += 10;
-    }
-    oled->display();
-
-  } else if (pantallaActiva == PANTALLA_LCD) {
-    lcd->clear();
-    lcd->setCursor(0, 0);
-    lcd->print("ERROR:");
-    lcd->setCursor(0, 1);
-    lcd->print(ultimoError.substring(0, min(16, (int)ultimoError.length())));
-  }
+  if (pantallaActiva != PANTALLA_LCD) return;
+  lcd->clear();
+  lcd->setCursor(0, 0);
+  lcd->print("ERROR:");
+  lcd->setCursor(0, 1);
+  lcd->print(ultimoError.substring(0, min(16, (int)ultimoError.length())));
 }
 
 // ---- Pantalla de "escuchando" cuando se detecta wake word ----
 void mostrarEscuchando() {
-  if (pantallaActiva == PANTALLA_OLED) {
-    oled->clearDisplay();
-    oled->setTextSize(2);
-    oled->setTextColor(SSD1306_WHITE);
-    oled->setCursor(10, 20);
-    oled->print("Escuchando");
-    oled->setTextSize(1);
-    oled->setCursor(30, 45);
-    oled->print("Di un comando...");
-    oled->display();
-  } else if (pantallaActiva == PANTALLA_LCD) {
-    lcd->clear();
-    lcd->setCursor(0, 0);
-    lcd->print("Escuchando...");
-  }
+  if (pantallaActiva != PANTALLA_LCD) return;
+  lcd->clear();
+  lcd->setCursor(0, 0);
+  lcd->print("Escuchando...");
+  lcd->setCursor(0, 1);
+  lcd->print(micHabilitado ? "Di una orden" : "MIC OFF");
 }
 
 // ============================================================================
@@ -627,7 +583,7 @@ void reproducirPista(uint8_t numeroPista) {
 // SECCIÓN 8: CONTROL DE RELÉS
 // ============================================================================
 // Contador de fallos de verificación por relé.
-int fallosVerificacionRele[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int fallosVerificacionRele[CANTIDAD_RELES] = {0, 0, 0, 0, 0};
 #define MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE 3
 
 // IMPORTANTE (corrección del feedback #5 de v3): esta función NO verifica
@@ -647,10 +603,10 @@ bool verificarEstadoLogicoGpio(int indice, bool estadoEsperado) {
 }
 
 // Devuelve true si el cambio de GPIO se aplicó y quedó confirmado. Los
-// llamadores (BLE, voz) usan este valor de retorno para construir un
+// llamadores (Serial, botones y voz) usan este valor de retorno para construir un
 // ACK o NACK real, en vez de asumir éxito silenciosamente.
 bool encenderRele(int indice, bool anunciarPorVoz = true) {
-  if (indice < 0 || indice >= 8) {
+  if (indice < 0 || indice >= CANTIDAD_RELES) {
     registrarError("RELE", "Indice invalido solicitado: " + String(indice));
     return false;
   }
@@ -681,7 +637,7 @@ bool encenderRele(int indice, bool anunciarPorVoz = true) {
 }
 
 bool apagarRele(int indice, bool anunciarPorVoz = true) {
-  if (indice < 0 || indice >= 8) {
+  if (indice < 0 || indice >= CANTIDAD_RELES) {
     registrarError("RELE", "Indice invalido solicitado: " + String(indice));
     return false;
   }
@@ -733,7 +689,7 @@ void responderJarvis(const String &texto) {
 }
 
 ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
-  if (orden.indiceRele < 0 || orden.indiceRele >= 8) {
+  if (orden.indiceRele < 0 || orden.indiceRele >= CANTIDAD_RELES) {
     registrarError("ORDEN", "Indice de rele fuera de rango");
     return {false, false, "indice_invalido"};
   }
@@ -745,6 +701,25 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     ResultadoOrden rechazo = {false, false, "confianza_baja"};
     responderJarvis(construirRespuestaJarvis(orden, estadoReles[orden.indiceRele], rechazo));
     return rechazo;
+  }
+
+  if (paroEmergenciaActivo && orden.encender) {
+    log("SEGURIDAD", "Encendido rechazado: paro de emergencia activo");
+    return {false, false, "paro_emergencia"};
+  }
+
+  // El nivel del depósito es una interlock física: ninguna fuente puede
+  // encender la bomba si la lectura falta o está por debajo del mínimo.
+  if (orden.indiceRele == 0 && orden.encender) {
+    int nivelAgua = 0;
+    if (!leerNivelAgua(nivelAgua) || nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) {
+      registrarError("SEGURIDAD", "Bomba bloqueada por nivel de agua bajo o invalido");
+      ResultadoOrden bloqueo = {false, false, "nivel_agua_bajo"};
+      if (orden.origen == ORIGEN_VOZ) {
+        responderJarvis("No puedo regar: el deposito no tiene agua suficiente.");
+      }
+      return bloqueo;
+    }
   }
 
   const bool estadoAnterior = estadoReles[orden.indiceRele];
@@ -763,10 +738,16 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   // Así el automático no apagará después algo que el usuario decidió dejar ON.
   if (orden.encender) {
     propietarioReles[orden.indiceRele] = (orden.origen == ORIGEN_AUTOMATICO)
-      ? PROPIETARIO_AUTOMATICO : PROPIETARIO_MANUAL;
+      ? PROPIETARIO_AUTOMATICO : PROPIETARIO_MANUAL_ON;
     if (orden.indiceRele == 0 && !estadoAnterior) bombaEncendidaDesdeMs = millis();
   } else {
-    propietarioReles[orden.indiceRele] = PROPIETARIO_NINGUNO;
+    if (orden.origen == ORIGEN_AUTOMATICO) {
+      propietarioReles[orden.indiceRele] = PROPIETARIO_NINGUNO;
+    } else {
+      // Un apagado manual, por voz o por seguridad persiste hasta recibir
+      // explícitamente el comando *_AUTO (o hasta un reinicio controlado).
+      propietarioReles[orden.indiceRele] = PROPIETARIO_MANUAL_OFF;
+    }
     if (orden.indiceRele == 0) bombaEncendidaDesdeMs = 0;
   }
 
@@ -787,7 +768,7 @@ void verificarLimiteBomba() {
   registrarError("SEGURIDAD", "Bomba detenida por tiempo maximo continuo");
   OrdenActuador corte = {0, false, ORIGEN_SISTEMA, 1.0f, "BOMBA_TIMEOUT"};
   ResultadoOrden resultado = ejecutarOrdenActuador(corte);
-  if (resultado.exito) enviarPorBLE("EVENTO;BOMBA_TIMEOUT;0");
+  if (resultado.exito) emitirEventoLocal("EVENTO;BOMBA_TIMEOUT;0");
 }
 
 // ============================================================================
@@ -803,7 +784,7 @@ int leerSensorPromediado(int pin, int muestras = 8) {
 }
 
 int fallosConsecutivosHumedad = 0;
-int fallosConsecutivosViento = 0;
+int fallosConsecutivosNivelAgua = 0;
 #define MAX_FALLOS_ANTES_DE_REGISTRAR 3
 
 // Convierte una lectura ADC cruda a porcentaje 0-100% usando las constantes
@@ -836,19 +817,19 @@ bool leerHumedad(int &crudoSalida, int &pctSalida) {
   return true;
 }
 
-bool leerViento(int &valorSalida) {
-  int lectura = leerSensorPromediado(PIN_VIENTO);
-  if (lectura < VIENTO_MIN_VALIDO || lectura > VIENTO_MAX_VALIDO) {
-    fallosConsecutivosViento++;
-    if (fallosConsecutivosViento >= MAX_FALLOS_ANTES_DE_REGISTRAR) {
-      registrarError("SENSOR", "Viento fuera de rango repetidamente, revisar conexion");
-      fallosConsecutivosViento = 0;
+bool leerNivelAgua(int &valorSalida) {
+  int lectura = leerSensorPromediado(PIN_NIVEL_AGUA);
+  if (lectura < NIVEL_AGUA_MIN_VALIDO || lectura > NIVEL_AGUA_MAX_VALIDO) {
+    fallosConsecutivosNivelAgua++;
+    if (fallosConsecutivosNivelAgua >= MAX_FALLOS_ANTES_DE_REGISTRAR) {
+      registrarError("SENSOR", "Nivel de agua fuera de rango, revisar conexion");
+      fallosConsecutivosNivelAgua = 0;
     }
     return false;
   }
-  fallosConsecutivosViento = 0;
+  fallosConsecutivosNivelAgua = 0;
   valorSalida = lectura;
-  ultimoVientoValido = lectura;
+  ultimoNivelAguaValido = lectura;
   return true;
 }
 
@@ -931,24 +912,37 @@ void verificarRiegoAutomatico() {
   if (millis() - ultimaVerificacionRiego < INTERVALO_RIEGO_MS) return;
   ultimaVerificacionRiego = millis();
 
+  int nivelAgua = 0;
+  bool nivelValido = leerNivelAgua(nivelAgua);
+  if (!nivelValido || nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) {
+    if (estadoReles[0]) {
+      OrdenActuador corte = {0, false, ORIGEN_SISTEMA, 1.0f, "NIVEL_AGUA_BAJO"};
+      if (ejecutarOrdenActuador(corte).exito) {
+        emitirEventoLocal("EVENTO;RIEGO_BLOQUEADO_NIVEL;0");
+      }
+    }
+    return;
+  }
+
   int crudo, pct;
   if (!leerHumedad(crudo, pct)) return; // sensor con error, no toca el riego
 
-  if (pct < UMBRAL_HUMEDAD_SECA_PCT && !estadoReles[0]) {
+  if (pct < UMBRAL_HUMEDAD_SECA_PCT && !estadoReles[0] &&
+      propietarioReles[0] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Tierra seca (" + String(pct) + "%), activando riego automático");
     OrdenActuador orden = {0, true, ORIGEN_AUTOMATICO, 1.0f, "RIEGO_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
-      enviarPorBLE("EVENTO;RIEGO_AUTO_ON;" + String(pct));
+      emitirEventoLocal("EVENTO;RIEGO_AUTO_ON;" + String(pct));
     }
   } else if (pct >= UMBRAL_HUMEDAD_SECA_PCT && estadoReles[0] &&
              propietarioReles[0] == PROPIETARIO_AUTOMATICO) {
     // Solo apaga automáticamente si fue el modo automático quien lo prendió;
-    // si el usuario lo encendió manualmente por voz/BLE, se respeta su
+    // si el usuario lo encendió manualmente por voz/Serial, se respeta su
     // decisión y no se apaga solo.
     log("AUTO", "Humedad suficiente (" + String(pct) + "%), apagando riego automático");
     OrdenActuador orden = {0, false, ORIGEN_AUTOMATICO, 1.0f, "RIEGO_AUTO_OFF"};
     if (ejecutarOrdenActuador(orden).exito) {
-      enviarPorBLE("EVENTO;RIEGO_AUTO_OFF;" + String(pct));
+      emitirEventoLocal("EVENTO;RIEGO_AUTO_OFF;" + String(pct));
     }
   }
 }
@@ -965,37 +959,77 @@ void verificarVentiladorAutomatico() {
   float tempC, humAire;
   if (!leerAmbiente(tempC, humAire)) return; // DHT11 con error, no toca el ventilador
 
-  if (tempC > UMBRAL_TEMP_ALTA_C && !estadoReles[3]) {
+  if (tempC > UMBRAL_TEMP_ALTA_C && !estadoReles[3] &&
+      propietarioReles[3] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Temperatura alta (" + String(tempC, 1) + "C), activando ventilador automático");
     OrdenActuador orden = {3, true, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
-      enviarPorBLE("EVENTO;VENT_AUTO_ON;" + String(tempC, 1));
+      emitirEventoLocal("EVENTO;VENT_AUTO_ON;" + String(tempC, 1));
     }
   } else if (tempC <= UMBRAL_TEMP_ALTA_C && estadoReles[3] &&
              propietarioReles[3] == PROPIETARIO_AUTOMATICO) {
     log("AUTO", "Temperatura normal (" + String(tempC, 1) + "C), apagando ventilador automático");
     OrdenActuador orden = {3, false, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_OFF"};
     if (ejecutarOrdenActuador(orden).exito) {
-      enviarPorBLE("EVENTO;VENT_AUTO_OFF;" + String(tempC, 1));
+      emitirEventoLocal("EVENTO;VENT_AUTO_OFF;" + String(tempC, 1));
+    }
+  }
+}
+
+// La sala se enciende únicamente con oscuridad y presencia. La retención
+// evita que el PIR apague la luz entre pulsos. El invernadero usa solo el LDR.
+unsigned long ultimaVerificacionLuces = 0;
+
+void verificarLucesAutomaticas() {
+  if (millis() - ultimaVerificacionLuces < 500UL) return;
+  ultimaVerificacionLuces = millis();
+
+  ultimaPresenciaValida = digitalRead(PIN_PIR) == HIGH;
+  if (ultimaPresenciaValida) ultimaPresenciaMs = millis();
+
+  int ldrCrudo = 0, luzPct = 0;
+  if (!leerLuz(ldrCrudo, luzPct)) return;
+
+  bool presenciaReciente = ultimaPresenciaMs != 0 &&
+                           millis() - ultimaPresenciaMs <= PIR_RETENCION_MS;
+  if (propietarioReles[1] != PROPIETARIO_MANUAL_ON &&
+      propietarioReles[1] != PROPIETARIO_MANUAL_OFF) {
+    if (!estadoReles[1] && luzPct <= UMBRAL_LUZ_OSCURO_PCT && presenciaReciente) {
+      OrdenActuador orden = {1, true, ORIGEN_AUTOMATICO, 1.0f, "LUZ_SALA_AUTO_ON"};
+      ejecutarOrdenActuador(orden);
+    } else if (estadoReles[1] && propietarioReles[1] == PROPIETARIO_AUTOMATICO &&
+               (luzPct >= UMBRAL_LUZ_CLARO_PCT || !presenciaReciente)) {
+      OrdenActuador orden = {1, false, ORIGEN_AUTOMATICO, 1.0f, "LUZ_SALA_AUTO_OFF"};
+      ejecutarOrdenActuador(orden);
+    }
+  }
+
+  if (propietarioReles[4] != PROPIETARIO_MANUAL_ON &&
+      propietarioReles[4] != PROPIETARIO_MANUAL_OFF) {
+    if (!estadoReles[4] && luzPct <= UMBRAL_LUZ_OSCURO_PCT) {
+      OrdenActuador orden = {4, true, ORIGEN_AUTOMATICO, 1.0f, "LUZ_INVER_AUTO_ON"};
+      ejecutarOrdenActuador(orden);
+    } else if (estadoReles[4] && propietarioReles[4] == PROPIETARIO_AUTOMATICO &&
+               luzPct >= UMBRAL_LUZ_CLARO_PCT) {
+      OrdenActuador orden = {4, false, ORIGEN_AUTOMATICO, 1.0f, "LUZ_INVER_AUTO_OFF"};
+      ejecutarOrdenActuador(orden);
     }
   }
 }
 
 // ============================================================================
-// SECCIÓN 11: BLE - COMANDOS DESDE EL CELULAR (reemplaza Bluetooth Classic)
+// SECCIÓN 11: COMANDOS LOCALES POR USB SERIAL
 // ============================================================================
-// Comandos de texto esperados (idénticos vocabulario a v3, solo cambia el
-// transporte de Bluetooth Classic a BLE):
+// Comandos de texto terminados en salto de línea:
 //   RIEGO_ON / RIEGO_OFF | LUZ1_ON / LUZ1_OFF | LUZ2_ON / LUZ2_OFF
 //   VENT_ON / VENT_OFF   | INVER_ON / INVER_OFF | ESTADO | DIAGNOSTICO
 //
-// Respuestas nuevas en v4:
 //   "ACK;<comando>;<estado_logico_0_o_1>"   -> el comando se aplicó y se confirmó por GPIO
 //   "NACK;<comando>;<motivo>"               -> el comando no pudo confirmarse o fue rechazado
 
 String construirReporteEstado() {
   String r = "ESTADO;";
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CANTIDAD_RELES; i++) {
     r += NOMBRES_RELES[i];
     r += "=";
     r += estadoReles[i] ? "1" : "0";
@@ -1003,18 +1037,25 @@ String construirReporteEstado() {
   }
   r += "HUM=" + String(ultimaHumedadValida) + ";";       // humedad de TIERRA, crudo ADC
   r += "HUM_PCT=" + String(ultimoHumedadPctValido) + ";"; // humedad de TIERRA, calibrada
-  r += "VIE=" + String(ultimoVientoValido) + ";";
+  r += "NIVEL_AGUA=" + String(ultimoNivelAguaValido) + ";";
+  r += "PIR=" + String(ultimaPresenciaValida ? 1 : 0) + ";";
   r += "TEMP_C=" + String(ultimaTempCValida, 1) + ";";        // DHT11, temperatura AMBIENTAL
   r += "HUM_AIRE_PCT=" + String(ultimaHumAireValida, 1) + ";"; // DHT11, humedad AMBIENTAL (no confundir con HUM_PCT de tierra)
   r += "LUZ_PCT=" + String(ultimoLuzPctValido) + ";";          // LDR, luz ambiental calibrada
+  r += "MIC=" + String(micHabilitado ? "ON" : "OFF") + ";";
+  r += "SD=" + String(microSdMontada ? "ON" : "OFF") + ";";
+  r += "EMERGENCIA=" + String(paroEmergenciaActivo ? "ON" : "OFF") + ";";
   return r;
 }
 
 const char* COMANDOS_VALIDOS[] = {
   "RIEGO_ON", "RIEGO_OFF", "LUZ1_ON", "LUZ1_OFF", "LUZ2_ON", "LUZ2_OFF",
-  "VENT_ON", "VENT_OFF", "INVER_ON", "INVER_OFF", "ESTADO", "DIAGNOSTICO"
+  "VENT_ON", "VENT_OFF", "INVER_ON", "INVER_OFF",
+  "RIEGO_AUTO", "LUZ1_AUTO", "LUZ2_AUTO", "VENT_AUTO", "INVER_AUTO",
+  "ESTADO", "DIAGNOSTICO", "PARO", "REARMAR", "MIC_ESTADO", "SD_PRUEBA"
 };
-const int CANTIDAD_COMANDOS_VALIDOS = 12;
+const int CANTIDAD_COMANDOS_VALIDOS =
+  sizeof(COMANDOS_VALIDOS) / sizeof(COMANDOS_VALIDOS[0]);
 
 bool esComandoValido(const String &comando) {
   for (int i = 0; i < CANTIDAD_COMANDOS_VALIDOS; i++) {
@@ -1024,16 +1065,46 @@ bool esComandoValido(const String &comando) {
 }
 
 // Aplica un comando de control de relé y envía ACK/NACK real. Centraliza la
-// lógica que antes estaba repetida ocho veces en procesarComandoBluetooth().
+// lógica que antes estaba repetida por cada carga en procesarComandoBluetooth().
 void ejecutarComandoRele(const String &comando, int indice, bool encender,
                          OrigenOrden origen = ORIGEN_MANUAL, float confianza = 1.0f) {
   OrdenActuador orden = {indice, encender, origen, confianza, comando.c_str()};
   ResultadoOrden resultado = ejecutarOrdenActuador(orden);
   if (resultado.exito) {
-    enviarPorBLE("ACK;" + comando + ";" + String(estadoReles[indice] ? 1 : 0));
+    emitirEventoLocal("ACK;" + comando + ";" + String(estadoReles[indice] ? 1 : 0));
   } else {
-    enviarPorBLE("NACK;" + comando + ";" + String(resultado.motivo));
+    emitirEventoLocal("NACK;" + comando + ";" + String(resultado.motivo));
   }
+}
+
+void restaurarModoAutomatico(const String &comando, int indice) {
+  if (indice < 0 || indice >= CANTIDAD_RELES) {
+    emitirEventoLocal("NACK;" + comando + ";indice_invalido");
+    return;
+  }
+  propietarioReles[indice] = PROPIETARIO_AUTOMATICO;
+  log("MODO", String(NOMBRES_RELES[indice]) + " -> AUTO");
+  emitirEventoLocal("ACK;" + comando + ";AUTO");
+}
+
+void activarParoEmergencia(const char* motivo) {
+  paroEmergenciaActivo = true;
+  for (int i = 0; i < CANTIDAD_RELES; i++) {
+    OrdenActuador orden = {i, false, ORIGEN_SISTEMA, 1.0f, motivo};
+    ejecutarOrdenActuador(orden);
+  }
+  emitirEventoLocal("EVENTO;PARO_EMERGENCIA;ACTIVO");
+}
+
+bool rearmarSistema() {
+  if (digitalRead(PIN_PARO_EMERGENCIA) == LOW) {
+    emitirEventoLocal("NACK;REARMAR;boton_emergencia_presionado");
+    return false;
+  }
+  paroEmergenciaActivo = false;
+  // El rearme no enciende nada ni devuelve cargas a AUTO por sí solo.
+  emitirEventoLocal("ACK;REARMAR;SEGURO");
+  return true;
 }
 
 void procesarComandoTexto(String comando) {
@@ -1043,18 +1114,18 @@ void procesarComandoTexto(String comando) {
   if (comando.length() == 0) return;
 
   if (comando.length() > 20) {
-    registrarError("BLE", "Comando descartado por longitud invalida (" + String(comando.length()) + " caracteres)");
-    enviarPorBLE("NACK;" + comando.substring(0, 20) + ";longitud_invalida");
+    registrarError("COMANDO", "Longitud invalida (" + String(comando.length()) + " caracteres)");
+    emitirEventoLocal("NACK;" + comando.substring(0, 20) + ";longitud_invalida");
     return;
   }
 
   if (!esComandoValido(comando)) {
-    registrarError("BLE", "Comando no reconocido: " + comando);
-    enviarPorBLE("NACK;" + comando + ";no_reconocido");
+    registrarError("COMANDO", "No reconocido: " + comando);
+    emitirEventoLocal("NACK;" + comando + ";no_reconocido");
     return;
   }
 
-  log("BLE", "Comando recibido: " + comando);
+  log("SERIAL", "Comando recibido: " + comando);
 
        if (comando == "RIEGO_ON")  ejecutarComandoRele(comando, 0, true);
   else if (comando == "RIEGO_OFF") ejecutarComandoRele(comando, 0, false);
@@ -1066,65 +1137,69 @@ void procesarComandoTexto(String comando) {
   else if (comando == "VENT_OFF")  ejecutarComandoRele(comando, 3, false);
   else if (comando == "INVER_ON")  ejecutarComandoRele(comando, 4, true);
   else if (comando == "INVER_OFF") ejecutarComandoRele(comando, 4, false);
-  else if (comando == "ESTADO")    enviarPorBLE(construirReporteEstado());
-  else if (comando == "DIAGNOSTICO") enviarPorBLE(construirReporteDiagnostico());
+  else if (comando == "RIEGO_AUTO") restaurarModoAutomatico(comando, 0);
+  else if (comando == "LUZ1_AUTO")  restaurarModoAutomatico(comando, 1);
+  else if (comando == "LUZ2_AUTO")  restaurarModoAutomatico(comando, 2);
+  else if (comando == "VENT_AUTO")  restaurarModoAutomatico(comando, 3);
+  else if (comando == "INVER_AUTO") restaurarModoAutomatico(comando, 4);
+  else if (comando == "ESTADO")    emitirEventoLocal(construirReporteEstado());
+  else if (comando == "DIAGNOSTICO") emitirEventoLocal(construirReporteDiagnostico());
+  else if (comando == "PARO") activarParoEmergencia("PARO_SERIAL");
+  else if (comando == "REARMAR") rearmarSistema();
+  else if (comando == "MIC_ESTADO") emitirEventoLocal(String("MIC;") + (micHabilitado ? "ON" : "OFF"));
+  else if (comando == "SD_PRUEBA") emitirEventoLocal(probarMicroSD() ? "ACK;SD_PRUEBA;OK" : "NACK;SD_PRUEBA;NO_DISPONIBLE");
 }
 
-void enviarPorBLE(const String &linea) {
-  if (!clienteBleConectado || caracNotificar == nullptr) return;
-  caracNotificar->setValue((uint8_t*)linea.c_str(), linea.length());
-  caracNotificar->notify();
+void emitirEventoLocal(const String &linea) {
+  Serial.println(linea);
+  registrarLineaMicroSD(linea);
 }
 
-class CallbacksServidorBLE : public NimBLEServerCallbacks {
-  void onConnect(NimBLEServer* servidor, NimBLEConnInfo& infoConexion) override {
-    clienteBleConectado = true;
-    log("BLE", "Cliente conectado");
+void revisarComandosSerial() {
+  while (Serial.available() > 0) {
+    char caracter = (char)Serial.read();
+    if (caracter == '\r') continue;
+    if (caracter == '\n') {
+      if (bufferComandoSerial.length() > 0) {
+        procesarComandoTexto(bufferComandoSerial);
+        bufferComandoSerial = "";
+      }
+      continue;
+    }
+    if (bufferComandoSerial.length() < 40) {
+      bufferComandoSerial += caracter;
+    } else {
+      bufferComandoSerial = "";
+      emitirEventoLocal("NACK;SERIAL;buffer_excedido");
+    }
   }
-  void onDisconnect(NimBLEServer* servidor, NimBLEConnInfo& infoConexion, int razon) override {
-    clienteBleConectado = false;
-    log("BLE", "Cliente desconectado, reanudando advertising");
-    NimBLEDevice::startAdvertising();
+}
+
+void revisarControlesFisicos() {
+  bool nuevoMicHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
+  if (nuevoMicHabilitado != micHabilitado) {
+    micHabilitado = nuevoMicHabilitado;
+    emitirEventoLocal(String("EVENTO;MIC;") + (micHabilitado ? "ON" : "OFF"));
   }
-};
 
-class CallbacksEscrituraBLE : public NimBLECharacteristicCallbacks {
-  void onWrite(NimBLECharacteristic* caracteristica, NimBLEConnInfo& infoConexion) override {
-    std::string valor = caracteristica->getValue();
-    if (valor.length() == 0) return;
-    String comando = String(valor.c_str());
-    procesarComandoTexto(comando);
+  if (digitalRead(PIN_PARO_EMERGENCIA) == LOW) {
+    if (!paroEmergenciaActivo) activarParoEmergencia("PARO_FISICO");
   }
-};
 
-void inicializarBLE() {
-  NimBLEDevice::init(BLE_NOMBRE_DISPOSITIVO);
-  // MTU más grande que el default (23 bytes) para que ESTADO/DIAGNOSTICO
-  // quepan en una sola notificación sin fragmentarse.
-  NimBLEDevice::setMTU(185);
-
-  servidorBLE = NimBLEDevice::createServer();
-  servidorBLE->setCallbacks(new CallbacksServidorBLE());
-
-  NimBLEService* servicio = servidorBLE->createService(BLE_UUID_SERVICIO);
-
-  NimBLECharacteristic* caracEscritura = servicio->createCharacteristic(
-    BLE_UUID_CARAC_ESCRITURA,
-    NIMBLE_PROPERTY::WRITE
-  );
-  caracEscritura->setCallbacks(new CallbacksEscrituraBLE());
-
-  caracNotificar = servicio->createCharacteristic(
-    BLE_UUID_CARAC_NOTIFICAR,
-    NIMBLE_PROPERTY::NOTIFY
-  );
-
-  NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
-  advertising->addServiceUUID(BLE_UUID_SERVICIO);
-  advertising->setName(BLE_NOMBRE_DISPOSITIVO);
-  NimBLEDevice::startAdvertising();
-
-  log("BLE", "Advertising iniciado, nombre visible: " + String(BLE_NOMBRE_DISPOSITIVO));
+  bool botonDemo = digitalRead(PIN_BOTON_DEMO);
+  if (botonDemo != ultimoBotonDemo && millis() - ultimoCambioBotonDemoMs >= 40UL) {
+    ultimoCambioBotonDemoMs = millis();
+    ultimoBotonDemo = botonDemo;
+    if (botonDemo == LOW && !paroEmergenciaActivo) {
+      OrdenActuador orden = {
+        1, !estadoReles[1], ORIGEN_MANUAL, 1.0f, "BOTON_DEMO_LUZ_SALA"
+      };
+      ResultadoOrden resultado = ejecutarOrdenActuador(orden);
+      emitirEventoLocal(resultado.exito
+        ? String("ACK;BOTON_LUZ_SALA;") + (estadoReles[1] ? "1" : "0")
+        : String("NACK;BOTON_LUZ_SALA;") + resultado.motivo);
+    }
+  }
 }
 
 // ============================================================================
@@ -1206,7 +1281,7 @@ void procesarResultadoVoz(int comandoID) {
   ResultadoOrden resultado = ejecutarOrdenActuador(orden);
   // La app también se entera de los comandos disparados por voz, no solo
   // los que ella misma mandó, para que la UI no se quede desincronizada.
-  enviarPorBLE((resultado.exito ? "ACK;" : "NACK;") + comandoTexto + ";voz");
+  emitirEventoLocal((resultado.exito ? "ACK;" : "NACK;") + comandoTexto + ";voz");
 }
 
 // Máquina de estados de la ventana de escucha. Corrige el bug de v3 donde
@@ -1254,7 +1329,12 @@ void revisarVoz() {
 void setup() {
   Serial.begin(115200);
   delay(300);
-  log("SISTEMA", "=== Casa Inteligente Autosostenible v5 - Iniciando ===");
+  log("SISTEMA", "=== PROJECT DOMUS v6 offline - Iniciando ===");
+
+  pinMode(PIN_PARO_EMERGENCIA, INPUT_PULLUP);
+  pinMode(PIN_MIC_OFF, INPUT_PULLUP);
+  pinMode(PIN_BOTON_DEMO, INPUT_PULLUP);
+  micHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
 
   esp_task_wdt_config_t configWdt = {
     .timeout_ms = WATCHDOG_TIMEOUT_S * 1000,
@@ -1265,7 +1345,7 @@ void setup() {
   esp_task_wdt_add(NULL);
   log("SISTEMA", "Watchdog activo, timeout=" + String(WATCHDOG_TIMEOUT_S) + "s");
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < CANTIDAD_RELES; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
     digitalWrite(PINES_RELES[i], RELE_ACTIVO_EN_LOW ? HIGH : LOW);
@@ -1279,6 +1359,8 @@ void setup() {
 
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);
+  pinMode(PIN_PIR, INPUT);
+  inicializarMicroSD();
 
   dht.begin();
   log("SISTEMA", "DHT11 inicializado (temperatura/humedad ambiental)");
@@ -1289,7 +1371,6 @@ void setup() {
     log("MP3", "UART iniciado para módulo reproductor");
   }
 
-  inicializarBLE();
   #if JARVIS_LOCAL_HABILITADO
     inicializarVoz();
   #else
@@ -1310,24 +1391,28 @@ unsigned long ultimaActualizacionPantalla = 0;
 void loop() {
   esp_task_wdt_reset();
 
-  // 1. Voz: máxima prioridad, se revisa en cada vuelta
+  // 1. Seguridad y controles físicos tienen prioridad máxima.
+  revisarControlesFisicos();
+
+  // 2. Voz local: nunca escucha con MIC OFF o emergencia activa.
   #if JARVIS_LOCAL_HABILITADO
-    revisarVoz();
+    if (micHabilitado && !paroEmergenciaActivo) revisarVoz();
   #endif
 
-  // 2. BLE: los comandos llegan por callback (onWrite), no hace falta
-  //    revisar nada aquí de forma activa - NimBLE corre en su propia tarea.
+  // 3. Diagnóstico/control local por USB, sin red ni aplicación móvil.
+  revisarComandosSerial();
 
-  // 3. Riego automático (internamente respeta su propio intervalo, no bloquea)
+  // 4. Automatización local (cada función respeta sus intervalos y bloqueos).
   verificarRiegoAutomatico();
 
   // Corte independiente del sensor: una bomba jamás queda encendida sin límite.
   verificarLimiteBomba();
 
-  // 3b. Ventilador automático por temperatura (mismo patrón no bloqueante)
   verificarVentiladorAutomatico();
 
-  // 4. Pantalla: se refresca solo cada INTERVALO_PANTALLA_MS
+  verificarLucesAutomaticas();
+
+  // 5. Pantalla: se refresca solo cada INTERVALO_PANTALLA_MS.
   if (millis() - ultimaActualizacionPantalla > INTERVALO_PANTALLA_MS) {
     unsigned long idxUltimo = (indiceErrorActual - 1 + MAX_ERRORES_GUARDADOS) % MAX_ERRORES_GUARDADOS;
     bool hayErrorReciente = bufferErrores[idxUltimo].ocupado &&
@@ -1336,13 +1421,13 @@ void loop() {
     if (hayErrorReciente) {
       mostrarPantallaError();
     } else {
-      int humedadCrudo = 0, humedadPct = 0, viento = 0, ldrCrudo = 0, luzPct = 0;
+      int humedadCrudo = 0, humedadPct = 0, nivelAgua = 0, ldrCrudo = 0, luzPct = 0;
       float tempC = 0, humAire = 0;
       bool humedadValida = leerHumedad(humedadCrudo, humedadPct);
-      bool vientoValido = leerViento(viento);
-      bool ldrValido = leerLuz(ldrCrudo, luzPct);
+      bool nivelValido = leerNivelAgua(nivelAgua);
+      leerLuz(ldrCrudo, luzPct);
       bool tempValida = leerAmbiente(tempC, humAire);
-      actualizarPantallaEstado(humedadPct, viento, humedadValida, vientoValido, tempC, tempValida);
+      actualizarPantallaEstado(humedadPct, nivelAgua, humedadValida, nivelValido, tempC, tempValida);
     }
     ultimaActualizacionPantalla = millis();
   }
