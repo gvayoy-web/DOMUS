@@ -26,6 +26,9 @@ Thumbs.db
 qa_docx/
 .codex-*.md
 
+# Paquetes y metadatos locales de despliegue
+deploy/
+
 # Editores
 .vscode/
 .idea/

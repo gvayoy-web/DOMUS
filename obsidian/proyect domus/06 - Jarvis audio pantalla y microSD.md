@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: jarvis
-actualizado: 2026-09-01
+actualizado: 2026-09-03
 ---
 
 # Jarvis, audio, pantalla y microSD
@@ -49,7 +49,8 @@ La microSD no vuelve inteligente a Jarvis ni sustituye la flash del modelo, pero
 
 ## Pantalla
 
-El LCD1602 es suficiente. El código intenta detectar OLED o LCD, pero no es necesario comprar OLED. Incluso sería conveniente simplificar más adelante las dependencias del firmware para compilar solo LCD.
+El LCD1602 es la única pantalla soportada. El código detecta automáticamente
+las direcciones I2C 0x27/0x3F; OLED y sus dependencias ya fueron retirados.
 
 ## microSD y DFPlayer
 
@@ -63,6 +64,11 @@ El LCD1602 es suficiente. El código intenta detectar OLED o LCD, pero no es nec
 ## Estado honesto de Jarvis
 
 Los proyectos aislados de INMP441 y PicoTTS existen en el repositorio, pero Jarvis aún no escucha ni habla integrado en el firmware principal. `JARVIS_LOCAL_HABILITADO` debe permanecer en `false` hasta superar las pruebas.
+
+Esto no deja la casa incompleta: el contrato de órdenes, el despachador seguro,
+MIC OFF, control físico/Serial, rechazo por confianza y modo seguro ya existen.
+La voz es un módulo opcional que puede fallar o deshabilitarse sin detener las
+cinco funciones domésticas.
 
 ## Métricas mínimas
 

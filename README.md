@@ -1,4 +1,4 @@
-# Casa inteligente — Jarvis local v5
+# Casa inteligente — Jarvis local v6
 
 Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla cinco cargas, sensores, automatización local y la futura voz local de Jarvis. No hay aplicación móvil, BLE ni dependencia de internet para las funciones críticas. Los comandos de diagnóstico se aceptan localmente por USB Serial.
 
@@ -7,10 +7,16 @@ Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla cin
 - Firmware: [`firmware/casa_inteligente_v4/casa_inteligente_v4.ino`](firmware/casa_inteligente_v4/casa_inteligente_v4.ino)
 - Voz local: [`firmware/JARVIS_LOCAL.md`](firmware/JARVIS_LOCAL.md)
 - Plan completo: [`PLAN_PROYECTO.md`](PLAN_PROYECTO.md)
+- Entrega consolidada: [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md)
 - Guía para exposición: [`EXPOSICION_PROYECTO.txt`](EXPOSICION_PROYECTO.txt)
 - Prueba de micrófono: [`firmware/inmp441_poc`](firmware/inmp441_poc)
 - Prueba de voz española: [`firmware/picotts_poc`](firmware/picotts_poc)
 - Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)
+- Pruebas antes de construir: [`obsidian/proyect domus/16 - Plan de testeo antes de construccion.md`](obsidian/proyect%20domus/16%20-%20Plan%20de%20testeo%20antes%20de%20construccion.md)
+- Diagramas generales: [`obsidian/proyect domus/17 - Diagramas generales de conexiones.md`](obsidian/proyect%20domus/17%20-%20Diagramas%20generales%20de%20conexiones.md)
+- Cableado pin por pin: [`obsidian/proyect domus/18 - Manual maestro de conexiones pin por pin.md`](obsidian/proyect%20domus/18%20-%20Manual%20maestro%20de%20conexiones%20pin%20por%20pin.md)
+- Pruebas después de construir: [`obsidian/proyect domus/19 - Plan de testeo despues de construccion.md`](obsidian/proyect%20domus/19%20-%20Plan%20de%20testeo%20despues%20de%20construccion.md)
+- Visualización completa: [`visualizaciones/sistema-domus.html`](visualizaciones/sistema-domus.html)
 - `JARVIS_LOCAL_HABILITADO=false` hasta tener micrófono, modelos TinyML, PicoTTS y pruebas reales.
 
 ## Meta de Jarvis
@@ -27,7 +33,7 @@ Ambas frases producen `LUZ_SALA_1_OFF`, apagan el relé y generan una respuesta 
 - INMP441 a 3.3 V, I2S mono a 16 kHz.
 - MAX98357A I2S y altavoz de 4 Ω/3 W para la voz generada.
 - Tira WS2812B de 8 LEDs como indicador azul.
-- Fuente regulada de 5 V/2 A para pruebas.
+- Fuente regulada de 5 V/3 A para el conjunto; probar audio primero de forma aislada.
 - 74AHCT125/74HCT14 recomendado para datos del WS2812B.
 
 Confirma el pinout de la placa antes de soldar. GPIO13 (SCL), GPIO9 (PIR) y GPIO2 (nivel de agua) son asignaciones provisionales. No alimentes altavoz o relés desde 3.3 V del ESP32.
@@ -47,14 +53,25 @@ arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,Partitio
 La compilación comprueba el software; el pinout, los relés y los sensores aún
 deben validarse físicamente con fuente regulada antes de conectar la fase solar.
 
-La compilación offline actual ocupa 399,078 bytes de programa y 24,948 bytes
-de memoria global. Los binarios generados están en `build/firmware/`.
+La compilación offline actual ocupa 402,218 bytes de programa y 25,020 bytes
+de memoria global. Los binarios generados están en
+`.arduino-local/build/firmware-current/`.
 
 ## Comandos locales por USB
 
 El monitor Serial debe usar 115200 baudios y enviar cada orden con salto de línea.
 Admite las órdenes ON/OFF/AUTO de las cinco cargas, además de `ESTADO`,
-`DIAGNOSTICO`, `PARO`, `REARMAR`, `MIC_ESTADO` y `SD_PRUEBA`.
+`DIAGNOSTICO`, `PARO`, `REARMAR`, `RECUPERAR`, `MIC_ESTADO` y `SD_PRUEBA`.
+
+## Protección contra bloqueos
+
+El watchdog cubre bloqueos duros. Un supervisor adicional vigila memoria,
+reinicios críticos, sensores y ráfagas de comandos. Ante riesgo no intenta
+reiniciar indefinidamente: apaga las cargas, suspende automatización/voz y deja
+Serial disponible. `DIAGNOSTICO` muestra la causa y `RECUPERAR` libera el modo
+seguro únicamente con memoria suficiente; las cargas permanecen apagadas hasta
+una orden explícita. Véase el protocolo en
+[`obsidian/proyect domus/14 - Protocolo anti-colapso IA y ESP32.md`](obsidian/proyect%20domus/14%20-%20Protocolo%20anti-colapso%20IA%20y%20ESP32.md).
 
 ## Servicios Wi‑Fi opcionales
 

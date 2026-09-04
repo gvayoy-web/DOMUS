@@ -12,13 +12,13 @@ class DomusCoreTests(unittest.TestCase):
         self.assertTrue(all(not state for state in self.domus.states.values()))
 
     def test_irrigation_hysteresis(self):
-        self.domus.sensors.soil_pct = 25
+        self.domus.sensors.soil_pct = 35
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.PUMP])
-        self.domus.sensors.soil_pct = 38
+        self.domus.sensors.soil_pct = 44
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.PUMP])
-        self.domus.sensors.soil_pct = 46
+        self.domus.sensors.soil_pct = 45
         self.domus.evaluate()
         self.assertFalse(self.domus.states[Actuator.PUMP])
 
@@ -49,10 +49,10 @@ class DomusCoreTests(unittest.TestCase):
         self.assertTrue(self.domus.states[Actuator.FAN])
 
     def test_fan_hysteresis(self):
-        self.domus.sensors.temperature_c = 30
+        self.domus.sensors.temperature_c = 28
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.FAN])
-        self.domus.sensors.temperature_c = 28
+        self.domus.sensors.temperature_c = 27
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.FAN])
         self.domus.sensors.temperature_c = 26
@@ -77,10 +77,10 @@ class DomusCoreTests(unittest.TestCase):
         self.assertFalse(self.domus.states[Actuator.LIVING_LIGHT])
 
     def test_greenhouse_light_hysteresis(self):
-        self.domus.sensors.light_pct = 10
+        self.domus.sensors.light_pct = 25
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.GREENHOUSE_LIGHT])
-        self.domus.sensors.light_pct = 28
+        self.domus.sensors.light_pct = 39
         self.domus.evaluate()
         self.assertTrue(self.domus.states[Actuator.GREENHOUSE_LIGHT])
         self.domus.sensors.light_pct = 40
@@ -158,6 +158,30 @@ class DomusCoreTests(unittest.TestCase):
         self.assertEqual(self.domus.modes[Actuator.FAN], Mode.MANUAL_OFF)
         self.domus.apply_local_command("VENTILADOR_ON", from_voice=False)
         self.assertTrue(self.domus.states[Actuator.FAN])
+
+    def test_safe_mode_blocks_outputs_until_explicit_recovery(self):
+        self.domus.apply_local_command("VENTILADOR_ON", from_voice=False)
+        self.domus.enter_safe_mode("memoria_critica")
+        self.assertTrue(all(not state for state in self.domus.states.values()))
+        self.assertFalse(
+            self.domus.apply_local_command("LUZ_SALA_ON", from_voice=False)
+        )
+        self.assertFalse(self.domus.recover_safe_mode(memory_ok=False))
+        self.assertTrue(self.domus.safe_mode_active)
+        self.assertTrue(self.domus.recover_safe_mode(memory_ok=True))
+        self.assertTrue(all(not state for state in self.domus.states.values()))
+        self.assertTrue(all(mode == Mode.MANUAL_OFF for mode in self.domus.modes.values()))
+
+    def test_command_rate_limit_preserves_emergency_stop(self):
+        for _ in range(self.domus.thresholds.max_commands_per_second):
+            self.assertTrue(
+                self.domus.apply_local_command("LUZ_SALA_OFF", from_voice=False)
+            )
+        self.assertFalse(
+            self.domus.apply_local_command("LUZ_SALA_ON", from_voice=False)
+        )
+        self.assertTrue(self.domus.apply_local_command("PARO", from_voice=False))
+        self.assertTrue(self.domus.emergency_active)
 
 
 if __name__ == "__main__":

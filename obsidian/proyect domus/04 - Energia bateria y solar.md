@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: energia
-actualizado: 2026-09-01
+actualizado: 2026-09-04
 ---
 
 # Energía, batería y solar
@@ -49,18 +49,27 @@ USB 5 V → un TP4056 protegido → una celda/pack 1S compatible → elevador 5 
 ## Arquitectura 3 — solar final
 
 ```text
-Panel 5–6 V
+Panel 5–6 V verificado
     ↓
-CN3065 (cargador solar)
+cargador solar 1S CN3065 o equivalente verificado
     ↓
-pack 1S2P/1S3P de celdas iguales
+batería/pack 1S diseñado y protegido
     ↓
-un BMS 1S
+elevador estable a 5.0 V
     ↓
-fusible → switch → elevador 5 V → casa
+fusible → switch → casa
 ```
 
-Aquí los TP4056 **no se conectan**. El CN3065 carga; el BMS protege; el MT3608 eleva a 5 V.
+Aquí los TP4056 **no se conectan**. El cargador solar carga; la protección de
+la batería limita condiciones peligrosas; el elevador entrega 5 V. Los bornes
+exactos entre cargador, batería, protección y carga dependen de las placas
+compradas y deben copiarse de sus hojas técnicas. No ensamblar un pack 1S2P o
+1S3P con celdas sueltas solo para alcanzar una cifra de capacidad.
+
+> [!WARNING]
+> Ninguna de estas rutas ofrece por sí sola cambio automático entre pared,
+> batería y solar. Para usar dos fuentes sin apagar hace falta un módulo de
+> power-path/selector verificado. Nunca unir sus positivos directamente.
 
 ## Capacidad para dos horas
 
@@ -103,3 +112,5 @@ El panel de 3 V/110 mA produce solo 0.33 W nominales. No llega al mínimo de 4.4
 - No recargar pilas alcalinas AA o 9 V.
 - Medir 5.0 V en la salida antes de conectar el ESP32.
 
+El cableado pin por pin de las tres rutas está en
+[[18 - Manual maestro de conexiones pin por pin]].

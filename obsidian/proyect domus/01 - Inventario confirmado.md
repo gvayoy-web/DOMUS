@@ -2,7 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: inventario
 fuente: lista confirmada por Isaac
-actualizado: 2026-09-01
+actualizado: 2026-09-03
 ---
 
 # Inventario confirmado
@@ -24,7 +24,7 @@ actualizado: 2026-09-01
 |---|---:|---|---|
 | LCD1602 | 1 | YA TIENES | Pantalla oficial del proyecto. |
 | Adaptador I2C para LCD | al menos 1 | YA TIENES | Necesario para usar solo dos señales I2C. La lista lo menciona dentro del kit y otra vez en una compra; comprobar si físicamente hay uno o dos. |
-| OLED | 0 confirmado | NO COMPRAR | El firmware la admite, pero el LCD ya cubre la función. |
+| OLED | 0 confirmado | NO COMPRAR | El soporte OLED fue retirado; LCD1602 es la única pantalla. |
 | Matriz LED | 1 | YA TIENES · opcional | Decoración o estado secundario. |
 | Display 7 segmentos, 1 dígito | 1 | YA TIENES · opcional | No requerido. |
 | Display 4 dígitos | 1 | YA TIENES · opcional | No requerido. |
@@ -44,9 +44,9 @@ actualizado: 2026-09-01
 | Componente | Cant. | Estado | Función / observación |
 |---|---:|---|---|
 | DHT11/DHT22 | 1 | YA TIENES · núcleo | Temperatura y humedad ambiental. Confirmar modelo real antes de configurar firmware. |
-| Humedad de suelo resistiva + comparador | 1 set | YA TIENES · núcleo | Sirve para la feria; se corroe si queda energizada. El firmware la llama por error “capacitiva”. |
-| Nivel de agua | 1 | YA TIENES | Hardware disponible; todavía no está integrado en el firmware principal. |
-| PIR | 1 | YA TIENES | Hardware disponible; todavía no está integrado en el firmware principal. |
+| Humedad de suelo resistiva + comparador | 1 set | YA TIENES · núcleo | Sirve para la feria; se corroe si queda energizada. El firmware ya la identifica como resistiva y requiere calibración física. |
+| Nivel de agua | 1 | YA TIENES | Integrado en software con validación y bloqueo de bomba; falta calibración física. |
+| PIR | 1 | YA TIENES | Integrado en software con retención de presencia; falta confirmar pin y nivel activo. |
 | LDR | 2 | YA TIENES · núcleo | Una unidad con resistencia de 10 kΩ forma el divisor de luz. |
 | HC-SR04 | 1 | YA TIENES · opcional | No requerido por el núcleo. Su pin ECHO es 5 V y necesita divisor antes del ESP32. |
 | MPU6050 | 1 | YA TIENES · opcional | No requerido. |

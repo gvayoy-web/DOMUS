@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: firmware-hardware
-actualizado: 2026-09-01
+actualizado: 2026-09-04
 ---
 
 # Auditoría de pines y cableado
@@ -48,3 +48,9 @@ actualizado: 2026-09-01
 ## Distribución sugerida de relés
 
 El relé de un canal existente controla la bomba. El nuevo módulo de cuatro canales controla sala, dormitorio, ventilador e invernadero. No controlar tensión de red en la exposición; todas las cargas serán de baja tensión.
+
+## Relaciones
+
+- [[16 - Plan de testeo antes de construccion]]
+- [[17 - Diagramas generales de conexiones]]
+- [[18 - Manual maestro de conexiones pin por pin]]

@@ -62,9 +62,14 @@ La maqueta correcta es de **una sola planta** y debe parecerse a la imagen inclu
 
 El simulador permite comprobar reglas, prioridades, estados, tiempos y fallos sin comprar todavía el hardware. No puede validar consumo eléctrico, caída de tensión, precisión de sensores, ruido del micrófono, caudal de la bomba, calentamiento, compatibilidad real de relés ni autonomía solar.
 
-## Trabajo de firmware pendiente
+## Estado del firmware
 
-El proyecto original todavía debe migrarse para eliminar NimBLE/BLE y trasladar la lógica probada de `01_FINAL_V2/simulator/domus_core.py` al firmware C++ del ESP32-S3. Estimación discutida: aproximadamente 48–88 horas entre migración, drivers, controles físicos, integración, calibración y pruebas reales.
+La migración de NimBLE/BLE al núcleo local está completada. El firmware C++ y
+`01_FINAL_V2/simulator/domus_core.py` comparten cinco actuadores, modos
+AUTO/MANUAL, histéresis, bloqueos de bomba, emergencia y modo seguro. Las
+pruebas automatizadas se ejecutan antes de compilar. Permanecen fuera del cierre
+por software la calibración, el pinout definitivo, la prueba con cargas reales
+y los modelos de voz, porque requieren hardware o datos que no existen todavía.
 
 ## Precaución antes del corte
 

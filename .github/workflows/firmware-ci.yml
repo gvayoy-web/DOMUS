@@ -4,10 +4,22 @@ on:
   push:
     paths:
       - "firmware/casa_inteligente_v4/**"
+      - "firmware/tests/**"
+      - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
+      - "obsidian/proyect domus/**"
+      - "scripts/validate_project.py"
+      - "README.md"
+      - "PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
   pull_request:
     paths:
       - "firmware/casa_inteligente_v4/**"
+      - "firmware/tests/**"
+      - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
+      - "obsidian/proyect domus/**"
+      - "scripts/validate_project.py"
+      - "README.md"
+      - "PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
   workflow_dispatch:
 
@@ -15,7 +27,24 @@ permissions:
   contents: read
 
 jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Descargar el proyecto
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Probar simulador y contratos del firmware
+        run: python scripts/validate_project.py
+
   compilar:
+    needs: pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 25
 

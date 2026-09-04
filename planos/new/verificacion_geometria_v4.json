@@ -1,0 +1,193 @@
+{
+  "revision": "4.0",
+  "unidad": "mm",
+  "fuente_unica": "build_parts() + enhance_parts() + compact_footprint() + prepare_raw_model()",
+  "cantidad_piezas": 111,
+  "envolvente_base_mm": [
+    800,
+    520,
+    12
+  ],
+  "reduccion_lineal_xy_pct": 20,
+  "reduccion_area_pct": 36,
+  "criterio": "Todas las coordenadas y huellas estructurales X/Y se reducen exactamente 20 %; alturas, espesores y huecos físicos mínimos se conservan.",
+  "alcance": "Maqueta cruda: sin sensores, placas, cableado, bomba, tubería ni conexiones instaladas.",
+  "referencia_compositiva": "Imagen original: depósito izquierda, invernadero izquierda, casa al fondo, porche frontal central, Jarvis y gabinete a la derecha.",
+  "todas_las_piezas_dentro_de_la_base": true,
+  "cotas_clave": [
+    {
+      "pieza": "Base negra 800x520",
+      "esperado_mm": [
+        800,
+        520,
+        12
+      ],
+      "actual_mm": [
+        800.0,
+        520.0,
+        12
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Piso vivienda",
+      "esperado_mm": [
+        344.0,
+        260.0,
+        7
+      ],
+      "actual_mm": [
+        344.0,
+        260.0,
+        7
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Base invernadero",
+      "esperado_mm": [
+        200.0,
+        280.0,
+        7
+      ],
+      "actual_mm": [
+        200.0,
+        280.0,
+        7
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Plataforma porche",
+      "esperado_mm": [
+        200.0,
+        156.0,
+        8
+      ],
+      "actual_mm": [
+        200.0,
+        156.0,
+        8
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Torre Jarvis cuerpo",
+      "esperado_mm": [
+        84.0,
+        94.4,
+        290
+      ],
+      "actual_mm": [
+        84.0,
+        94.4,
+        290
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Gabinete técnico base",
+      "esperado_mm": [
+        88.0,
+        120.0,
+        7
+      ],
+      "actual_mm": [
+        88.0,
+        120.0,
+        7
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Reserva depósito",
+      "esperado_mm": [
+        92,
+        92,
+        3
+      ],
+      "actual_mm": [
+        92,
+        92,
+        3
+      ],
+      "ok": true
+    }
+  ],
+  "posiciones_clave_80_pct": [
+    {
+      "pieza": "Reserva depósito",
+      "esperado_xy_mm": [
+        20,
+        52
+      ],
+      "actual_xy_mm": [
+        20,
+        52
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Base invernadero",
+      "esperado_xy_mm": [
+        20.0,
+        184.0
+      ],
+      "actual_xy_mm": [
+        20.0,
+        184.0
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Piso vivienda",
+      "esperado_xy_mm": [
+        240.0,
+        240.0
+      ],
+      "actual_xy_mm": [
+        240.0,
+        240.0
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Plataforma porche",
+      "esperado_xy_mm": [
+        272.0,
+        57.6
+      ],
+      "actual_xy_mm": [
+        272.0,
+        57.6
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Torre Jarvis cuerpo",
+      "esperado_xy_mm": [
+        600.0,
+        196.0
+      ],
+      "actual_xy_mm": [
+        600.0,
+        196.0
+      ],
+      "ok": true
+    },
+    {
+      "pieza": "Gabinete técnico base",
+      "esperado_xy_mm": [
+        696.0,
+        188.0
+      ],
+      "actual_xy_mm": [
+        696.0,
+        188.0
+      ],
+      "ok": true
+    }
+  ],
+  "faldon_frontal_bajo_base": true,
+  "resultado": "OK"
+}

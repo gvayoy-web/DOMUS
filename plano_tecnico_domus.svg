@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+<defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#dbe4ed" stroke-width="1"/></pattern><filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".12"/></filter></defs>
+<rect width="1600" height="1200" fill="#eef3f7"/><rect width="1600" height="1200" fill="url(#grid)"/>
+<style>text{font-family:Bahnschrift,Segoe UI,Arial,sans-serif;fill:#10233f}.k{font-size:15px;letter-spacing:2px;font-weight:700}.t{font-size:42px;font-weight:800}.s{font-size:17px;fill:#4c6177}.h{font-size:20px;font-weight:800}.l{font-size:14px;font-weight:650}.tiny{font-size:12px}.dim{stroke:#155eef;stroke-width:1.6}.axis{stroke:#10233f;stroke-width:2}.box{stroke:#10233f;stroke-width:2}.dash{fill:none;stroke:#697c90;stroke-width:1.4;stroke-dasharray:7 5}</style>
+<rect x="42" y="38" width="1516" height="1120" rx="2" fill="#fff" stroke="#b7c5d3" filter="url(#shadow)"/>
+<text x="82" y="88" class="k" fill="#155eef">GEMELO DIGITAL v4 · LÁMINA DE IMPLANTACIÓN</text>
+<text x="82" y="139" class="t">PROJECT DOMUS</text>
+<text x="82" y="171" class="s">Una planta · frente abierto · maqueta cruda · sin instalaciones · cotas en mm</text>
+<rect x="1235" y="76" width="263" height="79" fill="#08111f"/><text x="1260" y="108" class="k" fill="#12b8d0">REV 4.0</text><text x="1260" y="137" class="l" fill="white">COTAS = RENDER = VISOR</text>
+<rect x="110" y="285" width="1180.0" height="767.0" fill="#f8fafc" class="box"/>
+<rect x="139.5" y="367.6" width="295.0" height="413.0" fill="#dff4ea" class="box"/>
+<text x="287.0" y="572.1" text-anchor="middle" class="l">INVERNADERO</text>
+<text x="287.0" y="592.1" text-anchor="middle" class="tiny">200 × 280 × 225</text>
+<rect x="464.0" y="314.5" width="507.4" height="383.5" fill="#f3dfbf" class="box"/>
+<text x="717.7" y="504.25" text-anchor="middle" class="l">VIVIENDA ABIERTA</text>
+<text x="717.7" y="524.25" text-anchor="middle" class="tiny">344 × 260 · techo removible</text>
+<rect x="511.2" y="736.94" width="295.0" height="230.1" fill="#dbeafe" class="box"/>
+<text x="658.7" y="849.99" text-anchor="middle" class="l">PORCHE</text>
+<text x="658.7" y="869.99" text-anchor="middle" class="tiny">200 × 156 × 154</text>
+<rect x="995.0" y="623.66" width="123.89999999999999" height="139.23999999999998" fill="#d6e4ff" class="box"/>
+<text x="1056.95" y="691.28" text-anchor="middle" class="l">JARVIS</text>
+<text x="1056.95" y="711.28" text-anchor="middle" class="tiny">84 × 94 × 302</text>
+<rect x="1136.6" y="597.7" width="129.79999999999998" height="177.0" fill="#e6edf3" class="box"/>
+<text x="1201.5" y="684.2" text-anchor="middle" class="l">GABINETE</text>
+<text x="1201.5" y="704.2" text-anchor="middle" class="tiny">88 × 120 × 269</text>
+<rect x="139.5" y="866.74" width="108.55999999999999" height="108.55999999999999" fill="#c9effb" class="box"/>
+<text x="193.78" y="919.02" text-anchor="middle" class="l">DEPÓSITO</text>
+<text x="193.78" y="939.02" text-anchor="middle" class="tiny">92 × 92 × 100</text>
+<rect x="493.5" y="327.48" width="210.04" height="49.559999999999995" fill="#c58a4a" class="box"/>
+<text x="598.52" y="350.26" text-anchor="middle" class="l">COCINA</text>
+<rect x="587.9" y="446.65999999999997" width="139.23999999999998" height="56.64" fill="#e7bd83" class="box"/>
+<text x="657.52" y="472.97999999999996" text-anchor="middle" class="l">ISLA</text>
+<rect x="499.4" y="574.0999999999999" width="143.95999999999998" height="64.89999999999999" fill="#8bb8ff" class="box"/>
+<text x="571.38" y="604.55" text-anchor="middle" class="l">SOFÁ</text>
+<rect x="753.1" y="364.06" width="139.23999999999998" height="210.04" fill="#eff3f7" class="box"/>
+<text x="822.72" y="467.08" text-anchor="middle" class="l">CAMA</text>
+<rect x="912.4" y="320.4" width="53.099999999999994" height="371.7" fill="#d8f3f7" class="box"/>
+<text x="938.9499999999999" y="504.25" text-anchor="middle" class="l">BAÑO</text>
+<rect x="139.5" y="866.74" width="108.55999999999999" height="108.55999999999999" fill="none" stroke="#9b51e0" stroke-width="3" stroke-dasharray="10 6"/>
+<rect x="1136.6" y="597.7" width="129.79999999999998" height="177.0" fill="none" stroke="#9b51e0" stroke-width="3" stroke-dasharray="10 6"/>
+<rect x="528.9" y="479.7" width="171.1" height="123.89999999999999" fill="none" stroke="#9b51e0" stroke-width="3" stroke-dasharray="10 6"/>
+<rect x="741.3" y="479.7" width="171.1" height="123.89999999999999" fill="none" stroke="#9b51e0" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="110" y1="1096.0" x2="1290.0" y2="1096.0" class="dim"/><text x="700.0" y="1087.0" text-anchor="middle" class="l" fill="#155eef">800</text>
+<text x="700.0" y="1128.0" text-anchor="middle" class="k">FRENTE / VISITANTE ↓</text>
+<text x="1335" y="285" class="h">LEYENDA</text>
+<line x1="1335" y1="328" x2="1392" y2="328" stroke="#9b51e0" stroke-width="4" stroke-dasharray="10 6"/><text x="1410" y="334" class="l">Reserva futura</text>
+<rect x="1335" y="362" width="57" height="22" fill="#e6edf3" stroke="#10233f"/><text x="1410" y="378" class="l">Carcasa vacía</text>
+<rect x="1335" y="405" width="57" height="12" fill="#dbeafe" stroke="#155eef"/><text x="1410" y="418" class="l">Canal vacío</text>
+<circle cx="1362" cy="458" r="10" fill="#b98045"/><text x="1410" y="464" class="l">Pieza estructural</text>
+<rect x="1335" y="512" width="180" height="132" fill="#f7f9fb" stroke="#9aacbd"/><text x="1354" y="543" class="k">NORTE</text><path d="M1425 610V554M1425 554l-12 20M1425 554l12 20" class="axis"/><text x="1418" y="632" class="h">N</text>
+<text x="1335" y="710" class="h">ALCANCE DEL ARMADO</text>
+<text x="1335" y="744" class="l">• Sin sensores ni placas.</text><text x="1335" y="773" class="l">• Sin cables ni mangueras.</text><text x="1335" y="802" class="l">• Gabinete y Jarvis vacíos.</text><text x="1335" y="831" class="l">• No perforar reservas aún.</text>
+<text x="1335" y="890" class="h">ESCALA GRÁFICA</text><rect x="1335" y="916" width="80" height="14" fill="#10233f"/><rect x="1415" y="916" width="80" height="14" fill="white" stroke="#10233f"/><text x="1335" y="950" class="tiny">0</text><text x="1410" y="950" class="tiny">100</text><text x="1488" y="950" class="tiny">200 mm</text>
+<text x="82" y="1175" class="tiny">PL-01 · implantación general · verificar piezas físicas antes del corte definitivo · tolerancia inicial ±0.5 mm · geometría validada v4</text>
+</svg>

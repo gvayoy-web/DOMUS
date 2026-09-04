@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: bitacora
-actualizado: 2026-09-02
+actualizado: 2026-09-03
 ---
 
 # Bitácora de implementación
@@ -95,3 +95,27 @@ actualizado: 2026-09-02
 
 > [!NOTE]
 > El plano eléctrico v3 es funcional y evita fijar GPIO no verificados. La tabla de cableado y la serigrafía de la placa siguen teniendo autoridad antes del montaje físico.
+
+## 2026-09-03 — cierre lógico y protección anti-colapso
+
+### IMPLEMENTADO Y VALIDADO
+
+- Añadida histéresis de riego 35/45 % y ventilación 28/26 °C; simulador y firmware comparten límites.
+- Añadido modo seguro que apaga cargas y bloquea encendidos sin reiniciar el ESP32.
+- El supervisor entra en modo seguro con menos de 32 KiB libres o después de tres reinicios críticos consecutivos.
+- `RECUPERAR` solo libera el modo seguro con al menos 64 KiB libres y sin emergencia; las cargas permanecen apagadas.
+- Limitadas las entradas a 12 comandos por segundo, excepto `PARO`, que siempre tiene prioridad.
+- Fallos de humedad, DHT o LDR apagan inmediatamente las salidas que fueron encendidas automáticamente.
+- El búfer Serial reserva memoria una vez y tanto registros como eventos permanecen acotados.
+- El simulador incorpora modo seguro, recuperación, límite de órdenes e indicadores de emergencia.
+- Ejecutadas 20 pruebas de comportamiento y 18 contratos: 38/38 correctas.
+- Añadido contrato de compilación para impedir GPIO duplicados y umbrales de
+  histéresis/recuperación invertidos.
+- Añadida visualización central interactiva de energía, módulos y pines.
+- CI ejecuta ambas suites antes de compilar el firmware.
+
+### BLOQUEADO EXTERNAMENTE, NO POR CÓDIGO
+
+- Pinout final, calibraciones y cargas requieren la placa y mediciones físicas.
+- La voz requiere INMP441, MAX98357A, altavoz, dataset y modelos int8 validados.
+- `JARVIS_LOCAL_HABILITADO=false` y `MICROSD_HABILITADA=false` siguen siendo estados correctos hasta disponer de esos artefactos.

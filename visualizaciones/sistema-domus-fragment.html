@@ -1,0 +1,202 @@
+<div id="domus-system-visual">
+  <style>
+    #domus-system-visual { color: var(--foreground); width: 100%; }
+    #domus-system-visual .domus-header { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    #domus-system-visual .domus-status { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    #domus-system-visual .domus-stage { min-width: 0; }
+    #domus-system-visual .domus-stage .viz-stat-value { font-size: calc(var(--font-size-base) * 1.35); }
+    #domus-system-visual .domus-layout { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(260px, .8fr); gap: 20px; align-items: start; }
+    #domus-system-visual .domus-controls { margin-bottom: 12px; }
+    #domus-system-visual .domus-diagram { width: 100%; min-height: 520px; display: block; }
+    #domus-system-visual .domus-node rect { fill: color-mix(in srgb, var(--card) 88%, transparent); stroke: var(--border); stroke-width: 1.5; }
+    #domus-system-visual .domus-node text { fill: var(--foreground); font-size: 12px; font-weight: 500; }
+    #domus-system-visual .domus-node .sub { fill: var(--muted-foreground); font-weight: 400; }
+    #domus-system-visual .domus-power { fill: none; stroke: var(--viz-series-2); stroke-width: 4; }
+    #domus-system-visual .domus-signal { fill: none; stroke: var(--viz-series-1); stroke-width: 2; }
+    #domus-system-visual .domus-ground { fill: none; stroke: var(--muted-foreground); stroke-width: 2; stroke-dasharray: 5 4; }
+    #domus-system-visual .domus-optional { fill: none; stroke: var(--viz-series-4); stroke-width: 2; stroke-dasharray: 7 5; }
+    #domus-system-visual .route-source { transition: opacity .2s ease; }
+    #domus-system-visual .route-source.is-inactive { opacity: .16; }
+    #domus-system-visual .domus-detail { min-width: 0; }
+    #domus-system-visual .domus-detail h2 { margin-top: 0; }
+    #domus-system-visual .domus-key { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 14px; }
+    #domus-system-visual .domus-key span { display: inline-flex; align-items: center; gap: 6px; }
+    #domus-system-visual .domus-swatch { width: 28px; height: 3px; background: var(--viz-series-1); }
+    #domus-system-visual .domus-swatch.power { background: var(--viz-series-2); height: 4px; }
+    #domus-system-visual .domus-swatch.optional { background: repeating-linear-gradient(90deg, var(--viz-series-4) 0 8px, transparent 8px 13px); }
+    #domus-system-visual .domus-alert { color: var(--destructive); }
+    @media (max-width: 760px) {
+      #domus-system-visual .domus-layout { grid-template-columns: 1fr; }
+      #domus-system-visual .domus-status { grid-template-columns: 1fr; }
+      #domus-system-visual .domus-diagram { min-height: 460px; }
+    }
+  </style>
+
+  <div class="domus-header">
+    <div>
+      <h1>PROJECT DOMUS — sistema completo</h1>
+      <div class="text-muted">Alimentación, ESP32, sensores, cargas y módulos opcionales</div>
+    </div>
+    <div id="domus-route-status" class="viz-badge" aria-live="polite">Ruta activa: fuente 5 V / 3 A</div>
+  </div>
+
+  <div class="domus-status" aria-label="Estado del proyecto">
+    <div class="card viz-stat domus-stage">
+      <div class="text-muted">Código</div>
+      <div class="viz-stat-value">Terminado</div>
+      <div class="text-small">38 pruebas automáticas</div>
+    </div>
+    <div class="card viz-stat domus-stage">
+      <div class="text-muted">Planes y conexiones</div>
+      <div class="viz-stat-value">00–19</div>
+      <div class="text-small">Manual maestro pin por pin</div>
+    </div>
+    <div class="card viz-stat domus-stage">
+      <div class="text-muted">Construcción física</div>
+      <div class="viz-stat-value">Pendiente</div>
+      <div class="text-small">Requiere calibración y hardware real</div>
+    </div>
+  </div>
+
+  <div class="viz-controls domus-controls" aria-label="Ruta de alimentación">
+    <button type="button" class="btn btn-primary" data-route="wall" aria-pressed="true">Fuente 5 V</button>
+    <button type="button" class="btn" data-route="battery" aria-pressed="false">Batería USB</button>
+    <button type="button" class="btn" data-route="solar" aria-pressed="false">Solar</button>
+  </div>
+
+  <div class="domus-layout">
+    <div>
+      <svg class="domus-diagram" viewBox="0 0 820 560" role="img" aria-labelledby="domus-svg-title domus-svg-desc">
+        <title id="domus-svg-title">Diagrama completo de PROJECT DOMUS</title>
+        <desc id="domus-svg-desc">Tres rutas alternativas alimentan una barra de cinco voltios. La barra alimenta el ESP32, relés y módulos. El ESP32 conecta sensores, pantalla y módulos opcionales por GPIO.</desc>
+        <defs>
+          <marker id="domus-arrow-power" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--viz-series-2)"></path></marker>
+          <marker id="domus-arrow-signal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--viz-series-1)"></path></marker>
+        </defs>
+
+        <g class="route-source" data-source="wall">
+          <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M145 65 H250"></path>
+          <g class="domus-node"><rect x="20" y="35" width="125" height="60" rx="8"></rect><text x="82" y="59" text-anchor="middle">Fuente regulada</text><text class="sub" x="82" y="78" text-anchor="middle">5 V / 3 A</text></g>
+        </g>
+        <g class="route-source is-inactive" data-source="battery">
+          <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M145 155 H180 V105 H250"></path>
+          <g class="domus-node"><rect x="20" y="125" width="125" height="60" rx="8"></rect><text x="82" y="149" text-anchor="middle">TP4056 + 1S</text><text class="sub" x="82" y="168" text-anchor="middle">elevador 5.0 V</text></g>
+        </g>
+        <g class="route-source is-inactive" data-source="solar">
+          <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M145 245 H205 V105 H250"></path>
+          <g class="domus-node"><rect x="20" y="215" width="125" height="60" rx="8"></rect><text x="82" y="239" text-anchor="middle">Panel + cargador</text><text class="sub" x="82" y="258" text-anchor="middle">1S + elevador</text></g>
+        </g>
+
+        <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M365 105 H410"></path>
+        <g class="domus-node"><rect x="250" y="75" width="115" height="60" rx="8"></rect><text x="307" y="99" text-anchor="middle">Fusible 3 A</text><text class="sub" x="307" y="118" text-anchor="middle">+ interruptor</text></g>
+        <g class="domus-node"><rect x="410" y="75" width="120" height="60" rx="8"></rect><text x="470" y="99" text-anchor="middle">5V_BUS</text><text class="sub" x="470" y="118" text-anchor="middle">distribución estrella</text></g>
+
+        <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M530 105 H590 V180"></path>
+        <path class="domus-power" marker-end="url(#domus-arrow-power)" d="M470 135 V180"></path>
+        <g class="domus-node"><rect x="410" y="180" width="120" height="72" rx="8"></rect><text x="470" y="208" text-anchor="middle">ESP32-S3</text><text class="sub" x="470" y="228" text-anchor="middle">5V · 3V3 · GND</text></g>
+        <g class="domus-node"><rect x="590" y="180" width="155" height="72" rx="8"></rect><text x="667" y="207" text-anchor="middle">Relés + cargas</text><text class="sub" x="667" y="227" text-anchor="middle">GPIO4–8 · 5 V</text></g>
+
+        <path class="domus-signal" marker-end="url(#domus-arrow-signal)" d="M410 205 H335 V315"></path>
+        <path class="domus-signal" marker-end="url(#domus-arrow-signal)" d="M445 252 V315"></path>
+        <path class="domus-signal" marker-end="url(#domus-arrow-signal)" d="M495 252 V315 H575"></path>
+        <path class="domus-signal" marker-end="url(#domus-arrow-signal)" d="M530 215 H575"></path>
+
+        <g class="domus-node"><rect x="245" y="315" width="180" height="92" rx="8"></rect><text x="335" y="341" text-anchor="middle">Sensores</text><text class="sub" x="335" y="361" text-anchor="middle">GPIO1 suelo · 2 agua · 3 LDR</text><text class="sub" x="335" y="380" text-anchor="middle">GPIO9 PIR · 14 DHT</text></g>
+        <g class="domus-node"><rect x="445" y="315" width="130" height="92" rx="8"></rect><text x="510" y="341" text-anchor="middle">Controles</text><text class="sub" x="510" y="361" text-anchor="middle">GPIO10 PARO</text><text class="sub" x="510" y="380" text-anchor="middle">11 MIC · 12 DEMO</text></g>
+        <g class="domus-node"><rect x="575" y="315" width="170" height="92" rx="8"></rect><text x="660" y="341" text-anchor="middle">LCD1602 I2C</text><text class="sub" x="660" y="361" text-anchor="middle">GPIO21 SDA · 13 SCL</text><text class="sub" x="660" y="380" text-anchor="middle">adaptador 3.3 ↔ 5 V</text></g>
+
+        <path class="domus-optional" d="M410 235 H190 V470"></path>
+        <path class="domus-optional" d="M470 252 V470"></path>
+        <path class="domus-optional" d="M530 235 H700 V470"></path>
+        <g class="domus-node"><rect x="90" y="470" width="200" height="70" rx="8"></rect><text x="190" y="496" text-anchor="middle">Audio I2S opcional</text><text class="sub" x="190" y="516" text-anchor="middle">15/16/17 · 40/41/42</text></g>
+        <g class="domus-node"><rect x="370" y="470" width="200" height="70" rx="8"></rect><text x="470" y="496" text-anchor="middle">microSD opcional</text><text class="sub" x="470" y="516" text-anchor="middle">38/39/47/48 SPI</text></g>
+        <g class="domus-node"><rect x="610" y="470" width="170" height="70" rx="8"></rect><text x="695" y="496" text-anchor="middle">WS2812 opcional</text><text class="sub" x="695" y="516" text-anchor="middle">GPIO sin asignar</text></g>
+      </svg>
+
+      <div class="domus-key text-small" aria-label="Leyenda">
+        <span><i class="domus-swatch power" aria-hidden="true"></i>5 V</span>
+        <span><i class="domus-swatch" aria-hidden="true"></i>Señal GPIO</span>
+        <span><i class="domus-swatch optional" aria-hidden="true"></i>Módulo opcional deshabilitado</span>
+      </div>
+    </div>
+
+    <div class="domus-detail">
+      <label class="form-label" for="domus-module-select">Conexión detallada</label>
+      <select id="domus-module-select" class="form-select">
+        <option value="lcd">LCD1602 I2C</option>
+        <option value="sensors">Sensores</option>
+        <option value="relays">Relés</option>
+        <option value="mic">INMP441</option>
+        <option value="amp">MAX98357A</option>
+        <option value="sd">microSD SPI</option>
+        <option value="power">Batería y solar</option>
+      </select>
+      <h2 id="domus-detail-title">LCD1602 I2C</h2>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead><tr><th>Pin</th><th>Conectar a</th></tr></thead>
+          <tbody id="domus-detail-body"></tbody>
+        </table>
+      </div>
+      <div id="domus-detail-note" class="text-small text-muted" aria-live="polite"></div>
+      <hr>
+      <div class="text-small domus-alert">Nunca unir directamente fuente, batería y panel. Ningún GPIO admite 5 V.</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('domus-system-visual');
+      const routeStatus = root.querySelector('#domus-route-status');
+      const routeLabels = {
+        wall: 'Ruta activa: fuente 5 V / 3 A',
+        battery: 'Ruta activa: TP4056 + batería 1S + elevador',
+        solar: 'Ruta activa: panel + cargador solar + 1S + elevador'
+      };
+      root.querySelectorAll('[data-route]').forEach(button => {
+        button.addEventListener('click', () => {
+          const selected = button.dataset.route;
+          root.querySelectorAll('[data-route]').forEach(other => {
+            const active = other === button;
+            other.setAttribute('aria-pressed', String(active));
+            other.classList.toggle('btn-primary', active);
+          });
+          root.querySelectorAll('[data-source]').forEach(group => {
+            group.classList.toggle('is-inactive', group.dataset.source !== selected);
+          });
+          routeStatus.textContent = routeLabels[selected];
+        });
+      });
+
+      const modules = {
+        lcd: { title: 'LCD1602 I2C', note: 'Si el backpack usa 5 V, SDA y SCL pasan por un conversor bidireccional.', rows: [['GND', 'GND común'], ['VCC', '5V_BUS'], ['SDA', 'HV1 ↔ LV1 ↔ GPIO21'], ['SCL', 'HV2 ↔ LV2 ↔ GPIO13']] },
+        sensors: { title: 'Sensores', note: 'Todos los ADC deben permanecer entre 0 y 3.3 V.', rows: [['Suelo AO', 'GPIO1'], ['Nivel AO', 'GPIO2'], ['LDR divisor', 'GPIO3'], ['PIR OUT', 'GPIO9'], ['DHT DATA', 'GPIO14']] },
+        relays: { title: 'Cinco relés', note: 'Bobinas a 5V_BUS; contactos NO para arrancar apagados.', rows: [['Bomba IN', 'GPIO4'], ['Sala IN1', 'GPIO5'], ['Dormitorio IN2', 'GPIO6'], ['Ventilador IN3', 'GPIO7'], ['Invernadero IN4', 'GPIO8']] },
+        mic: { title: 'INMP441', note: 'Solo 3.3 V. L/R a GND para canal izquierdo.', rows: [['VDD', '3V3'], ['GND', 'GND'], ['WS', 'GPIO15'], ['SD', 'GPIO16'], ['SCK', 'GPIO17'], ['L/R', 'GND']] },
+        amp: { title: 'MAX98357A', note: 'Altavoz únicamente entre SPK+ y SPK−; nunca SPK− a GND.', rows: [['VIN', '5V_BUS'], ['GND', 'GND'], ['BCLK', 'GPIO40 propuesto'], ['LRC', 'GPIO41 propuesto'], ['DIN', 'GPIO42 propuesto']] },
+        sd: { title: 'microSD SPI', note: 'La función permanece apagada hasta validar el lector real.', rows: [['SCK', 'GPIO38'], ['MISO', 'GPIO39'], ['MOSI', 'GPIO47'], ['CS', 'GPIO48'], ['VCC', '3V3 si el módulo es nativo 3.3 V']] },
+        power: { title: 'Batería y solar', note: 'Seleccionar una ruta. Para cambio automático hace falta power-path verificado.', rows: [['TP4056 OUT+', 'Elevador IN+'], ['Elevador OUT+', 'Fusible → switch → 5V_BUS'], ['Panel PV+', 'Cargador solar VIN+'], ['Batería protegida', 'Elevador estable 5.0 V']] }
+      };
+      const select = root.querySelector('#domus-module-select');
+      const title = root.querySelector('#domus-detail-title');
+      const body = root.querySelector('#domus-detail-body');
+      const note = root.querySelector('#domus-detail-note');
+      const renderDetail = () => {
+        const item = modules[select.value];
+        title.textContent = item.title;
+        body.replaceChildren(...item.rows.map(row => {
+          const tr = document.createElement('tr');
+          row.forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+          return tr;
+        }));
+        note.textContent = item.note;
+      };
+      select.addEventListener('change', renderDetail);
+      renderDetail();
+    })();
+  </script>
+</div>

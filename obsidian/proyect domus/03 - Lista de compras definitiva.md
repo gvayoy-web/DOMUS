@@ -45,13 +45,13 @@ El lector SPI y el DFPlayer no comparten tarjeta: cada ranura tiene una función
 
 ## C. Solar y batería — comprar solo después de medir
 
-### Opción robusta aproximada de 7,500 mAh
+### Estimación de una opción de 7,500 mAh, no orden de compra inmediata
 
 | Compra | Cant. | Precio visto | Subtotal |
 |---|---:|---:|---:|
 | Panel 5 V/1,100 mA | 1 | C&D L280 | L280 |
-| 18650 BAK 2,500 mAh nuevas e idénticas | 3 | C&D L180 | L540 |
-| Portacelda 18650 individual | 3 | C&D L55 | L165 |
+| Solución de batería 1S protegida equivalente a 7,500 mAh | 1 | estimación basada en 3 × L180 | L540 |
+| Portabatería/conjunto adecuado para el pack | 1 | estimación previa 3 × L55 | L165 |
 | Protección BMS 1S | 1 | C&D L85 | L85 |
 | CN3065 solar | 1 | C&D L135 | L135 |
 | MT3608 elevador a 5 V | 1 | C&D L90 | L90 |
@@ -60,7 +60,11 @@ El lector SPI y el DFPlayer no comparten tarjeta: cada ranura tiene una función
 
 **Subtotal solar:** L1,355, sin cableado, fusible ni envío.
 
-No uses los TP4056 a la vez que CN3065+BMS. Los TP4056 quedan para una arquitectura USB separada o para pruebas de una sola celda.
+No uses los TP4056 a la vez que CN3065/protección. Los TP4056 quedan para una
+arquitectura USB separada o para pruebas de una sola celda. Esta tabla solo
+reserva presupuesto: no comprar ni montar celdas en paralelo hasta medir el
+consumo y definir un pack protegido con conectores, corriente y cargador
+compatibles. Véase [[18 - Manual maestro de conexiones pin por pin]].
 
 ## D. Materiales todavía no confirmados
 

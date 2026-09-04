@@ -56,6 +56,9 @@ class DomusSimulator(tk.Tk):
         ttk.Button(controls, text="+120 s", command=lambda: self._advance(120)).pack(side="left", padx=4)
         ttk.Button(controls, text="Reiniciar", command=self._reset).pack(side="left", padx=(18, 4))
         ttk.Button(controls, text="PARO DE EMERGENCIA", command=self._emergency).pack(side="right")
+        ttk.Button(controls, text="Rearmar", command=self._rearm).pack(side="right", padx=4)
+        ttk.Button(controls, text="Recuperar", command=self._recover).pack(side="right", padx=4)
+        ttk.Button(controls, text="Simular fallo crítico", command=self._safe_mode).pack(side="right", padx=4)
 
         body = ttk.Panedwindow(self, orient="horizontal")
         body.pack(fill="both", expand=True, padx=16, pady=(0, 16))
@@ -205,6 +208,18 @@ class DomusSimulator(tk.Tk):
         self.core.emergency_stop()
         self._refresh()
 
+    def _rearm(self) -> None:
+        self.core.rearm_emergency()
+        self._refresh()
+
+    def _recover(self) -> None:
+        self.core.recover_safe_mode()
+        self._refresh()
+
+    def _safe_mode(self) -> None:
+        self.core.enter_safe_mode("fallo crítico simulado")
+        self._refresh()
+
     def _tick(self) -> None:
         if self.running:
             self._advance(self.SIM_SECONDS_PER_TICK)
@@ -227,7 +242,10 @@ class DomusSimulator(tk.Tk):
                 f"Ambiente: {self._fmt(s.temperature_c, '°C')} / {self._fmt(s.air_humidity_pct, '%HR')}\n"
                 f"Luz: {self._fmt(s.light_pct, '%')}\n"
                 f"Depósito: {self._fmt(s.water_level_pct, '%')}\n"
-                f"PIR: {'ACTIVO' if s.presence else 'libre'} · MIC: {'ON' if s.mic_enabled else 'OFF'}"
+                f"PIR: {'ACTIVO' if s.presence else 'libre'} · MIC: {'ON' if s.mic_enabled else 'OFF'}\n"
+                f"Emergencia: {'ACTIVA' if self.core.emergency_active else 'libre'} · "
+                f"Modo seguro: {'ACTIVO' if self.core.safe_mode_active else 'libre'}"
+                f"{f' ({self.core.safe_mode_reason})' if self.core.safe_mode_active else ''}"
             )
         )
 

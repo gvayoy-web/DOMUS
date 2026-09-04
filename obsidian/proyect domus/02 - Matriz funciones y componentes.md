@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: matriz
-actualizado: 2026-09-01
+actualizado: 2026-09-03
 ---
 
 # Matriz de funciones y componentes
@@ -9,24 +9,25 @@ actualizado: 2026-09-01
 | Función prometida | Hardware necesario | ¿Está? | Trabajo pendiente |
 |---|---|---|---|
 | Control central | ESP32-S3 N16R8 | Sí | Cargar y validar firmware en placa real. |
-| Pantalla de estado | LCD1602 + adaptador I2C | Sí | Corregir pin SCL inválido y probar dirección 0x27/0x3F. |
+| Pantalla de estado | LCD1602 + adaptador I2C | Sí | Código corregido a GPIO13 provisional y detección 0x27/0x3F; confirmar pin físicamente. |
 | Luz sala | LED(s), resistencia, relé | Parcial | LED/resistencia sí; canal de relé vendrá del módulo de 4 canales. |
 | Luz dormitorio | LED(s), resistencia, relé | Parcial | Igual que sala. |
 | Luz invernadero | LED(s), resistencia, relé | Parcial | Igual que sala. |
 | Ventilación | Motor+aspa, relé o driver, diodo | Sí/Parcial | Motor y diodo sí; canal en relé de 4 canales. Medir corriente. |
 | Riego | Bomba+tubo, relé, depósito | Sí/Parcial | Usar relé de 1 canal existente; falta depósito físico y prueba de fugas. |
-| Humedad de suelo | Sonda resistiva | Sí | Adaptar comentarios/calibración del firmware; energizar solo durante lectura si es posible. |
+| Humedad de suelo | Sonda resistiva | Sí | Código e histéresis completos; calibrar seco/húmedo físicamente. |
 | Temperatura/humedad de aire | DHT11/DHT22 | Sí | Confirmar modelo real y calibrar. |
 | Luz ambiental | LDR + 10 kΩ | Sí | Montar divisor y calibrar. |
-| Presencia | PIR | Sí | Falta código y pin definitivo. |
-| Nivel de depósito | Sensor de nivel | Sí | Falta código, pin y protección contra agua. |
+| Presencia | PIR | Sí | Código y retención implementados; confirmar GPIO9 y nivel activo. |
+| Nivel de depósito | Sensor de nivel | Sí | Lectura, validación y bloqueo de bomba implementados; confirmar GPIO2, umbral y protección contra agua. |
 | Jarvis escucha | INMP441 | No | Comprar/importar y probar PoC a 16 kHz. |
 | Jarvis entiende | modelos TinyML int8 | No, es software | Grabar dataset, entrenar, medir precisión y guardar en flash. |
 | Jarvis habla | PicoTTS + MAX98357A + altavoz | Parcial | PoC existe; falta hardware e integración. |
 | Aro azul | WS2812 + 330 Ω + desacoplo | Sí/Parcial | Tira y resistencia sí; adaptar nivel lógico es recomendado. |
 | Respaldo de voz MP3 | DFPlayer + microSD + altavoz | Parcial | DFPlayer sí; tarjeta y salida de audio no. Es opcional. |
-| Diagnóstico local | USB Serial del ESP32-S3 | Sí | Comandos y respuestas locales sin aplicación ni radio. |
-| Wi-Fi/MQTT | ESP32-S3 + router | Sí en hardware | Software opcional pendiente. |
+| Diagnóstico local | USB Serial del ESP32-S3 | Sí | Estado, diagnóstico, paro, rearme, recuperación y limitación de ráfagas implementados. |
+| Supervisor anti-colapso | ESP32-S3 | Sí | Modo seguro por memoria/reinicios, watchdog y recuperación explícita implementados. |
+| Wi-Fi/MQTT | ESP32-S3 + router | Fuera de alcance | No pertenece al núcleo local decidido; solo sería una extensión futura. |
 | Solar | panel, cargador solar, batería, protección y elevador | No | Fase posterior a medición. |
 
 ## Recuento correcto de relés

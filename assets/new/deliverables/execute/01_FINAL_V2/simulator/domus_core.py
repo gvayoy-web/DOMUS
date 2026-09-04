@@ -38,16 +38,17 @@ class Sensors:
 
 @dataclass
 class Thresholds:
-    soil_on_pct: float = 30.0
+    soil_on_pct: float = 35.0
     soil_off_pct: float = 45.0
     minimum_water_pct: float = 20.0
     pump_max_seconds: float = 120.0
-    fan_on_c: float = 29.0
-    fan_off_c: float = 27.0
-    dark_on_pct: float = 20.0
-    dark_off_pct: float = 35.0
+    fan_on_c: float = 28.0
+    fan_off_c: float = 26.0
+    dark_on_pct: float = 25.0
+    dark_off_pct: float = 40.0
     presence_hold_seconds: float = 30.0
     voice_min_confidence: float = 0.75
+    max_commands_per_second: int = 12
 
 
 @dataclass
@@ -75,6 +76,9 @@ class DomusCore:
     storage_files: Dict[str, str] = field(default_factory=dict)
     last_response: str = ""
     emergency_active: bool = False
+    safe_mode_active: bool = False
+    safe_mode_reason: str = ""
+    command_times_s: List[float] = field(default_factory=list)
 
     def log(self, level: str, message: str) -> None:
         if self.events and self.events[-1].message == message:
@@ -96,6 +100,10 @@ class DomusCore:
             self._set_state(actuator, False, "bloqueada por paro de emergencia")
             self.log("SAFE", f"Orden rechazada para {actuator.value}: emergencia activa")
             return
+        if self.safe_mode_active and mode == Mode.MANUAL_ON:
+            self._set_state(actuator, False, "bloqueada por modo seguro")
+            self.log("SAFE", f"Orden rechazada para {actuator.value}: modo seguro")
+            return
         self.modes[actuator] = mode
         self.log("MODE", f"{actuator.value} → {mode.value}")
         if mode == Mode.MANUAL_ON:
@@ -116,6 +124,7 @@ class DomusCore:
     ) -> bool:
         """Aplica una intención de Jarvis o un control físico, sin red."""
         self.last_response = ""
+        normalized_intent = intent.strip().upper()
         if from_voice and not self.sensors.mic_enabled:
             self.last_response = "Micrófono desactivado."
             self.log("VOICE", "Orden ignorada: MIC OFF")
@@ -124,6 +133,24 @@ class DomusCore:
             self.last_response = "No entendí la orden."
             self.log("VOICE", f"Orden rechazada por confianza baja ({confidence:.2f})")
             return False
+        if normalized_intent != "PARO" and not self._admit_command():
+            self.last_response = "Demasiadas órdenes; inténtalo de nuevo."
+            self.log("SAFE", "Orden rechazada por límite de frecuencia")
+            return False
+        if normalized_intent == "PARO":
+            self.emergency_stop()
+            self.last_response = "Paro de emergencia activado."
+            return True
+        if normalized_intent == "REARMAR" and not from_voice:
+            self.rearm_emergency()
+            self.last_response = "Emergencia rearmada."
+            return True
+        if normalized_intent == "RECUPERAR" and not from_voice:
+            recovered = self.recover_safe_mode()
+            self.last_response = (
+                "Modo seguro liberado." if recovered else "No es seguro recuperar todavía."
+            )
+            return recovered
         mapping = {
             "RIEGO_ON": (Actuator.PUMP, Mode.MANUAL_ON),
             "RIEGO_OFF": (Actuator.PUMP, Mode.MANUAL_OFF),
@@ -141,7 +168,7 @@ class DomusCore:
             "INVERNADERO_OFF": (Actuator.GREENHOUSE_LIGHT, Mode.MANUAL_OFF),
             "INVERNADERO_AUTO": (Actuator.GREENHOUSE_LIGHT, Mode.AUTO),
         }
-        target = mapping.get(intent.strip().upper())
+        target = mapping.get(normalized_intent)
         if target is None:
             self.last_response = "No entendí la orden."
             self.log("VOICE", f"Intención desconocida: {intent}")
@@ -149,6 +176,10 @@ class DomusCore:
         if self.emergency_active and target[1] == Mode.MANUAL_ON:
             self.last_response = "No puedo encender dispositivos: paro de emergencia activo."
             self.log("SAFE", "Orden rechazada: paro de emergencia activo")
+            return False
+        if self.safe_mode_active and target[1] == Mode.MANUAL_ON:
+            self.last_response = "No puedo encender dispositivos: modo seguro activo."
+            self.log("SAFE", "Orden rechazada: modo seguro activo")
             return False
         self.set_mode(*target)
         actuator, mode = target
@@ -160,6 +191,14 @@ class DomusCore:
             self.last_response = "No puedo regar: el depósito no tiene agua suficiente."
         else:
             self.last_response = f"He apagado {actuator.value}."
+        return True
+
+    def _admit_command(self) -> bool:
+        window_start = self.time_s - 1.0
+        self.command_times_s = [t for t in self.command_times_s if t > window_start]
+        if len(self.command_times_s) >= self.thresholds.max_commands_per_second:
+            return False
+        self.command_times_s.append(self.time_s)
         return True
 
     def mount_storage(self, available: bool = True) -> bool:
@@ -260,9 +299,10 @@ class DomusCore:
             self._set_state(Actuator.BEDROOM_LIGHT, False, "AUTO seguro sin presencia dedicada")
 
     def evaluate(self) -> None:
-        if self.emergency_active:
+        if self.emergency_active or self.safe_mode_active:
             for actuator in Actuator:
-                self._set_state(actuator, False, "PARO DE EMERGENCIA")
+                reason = "PARO DE EMERGENCIA" if self.emergency_active else "MODO SEGURO"
+                self._set_state(actuator, False, reason)
             return
         self._evaluate_pump()
         self._evaluate_fan()
@@ -286,6 +326,25 @@ class DomusCore:
         self.emergency_active = False
         self.log("SAFE", "Emergencia rearmada; actuadores permanecen apagados")
 
+    def enter_safe_mode(self, reason: str) -> None:
+        """Degrada el sistema sin reiniciarlo y deja diagnóstico disponible."""
+        self.safe_mode_active = True
+        self.safe_mode_reason = reason or "desconocido"
+        for actuator in Actuator:
+            self.modes[actuator] = Mode.MANUAL_OFF
+            self._set_state(actuator, False, "MODO SEGURO")
+        self.log("SAFE", f"Modo seguro activo: {self.safe_mode_reason}")
+
+    def recover_safe_mode(self, *, memory_ok: bool = True) -> bool:
+        """Libera el modo seguro sin encender cargas ni restaurar AUTO."""
+        if self.emergency_active or not memory_ok:
+            self.log("SAFE", "Recuperación rechazada: condición insegura")
+            return False
+        self.safe_mode_active = False
+        self.safe_mode_reason = ""
+        self.log("SAFE", "Modo seguro liberado; actuadores permanecen apagados")
+        return True
+
     def reset(self) -> None:
         self.time_s = 0.0
         self.states = {actuator: False for actuator in Actuator}
@@ -295,6 +354,9 @@ class DomusCore:
         self.last_presence_s = None
         self.last_response = ""
         self.emergency_active = False
+        self.safe_mode_active = False
+        self.safe_mode_reason = ""
+        self.command_times_s.clear()
         self.log("BOOT", "Arranque seguro: todas las salidas apagadas")
 
     def snapshot(self) -> dict:
@@ -307,4 +369,6 @@ class DomusCore:
             "last_response": self.last_response,
             "storage_mounted": self.storage_mounted,
             "emergency_active": self.emergency_active,
+            "safe_mode_active": self.safe_mode_active,
+            "safe_mode_reason": self.safe_mode_reason,
         }

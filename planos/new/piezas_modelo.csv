@@ -1,0 +1,112 @@
+name,x,y,z,w,d,h,material,layer,note,rx,ry,rz
+Base negra 800x520,0.0,0.0,0,800.0,520.0,12,base,base,MDF 12 mm pintado negro,0,0,0
+Frente rotulado PROJECT DOMUS,0.0,0.0,-63,800.0,3,75,roof,base,Letras de vinilo o acrílico,0,0,0
+Canal técnico oculto,228.0,22.4,12,552.0,22.4,16,blue,systems,Canaleta con tapa removible,0,0,0
+Piso vivienda,240.0,240.0,12,344.0,260.0,7,floor,house,Plywood 3 mm sobre bastidor,0,0,0
+Muro posterior vivienda,240.0,497.6,19,344.0,3,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
+Muro lateral izquierdo,240.0,240.0,19,3,260.0,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
+Muro lateral derecho,581.6,240.0,19,3,260.0,225,wood_light,house,Pieza estructural de la vivienda de una planta; presentar en seco antes de fijar.,0,0,0
+Techo plano removible,233.6,233.6,244,356.8,272.8,10,roof,roof,Se retira para mantenimiento,0,0,0
+Alero frontal,228.0,224.0,238,368.0,17.6,14,wood,roof,Elemento superior removible para inspección y mantenimiento del interior.,0,0,0
+Mueble bajo cocina,260.0,457.6,19,142.4,33.6,68,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Encimera cocina,257.6,454.4,87,147.2,38.4,7,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Gabinete alto cocina,260.0,475.2,130,104.0,19.2,72,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Refrigerador,412.0,438.4,19,38.4,52.8,138,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Isla cocina,324.0,372.0,19,94.4,38.4,70,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cubierta isla,320.0,368.0,89,102.4,46.4,6,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Sofá sala,264.0,280.0,19,97.6,44.0,52,blue,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mesa sala,369.6,296.0,19,56.0,38.4,31,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cama base,436.0,324.0,19,94.4,142.4,37,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Colchón,440.0,328.0,56,86.4,134.4,24,white,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Cabecero,433.6,453.6,19,99.2,10,86,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mesa de noche,540.0,416.0,19,30.4,30.4,42,wood,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Mampara baño,544.0,244.0,19,3,232.0,190,glass,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Ducha piso,550.4,400.0,19,27.2,75.2,8,glass,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Lavamanos,551.2,344.0,19,25.6,38.4,62,white,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Inodoro,552.0,272.0,19,24.0,41.6,43,white,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Plataforma porche,272.0,57.6,12,200.0,156.0,8,floor,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Cubierta porche,265.6,49.6,154,212.8,168.0,9,roof,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Poste porche izquierdo,276.0,60.0,20,8,8,134,wood,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Poste porche derecho,460.0,60.0,20,8,8,134,wood,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Pasarela,352.0,17.6,12,46.4,88.0,6,wood_light,porch,Pieza del acceso frontal; alinear con la pasarela y mantener libre la zona del PIR.,0,0,0
+Jardinera izquierda,288.0,73.6,20,30.4,108.0,26,soil,landscape,Elemento paisajístico de presentación sin función eléctrica o hidráulica activa.,0,0,0
+Jardinera derecha,424.0,73.6,20,30.4,108.0,26,soil,landscape,Elemento paisajístico de presentación sin función eléctrica o hidráulica activa.,0,0,0
+Base invernadero,20.0,184.0,12,200.0,280.0,7,wood,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Bancal izquierdo,38.4,212.0,19,60.8,224.0,42,soil,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Bancal derecho,124.0,212.0,19,60.8,224.0,42,soil,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente izquierdo,20.0,184.0,19,3,280.0,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente derecho,217.6,184.0,19,3,280.0,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Panel transparente posterior,20.0,461.6,19,200.0,3,165,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Cubierta inclinada izquierda,20.8,184.0,203,108.1,280.0,3,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,-22.3,0
+Cubierta inclinada derecha,111.2,184.0,203,108.1,280.0,3,glass,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,22.3,0
+Viga cumbrera,116.8,184.0,217,8,280.0,8,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 25-230,20.0,184.0,19,7,7,165,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 25-577,20.0,461.6,19,7,7,165,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 150-230,120.0,184.0,19,7,7,206,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 150-577,120.0,461.6,19,7,7,206,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 272-230,217.6,184.0,19,7,7,165,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Poste invernadero 272-577,217.6,461.6,19,7,7,165,metal,greenhouse,Pieza del invernadero; mantener paneles transparentes accesibles y bancales nivelados.,0,0,0
+Planta 48,38.4,264.0,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 88,70.4,264.0,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 172,137.6,264.0,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Planta 212,169.6,264.0,61,10,10,58,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Torre Jarvis cuerpo,600.0,196.0,12,84.0,94.4,290,roof,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+Panel azul central,612.8,191.2,55,58.4,7,220,blue,jarvis,"Elemento de la interfaz local Jarvis; no depende de red, teléfono ni nube.",0,0,0
+Gabinete técnico base,696.0,188.0,12,88.0,120.0,7,metal,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete fondo,696.0,305.6,19,88.0,3,250,wood,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete lateral izquierdo,696.0,188.0,19,3,120.0,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete lateral derecho,781.6,188.0,19,3,120.0,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Gabinete frontal removible,696.0,188.0,19,88.0,3,250,glass,electronics,"Parte del gabinete técnico; mantener ventilación, etiquetado y acceso de servicio.",0,0,0
+Junta de tablón 310,248.0,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 352,281.6,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 394,315.2,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 436,348.8,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 478,382.4,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 520,416.0,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 562,449.6,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 604,483.2,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 646,516.8,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 688,550.4,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Junta de tablón 730,584.0,496.8,20,1.4,4,222,wood,house,Junta visual de panel,0,0,0
+Tabique dormitorio,425.6,313.6,19,3,182.4,188,wood_light,house,Panel interior desmontable,0,0,0
+Puerta interior,423.2,252.0,19,7,57.6,174,wood,house,Hoja señalada en planta,0,0,0
+Frente cajón cocina 1,272.0,453.6,36,52.8,4,20,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Frente cajón cocina 2,328.0,453.6,36,52.8,4,20,wood_light,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Fregadero,361.6,450.4,94,32.0,24.0,5,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Grifo,376.0,475.2,98,5,5,30,metal,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Almohada,450.4,429.6,80,65.6,27.2,12,white,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Respaldo sofá,264.0,312.0,55,97.6,11.2,38,blue,furniture,Mobiliario didáctico que ayuda a leer la distribución interior y la escala de la maqueta.,0,0,0
+Lavamanos cubeta,552.8,348.0,82,21.6,29.6,8,acrylic,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Ducha columna,571.2,452.8,27,6,6,138,metal,bath,Elemento del baño representado para lectura espacial; no forma parte del circuito hidráulico de riego.,0,0,0
+Imán techo 300-300,240.0,240.0,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 724-300,579.2,240.0,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 300-620,240.0,496.0,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Imán techo 724-620,579.2,496.0,241,8,8,4,magnet,removable,Imán de alineación del techo,0,0,0
+Bisagra gabinete izquierda,697.6,185.6,72,8,7,24,magnet,removable,Herraje o fijación de un componente removible para inspección sin dañar la maqueta.,0,0,0
+Bisagra gabinete derecha,770.4,185.6,72,8,7,24,magnet,removable,Herraje o fijación de un componente removible para inspección sin dañar la maqueta.,0,0,0
+Tallo planta 48,40.8,266.4,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 48,32.8,261.6,92,16.0,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 48,39.2,269.6,108,17.6,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 88,72.8,266.4,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 88,64.8,261.6,92,16.0,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 88,71.2,269.6,108,17.6,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 172,140.0,266.4,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 172,132.0,261.6,92,16.0,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 172,138.4,269.6,108,17.6,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Tallo planta 212,172.0,266.4,61,4,4,62,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,0
+Hoja A planta 212,164.0,261.6,92,16.0,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,28
+Hoja B planta 212,170.4,269.6,108,17.6,8,5,green,plants,Representación de cultivo para explicar la zona supervisada por humedad y riego.,0,0,-24
+Reserva depósito,20,52,13,92,92,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva bomba,104,76,13,48,34,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva humedad de suelo,84,328,18,14,14,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva panel solar izquierdo,284,304,255,145,105,2,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva panel solar derecho,428,304,255,145,105,2,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva PIR de entrada,484,188,60,28,15,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva pantalla Jarvis,618,186,82,60,7,32,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva micrófono Jarvis,639,188,222,12,8,12,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva electrónica gabinete,710,250,55,64,96,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva DHT11 interior,456,488,145,20,12,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva LDR bajo alero,563,229,208,16,10,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva luz sala,340,416,220,18,18,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva luz dormitorio,492,416,220,18,18,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0
+Reserva luz invernadero,114,336,218,18,18,3,acrylic,reservations,RESERVA SOLAMENTE: no instalar ni cablear durante el armado de la maqueta cruda.,0,0,0

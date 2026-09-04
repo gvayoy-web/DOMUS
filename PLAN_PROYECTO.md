@@ -17,7 +17,7 @@
 
 - Compilación reproducible del firmware doméstico en GitHub Actions para
   ESP32-S3 N16R8: Arduino-ESP32 3.3.10, flash de 16 MB y PSRAM OPI.
-- Binarios generados correctamente: 399,078 bytes de programa y 24,948 bytes
+- Binarios generados correctamente: 402,218 bytes de programa y 25,020 bytes
   de memoria dinámica global con Jarvis y microSD desactivados hasta disponer
   del hardware validado.
 - Cinco cargas lógicas, LCD, riego, ventilación y luces automáticas. La
@@ -34,6 +34,13 @@
 - Prueba ESP-IDF de PicoTTS español con salida I2S configurable.
 - Prueba ESP-IDF del INMP441 a 16 kHz, con búfer de dos segundos en PSRAM,
   medición RMS/pico/DC/saturación y VAD inicial.
+- Histéresis coherente entre firmware y gemelo digital para riego,
+  ventilación e iluminación.
+- Supervisor de salud con modo seguro por memoria crítica o tres reinicios
+  críticos consecutivos, sin reinicio automático en bucle.
+- Límite de 12 comandos por segundo; `PARO` conserva prioridad absoluta.
+- Corte inmediato de salidas automáticas si falla su sensor crítico.
+- 20 pruebas de comportamiento y 18 contratos de firmware ejecutados en CI.
 
 ### Pendiente de hardware y modelos
 
@@ -43,7 +50,8 @@
 - Port y datos españoles de PicoTTS.
 - Salida I2S mediante MAX98357A.
 - Estados del aro WS2812B.
-- Wi-Fi, NVS, MQTT y servicios externos.
+- Wi-Fi, MQTT y servicios externos quedan fuera del producto base por decisión
+  de arquitectura; no son trabajo faltante del núcleo offline.
 
 `JARVIS_LOCAL_HABILITADO` permanecerá en `false` hasta validar micrófono y
 modelos en la placa. El bloque ESP-SR antiguo no constituye una implementación
@@ -64,9 +72,18 @@ española funcional y será sustituido, no activado.
 8. Guardar ambos modelos en flash y usar PSRAM para tensores y audio.
 9. Integrar el flujo half-duplex: despertar, escuchar, ejecutar, hablar y cooldown.
 10. Añadir WS2812B y estados visuales.
-11. Añadir Wi-Fi, configuración NVS, MQTT y página local de diagnóstico.
-12. Añadir Spotify opcional mediante su Web API y un reproductor Spotify existente.
-13. Medir consumo e integrar la alimentación solar al final.
+11. Medir consumo e integrar la alimentación solar al final.
+
+El cierre verificable por software y la separación de tareas físicas están en
+`obsidian/proyect domus/13 - Plan de cierre de codigo.md`.
+
+Los planes ejecutables ya están separados por etapa:
+
+- `16 - Plan de testeo antes de construccion.md` evita fijar un cableado no probado.
+- `17 - Diagramas generales de conexiones.md` presenta la arquitectura completa.
+- `18 - Manual maestro de conexiones pin por pin.md` define cada borne y GPIO.
+- `19 - Plan de testeo despues de construccion.md` acepta o rechaza el montaje final.
+- `visualizaciones/sistema-domus.html` permite explorar rutas de energía y conexiones.
 
 ## Contrato de voz inicial
 

@@ -86,9 +86,11 @@
 #define JARVIS_LOCAL_HABILITADO false
 #define MICROSD_HABILITADA false
 
+#include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
+#include <limits.h>
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
@@ -185,6 +187,7 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 #define HUMEDAD_LECTURA_SECA     2800   // ADC crudo en tierra seca (0% humedad)
 #define HUMEDAD_LECTURA_HUMEDA   1200   // ADC crudo en tierra recién regada (100%)
 #define UMBRAL_HUMEDAD_SECA_PCT  35     // el riego automático se activa por debajo de este %
+#define UMBRAL_HUMEDAD_HUMEDA_PCT 45    // y se apaga al alcanzar este %, evitando oscilaciones
 
 #define HUMEDAD_MIN_VALIDA      50     // por debajo/encima de este rango, se asume
 #define HUMEDAD_MAX_VALIDA      4095   // sensor desconectado o en corto -> se ignora
@@ -214,11 +217,14 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 
 // Ventilador automático por temperatura ambiental (además de su control
 // manual por controles físicos/Serial/voz, igual que el riego automático)
-#define UMBRAL_TEMP_ALTA_C       28.0   // por encima de esto, se enciende el ventilador solo
+#define UMBRAL_TEMP_ALTA_C       28.0   // a partir de esto, se enciende el ventilador solo
+#define UMBRAL_TEMP_NORMAL_C     26.0   // se apaga al bajar hasta aquí (histéresis de 2 °C)
 
 // Anti-rebote de voz: exige que el mismo comando no se repita antes de este
 // tiempo, para evitar que una sola frase dispare la acción varias veces
 #define DEBOUNCE_VOZ_MS         2000
+#define VOZ_MAX_FALLOS_CONSECUTIVOS 3
+#define VOZ_TIEMPO_MAX_CICLO_US 250000UL
 
 // Ventana de escucha activa tras detectar el wake word. Antes de v4, la
 // condición de v3 hacía que MultiNet corriera siempre (ver comentario en
@@ -232,6 +238,16 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 
 // --- Watchdog de hardware ---
 #define WATCHDOG_TIMEOUT_S      8
+
+// --- Supervisor de salud y degradación segura ---
+// El supervisor no reinicia por memoria baja: apaga cargas y mantiene Serial
+// disponible para diagnóstico. Así se evita convertir una falta de memoria
+// transitoria en un bucle de reinicios.
+#define MEMORIA_LIBRE_CRITICA_BYTES       32768UL
+#define MEMORIA_LIBRE_RECUPERACION_BYTES  65536UL
+#define INTERVALO_SUPERVISOR_MS            2000UL
+#define TIEMPO_ARRANQUE_ESTABLE_MS        60000UL
+#define MAX_COMANDOS_POR_SEGUNDO             12
 
 // --- Sistema de errores en memoria (buffer circular) ---
 #define MAX_ERRORES_GUARDADOS   6
@@ -247,6 +263,41 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 #define SD_MOSI_PIN  47
 #define SD_CS_PIN    48
 
+// Contrato de hardware comprobado también por el compilador. Incluye los
+// pines activos y los reservados para módulos opcionales para impedir que una
+// ampliación futura reutilice silenciosamente una señal ya ocupada.
+constexpr int PINES_RESERVADOS_DOMUS[] = {
+  PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR,
+  PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO,
+  PIN_RELE_VENTILADOR, PIN_RELE_LUZ_INVERNADERO,
+  PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
+  I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN,
+  MP3_RX_PIN, MP3_TX_PIN, I2C_SDA_PIN,
+  SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN
+};
+
+constexpr bool pinesDomusSonUnicos() {
+  const size_t cantidad = sizeof(PINES_RESERVADOS_DOMUS) /
+                          sizeof(PINES_RESERVADOS_DOMUS[0]);
+  for (size_t i = 0; i < cantidad; ++i) {
+    for (size_t j = i + 1; j < cantidad; ++j) {
+      if (PINES_RESERVADOS_DOMUS[i] == PINES_RESERVADOS_DOMUS[j]) return false;
+    }
+  }
+  return true;
+}
+
+static_assert(CANTIDAD_RELES == 5, "DOMUS requiere exactamente cinco cargas");
+static_assert(pinesDomusSonUnicos(), "Hay GPIO duplicados en el mapa DOMUS");
+static_assert(UMBRAL_HUMEDAD_SECA_PCT < UMBRAL_HUMEDAD_HUMEDA_PCT,
+              "Histeresis de suelo invertida");
+static_assert(UMBRAL_LUZ_OSCURO_PCT < UMBRAL_LUZ_CLARO_PCT,
+              "Histeresis de luz invertida");
+static_assert(UMBRAL_TEMP_NORMAL_C < UMBRAL_TEMP_ALTA_C,
+              "Histeresis de temperatura invertida");
+static_assert(MEMORIA_LIBRE_CRITICA_BYTES < MEMORIA_LIBRE_RECUPERACION_BYTES,
+              "La recuperacion debe exigir mas memoria que el modo seguro");
+
 // ============================================================================
 // SECCIÓN 3: OBJETOS GLOBALES
 // ============================================================================
@@ -256,8 +307,16 @@ bool microSdMontada = false;
 String bufferComandoSerial;
 bool micHabilitado = true;
 bool paroEmergenciaActivo = false;
+bool modoSeguroActivo = false;
+char motivoModoSeguro[48] = "ninguno";
 bool ultimoBotonDemo = HIGH;
 unsigned long ultimoCambioBotonDemoMs = 0;
+unsigned long memoriaLibreMinima = ULONG_MAX;
+unsigned long ultimaRevisionSaludMs = 0;
+unsigned long inicioVentanaComandosMs = 0;
+uint8_t comandosEnVentana = 0;
+bool contadorReiniciosEstabilizado = false;
+RTC_DATA_ATTR uint8_t reiniciosCriticosConsecutivos = 0;
 
 // ---- Pantalla: solo se crea el objeto del tipo que se detectó ----
 enum TipoPantalla { PANTALLA_NINGUNA, PANTALLA_LCD };
@@ -304,6 +363,9 @@ static esp_afe_sr_iface_t *afe_handle = NULL;
 static esp_afe_sr_data_t *afe_data = NULL;
 model_iface_data_t *modelo_mn = NULL;
 esp_mn_iface_t *multinet = NULL;
+bool motorVozListo = false;
+bool vozSuspendidaPorSalud = false;
+uint8_t fallosVozConsecutivos = 0;
 #endif
 unsigned long ultimoComandoVozMs = 0;
 int ultimoComandoVozID = -1;
@@ -345,6 +407,10 @@ bool probarMicroSD();
 void registrarLineaMicroSD(const String &linea);
 void activarParoEmergencia(const char* motivo);
 bool rearmarSistema();
+void entrarModoSeguro(const char* motivo);
+bool recuperarModoSeguro();
+void supervisarSalud();
+bool permitirComandoSerial();
 
 void registrarError(const String &origen, const String &mensaje) {
   String completo = origen + ": " + mensaje;
@@ -372,6 +438,15 @@ String construirReporteDiagnostico() {
   r += "ERRORES_TOTAL=" + String(totalErroresAcumulados) + ";";
   r += "ULTIMO_ERROR=" + (obtenerUltimoError().length() > 0 ? obtenerUltimoError() : "ninguno") + ";";
   r += "PANTALLA=" + String(pantallaActiva == PANTALLA_LCD ? "LCD" : "NINGUNA") + ";";
+  r += "MEM_MIN=" + String(memoriaLibreMinima == ULONG_MAX ? 0 : memoriaLibreMinima) + ";";
+  r += "MODO_SEGURO=" + String(modoSeguroActivo ? "ON" : "OFF") + ";";
+  r += "MOTIVO_SEGURO=" + String(motivoModoSeguro) + ";";
+  r += "REINICIOS_CRITICOS=" + String(reiniciosCriticosConsecutivos) + ";";
+  #if JARVIS_LOCAL_HABILITADO
+    r += "VOZ=" + String(vozSuspendidaPorSalud ? "SUSPENDIDA" : (motorVozListo ? "LISTA" : "NO_LISTA")) + ";";
+  #else
+    r += "VOZ=DESHABILITADA;";
+  #endif
   return r;
 }
 
@@ -708,6 +783,11 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     return {false, false, "paro_emergencia"};
   }
 
+  if (modoSeguroActivo && orden.encender) {
+    log("SEGURIDAD", "Encendido rechazado: modo seguro activo");
+    return {false, false, "modo_seguro"};
+  }
+
   // El nivel del depósito es una interlock física: ninguna fuente puede
   // encender la bomba si la lectura falta o está por debajo del mínimo.
   if (orden.indiceRele == 0 && orden.encender) {
@@ -925,16 +1005,26 @@ void verificarRiegoAutomatico() {
   }
 
   int crudo, pct;
-  if (!leerHumedad(crudo, pct)) return; // sensor con error, no toca el riego
+  if (!leerHumedad(crudo, pct)) {
+    // Si el riego fue automático, una pérdida del sensor crítico debe cortar
+    // la bomba inmediatamente. Una orden manual conserva el límite máximo
+    // independiente de dos minutos.
+    if (estadoReles[0] && propietarioReles[0] == PROPIETARIO_AUTOMATICO) {
+      OrdenActuador corte = {0, false, ORIGEN_AUTOMATICO, 1.0f, "HUMEDAD_INVALIDA"};
+      ejecutarOrdenActuador(corte);
+      emitirEventoLocal("EVENTO;RIEGO_BLOQUEADO_SENSOR;0");
+    }
+    return;
+  }
 
-  if (pct < UMBRAL_HUMEDAD_SECA_PCT && !estadoReles[0] &&
+  if (pct <= UMBRAL_HUMEDAD_SECA_PCT && !estadoReles[0] &&
       propietarioReles[0] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Tierra seca (" + String(pct) + "%), activando riego automático");
     OrdenActuador orden = {0, true, ORIGEN_AUTOMATICO, 1.0f, "RIEGO_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
       emitirEventoLocal("EVENTO;RIEGO_AUTO_ON;" + String(pct));
     }
-  } else if (pct >= UMBRAL_HUMEDAD_SECA_PCT && estadoReles[0] &&
+  } else if (pct >= UMBRAL_HUMEDAD_HUMEDA_PCT && estadoReles[0] &&
              propietarioReles[0] == PROPIETARIO_AUTOMATICO) {
     // Solo apaga automáticamente si fue el modo automático quien lo prendió;
     // si el usuario lo encendió manualmente por voz/Serial, se respeta su
@@ -957,16 +1047,23 @@ void verificarVentiladorAutomatico() {
   ultimaVerificacionVentilador = millis();
 
   float tempC, humAire;
-  if (!leerAmbiente(tempC, humAire)) return; // DHT11 con error, no toca el ventilador
+  if (!leerAmbiente(tempC, humAire)) {
+    if (estadoReles[3] && propietarioReles[3] == PROPIETARIO_AUTOMATICO) {
+      OrdenActuador corte = {3, false, ORIGEN_AUTOMATICO, 1.0f, "DHT_INVALIDO"};
+      ejecutarOrdenActuador(corte);
+      emitirEventoLocal("EVENTO;VENT_BLOQUEADO_SENSOR;0");
+    }
+    return;
+  }
 
-  if (tempC > UMBRAL_TEMP_ALTA_C && !estadoReles[3] &&
+  if (tempC >= UMBRAL_TEMP_ALTA_C && !estadoReles[3] &&
       propietarioReles[3] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Temperatura alta (" + String(tempC, 1) + "C), activando ventilador automático");
     OrdenActuador orden = {3, true, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
       emitirEventoLocal("EVENTO;VENT_AUTO_ON;" + String(tempC, 1));
     }
-  } else if (tempC <= UMBRAL_TEMP_ALTA_C && estadoReles[3] &&
+  } else if (tempC <= UMBRAL_TEMP_NORMAL_C && estadoReles[3] &&
              propietarioReles[3] == PROPIETARIO_AUTOMATICO) {
     log("AUTO", "Temperatura normal (" + String(tempC, 1) + "C), apagando ventilador automático");
     OrdenActuador orden = {3, false, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_OFF"};
@@ -988,7 +1085,19 @@ void verificarLucesAutomaticas() {
   if (ultimaPresenciaValida) ultimaPresenciaMs = millis();
 
   int ldrCrudo = 0, luzPct = 0;
-  if (!leerLuz(ldrCrudo, luzPct)) return;
+  if (!leerLuz(ldrCrudo, luzPct)) {
+    const int lucesAutomaticas[] = {1, 4};
+    bool huboCorte = false;
+    for (int indice : lucesAutomaticas) {
+      if (estadoReles[indice] && propietarioReles[indice] == PROPIETARIO_AUTOMATICO) {
+        OrdenActuador corte = {indice, false, ORIGEN_AUTOMATICO, 1.0f, "LDR_INVALIDO"};
+        ejecutarOrdenActuador(corte);
+        huboCorte = true;
+      }
+    }
+    if (huboCorte) emitirEventoLocal("EVENTO;LUCES_AUTO_BLOQUEADAS_SENSOR;0");
+    return;
+  }
 
   bool presenciaReciente = ultimaPresenciaMs != 0 &&
                            millis() - ultimaPresenciaMs <= PIR_RETENCION_MS;
@@ -1045,6 +1154,7 @@ String construirReporteEstado() {
   r += "MIC=" + String(micHabilitado ? "ON" : "OFF") + ";";
   r += "SD=" + String(microSdMontada ? "ON" : "OFF") + ";";
   r += "EMERGENCIA=" + String(paroEmergenciaActivo ? "ON" : "OFF") + ";";
+  r += "MODO_SEGURO=" + String(modoSeguroActivo ? "ON" : "OFF") + ";";
   return r;
 }
 
@@ -1052,7 +1162,8 @@ const char* COMANDOS_VALIDOS[] = {
   "RIEGO_ON", "RIEGO_OFF", "LUZ1_ON", "LUZ1_OFF", "LUZ2_ON", "LUZ2_OFF",
   "VENT_ON", "VENT_OFF", "INVER_ON", "INVER_OFF",
   "RIEGO_AUTO", "LUZ1_AUTO", "LUZ2_AUTO", "VENT_AUTO", "INVER_AUTO",
-  "ESTADO", "DIAGNOSTICO", "PARO", "REARMAR", "MIC_ESTADO", "SD_PRUEBA"
+  "ESTADO", "DIAGNOSTICO", "PARO", "REARMAR", "RECUPERAR",
+  "MIC_ESTADO", "SD_PRUEBA"
 };
 const int CANTIDAD_COMANDOS_VALIDOS =
   sizeof(COMANDOS_VALIDOS) / sizeof(COMANDOS_VALIDOS[0]);
@@ -1062,6 +1173,17 @@ bool esComandoValido(const String &comando) {
     if (comando == COMANDOS_VALIDOS[i]) return true;
   }
   return false;
+}
+
+bool permitirComandoSerial() {
+  const unsigned long ahora = millis();
+  if (ahora - inicioVentanaComandosMs >= 1000UL) {
+    inicioVentanaComandosMs = ahora;
+    comandosEnVentana = 0;
+  }
+  if (comandosEnVentana >= MAX_COMANDOS_POR_SEGUNDO) return false;
+  comandosEnVentana++;
+  return true;
 }
 
 // Aplica un comando de control de relé y envía ACK/NACK real. Centraliza la
@@ -1096,6 +1218,44 @@ void activarParoEmergencia(const char* motivo) {
   emitirEventoLocal("EVENTO;PARO_EMERGENCIA;ACTIVO");
 }
 
+void entrarModoSeguro(const char* motivo) {
+  if (modoSeguroActivo) return;
+  modoSeguroActivo = true;
+  strncpy(motivoModoSeguro, motivo ? motivo : "desconocido", sizeof(motivoModoSeguro) - 1);
+  motivoModoSeguro[sizeof(motivoModoSeguro) - 1] = '\0';
+  ventanaEscuchaActiva = false;
+
+  for (int i = 0; i < CANTIDAD_RELES; i++) {
+    OrdenActuador orden = {i, false, ORIGEN_SISTEMA, 1.0f, "MODO_SEGURO"};
+    ejecutarOrdenActuador(orden);
+  }
+  emitirEventoLocal("EVENTO;MODO_SEGURO;" + String(motivoModoSeguro));
+}
+
+bool recuperarModoSeguro() {
+  if (!modoSeguroActivo) {
+    emitirEventoLocal("ACK;RECUPERAR;YA_ESTABLE");
+    return true;
+  }
+  if (paroEmergenciaActivo) {
+    emitirEventoLocal("NACK;RECUPERAR;paro_emergencia");
+    return false;
+  }
+  const unsigned long memoriaLibre = esp_get_free_heap_size();
+  if (memoriaLibre < MEMORIA_LIBRE_RECUPERACION_BYTES) {
+    emitirEventoLocal("NACK;RECUPERAR;memoria_insuficiente");
+    return false;
+  }
+
+  modoSeguroActivo = false;
+  strncpy(motivoModoSeguro, "ninguno", sizeof(motivoModoSeguro));
+  motivoModoSeguro[sizeof(motivoModoSeguro) - 1] = '\0';
+  // Las cargas permanecen MANUAL_OFF. El operador debe devolver cada una a
+  // AUTO o encenderla explícitamente después de revisar el diagnóstico.
+  emitirEventoLocal("ACK;RECUPERAR;SEGURO");
+  return true;
+}
+
 bool rearmarSistema() {
   if (digitalRead(PIN_PARO_EMERGENCIA) == LOW) {
     emitirEventoLocal("NACK;REARMAR;boton_emergencia_presionado");
@@ -1116,6 +1276,13 @@ void procesarComandoTexto(String comando) {
   if (comando.length() > 20) {
     registrarError("COMANDO", "Longitud invalida (" + String(comando.length()) + " caracteres)");
     emitirEventoLocal("NACK;" + comando.substring(0, 20) + ";longitud_invalida");
+    return;
+  }
+
+  // PARO siempre atraviesa el limitador. El resto se limita para que una
+  // terminal defectuosa no monopolice CPU, memoria ni escritura en microSD.
+  if (comando != "PARO" && !permitirComandoSerial()) {
+    emitirEventoLocal("NACK;" + comando + ";limite_de_frecuencia");
     return;
   }
 
@@ -1146,6 +1313,7 @@ void procesarComandoTexto(String comando) {
   else if (comando == "DIAGNOSTICO") emitirEventoLocal(construirReporteDiagnostico());
   else if (comando == "PARO") activarParoEmergencia("PARO_SERIAL");
   else if (comando == "REARMAR") rearmarSistema();
+  else if (comando == "RECUPERAR") recuperarModoSeguro();
   else if (comando == "MIC_ESTADO") emitirEventoLocal(String("MIC;") + (micHabilitado ? "ON" : "OFF"));
   else if (comando == "SD_PRUEBA") emitirEventoLocal(probarMicroSD() ? "ACK;SD_PRUEBA;OK" : "NACK;SD_PRUEBA;NO_DISPONIBLE");
 }
@@ -1213,6 +1381,9 @@ void revisarControlesFisicos() {
 
 void inicializarVoz() {
   log("VOZ", "Inicializando motor de reconocimiento...");
+  motorVozListo = false;
+  vozSuspendidaPorSalud = false;
+  fallosVozConsecutivos = 0;
 
   afe_handle = (esp_afe_sr_iface_t*)&ESP_AFE_SR_HANDLE;
   afe_config_t afe_config = AFE_CONFIG_DEFAULT();
@@ -1224,6 +1395,11 @@ void inicializarVoz() {
   }
 
   srmodel_list_t *models = esp_srmodel_init("model");
+  if (models == NULL) {
+    registrarError("VOZ", "No se pudo cargar la lista de modelos");
+    vozSuspendidaPorSalud = true;
+    return;
+  }
   char *nombre_modelo_mn = esp_srmodel_filter(models, ESP_MN_PREFIX, NULL);
   if (nombre_modelo_mn == NULL) {
     registrarError("VOZ", "Modelo MultiNet no encontrado. Revisar particion SPIFFS/modelo.");
@@ -1231,7 +1407,17 @@ void inicializarVoz() {
   }
 
   multinet = esp_mn_handle_from_name(nombre_modelo_mn);
+  if (multinet == NULL) {
+    registrarError("VOZ", "Interfaz MultiNet no disponible");
+    vozSuspendidaPorSalud = true;
+    return;
+  }
   modelo_mn = multinet->create(nombre_modelo_mn, 6000);
+  if (modelo_mn == NULL) {
+    registrarError("VOZ", "No se pudo crear el modelo MultiNet");
+    vozSuspendidaPorSalud = true;
+    return;
+  }
 
   esp_mn_commands_clear();
   esp_mn_commands_add(CMD_RIEGO_ON,        "riego encender");
@@ -1247,7 +1433,19 @@ void inicializarVoz() {
   esp_mn_commands_update();
 
   multinet->print_active_speech_commands(modelo_mn);
+  motorVozListo = true;
   log("VOZ", "Motor de voz listo");
+}
+
+void registrarFalloVoz(const char* motivo) {
+  if (fallosVozConsecutivos < 255) fallosVozConsecutivos++;
+  log("VOZ", "Fallo " + String(fallosVozConsecutivos) + ": " + String(motivo));
+  if (fallosVozConsecutivos >= VOZ_MAX_FALLOS_CONSECUTIVOS) {
+    vozSuspendidaPorSalud = true;
+    motorVozListo = false;
+    ventanaEscuchaActiva = false;
+    emitirEventoLocal("EVENTO;VOZ_SUSPENDIDA;" + String(motivo));
+  }
 }
 
 void procesarResultadoVoz(int comandoID) {
@@ -1288,10 +1486,16 @@ void procesarResultadoVoz(int comandoID) {
 // "afe_data != NULL" (verdadero casi siempre) hacía que MultiNet corriera
 // de forma continua en vez de solo tras el wake word.
 void revisarVoz() {
-  if (afe_data == NULL) return; // el motor no se inicializó correctamente, evita crash
+  if (!motorVozListo || vozSuspendidaPorSalud || afe_handle == NULL ||
+      afe_data == NULL || multinet == NULL || modelo_mn == NULL) return;
+
+  const unsigned long inicioCicloUs = micros();
 
   afe_fetch_result_t* resultado = afe_handle->fetch(afe_data);
-  if (!resultado || resultado->ret_value == ESP_FAIL) return;
+  if (!resultado || resultado->ret_value == ESP_FAIL) {
+    registrarFalloVoz("afe_fetch");
+    return;
+  }
 
   if (resultado->wakeup_state == WAKENET_DETECTED) {
     log("VOZ", "Palabra de activación detectada, abriendo ventana de escucha");
@@ -1320,8 +1524,45 @@ void revisarVoz() {
       ventanaEscuchaActiva = false;
     }
   }
+
+  const unsigned long duracionCicloUs = micros() - inicioCicloUs;
+  if (duracionCicloUs > VOZ_TIEMPO_MAX_CICLO_US) {
+    registrarFalloVoz("tiempo_excedido");
+  } else {
+    fallosVozConsecutivos = 0;
+  }
 }
 #endif // JARVIS_LOCAL_HABILITADO
+
+// ============================================================================
+// SECCIÓN 12B: SUPERVISOR DE SALUD
+// ============================================================================
+bool esReinicioCritico(esp_reset_reason_t motivo) {
+  return motivo == ESP_RST_PANIC || motivo == ESP_RST_INT_WDT ||
+         motivo == ESP_RST_TASK_WDT || motivo == ESP_RST_WDT ||
+         motivo == ESP_RST_BROWNOUT;
+}
+
+void supervisarSalud() {
+  const unsigned long ahora = millis();
+  if (ahora - ultimaRevisionSaludMs < INTERVALO_SUPERVISOR_MS) return;
+  ultimaRevisionSaludMs = ahora;
+
+  const unsigned long memoriaLibre = esp_get_free_heap_size();
+  if (memoriaLibre < memoriaLibreMinima) memoriaLibreMinima = memoriaLibre;
+
+  if (memoriaLibre < MEMORIA_LIBRE_CRITICA_BYTES) {
+    entrarModoSeguro("memoria_critica");
+  }
+
+  // Tras un minuto estable se rompe la cadena de reinicios críticos. El dato
+  // vive en RTC RAM y no desgasta la flash/NVS.
+  if (!contadorReiniciosEstabilizado && ahora >= TIEMPO_ARRANQUE_ESTABLE_MS) {
+    reiniciosCriticosConsecutivos = 0;
+    contadorReiniciosEstabilizado = true;
+    log("SALUD", "Arranque estable confirmado; contador de reinicios limpiado");
+  }
+}
 
 // ============================================================================
 // SECCIÓN 13: SETUP
@@ -1330,6 +1571,18 @@ void setup() {
   Serial.begin(115200);
   delay(300);
   log("SISTEMA", "=== PROJECT DOMUS v6 offline - Iniciando ===");
+
+  const esp_reset_reason_t motivoReinicio = esp_reset_reason();
+  if (esReinicioCritico(motivoReinicio)) {
+    if (reiniciosCriticosConsecutivos < 255) reiniciosCriticosConsecutivos++;
+  } else {
+    reiniciosCriticosConsecutivos = 0;
+  }
+  const bool arrancarEnModoSeguro = reiniciosCriticosConsecutivos >= 3;
+
+  // Reserva una sola vez el búfer de entrada para evitar realocaciones y
+  // fragmentación del heap durante una sesión larga de diagnóstico.
+  bufferComandoSerial.reserve(41);
 
   pinMode(PIN_PARO_EMERGENCIA, INPUT_PULLUP);
   pinMode(PIN_MIC_OFF, INPUT_PULLUP);
@@ -1353,6 +1606,10 @@ void setup() {
     propietarioReles[i] = PROPIETARIO_NINGUNO;
   }
   log("SISTEMA", "Relés inicializados (todos apagados)");
+
+  if (arrancarEnModoSeguro) {
+    entrarModoSeguro("reinicios_criticos_consecutivos");
+  }
 
   detectarPantalla();
   mostrarBienvenida();
@@ -1393,24 +1650,26 @@ void loop() {
 
   // 1. Seguridad y controles físicos tienen prioridad máxima.
   revisarControlesFisicos();
+  supervisarSalud();
 
   // 2. Voz local: nunca escucha con MIC OFF o emergencia activa.
   #if JARVIS_LOCAL_HABILITADO
-    if (micHabilitado && !paroEmergenciaActivo) revisarVoz();
+    if (micHabilitado && !paroEmergenciaActivo && !modoSeguroActivo) revisarVoz();
   #endif
 
   // 3. Diagnóstico/control local por USB, sin red ni aplicación móvil.
   revisarComandosSerial();
 
-  // 4. Automatización local (cada función respeta sus intervalos y bloqueos).
-  verificarRiegoAutomatico();
+  // 4. Automatización local. En modo seguro queda suspendida para no generar
+  // intentos repetidos de encendido ni más presión sobre memoria/registros.
+  if (!modoSeguroActivo) {
+    verificarRiegoAutomatico();
+    verificarVentiladorAutomatico();
+    verificarLucesAutomaticas();
+  }
 
-  // Corte independiente del sensor: una bomba jamás queda encendida sin límite.
+  // Corte independiente: se mantiene aun si el supervisor está degradado.
   verificarLimiteBomba();
-
-  verificarVentiladorAutomatico();
-
-  verificarLucesAutomaticas();
 
   // 5. Pantalla: se refresca solo cada INTERVALO_PANTALLA_MS.
   if (millis() - ultimaActualizacionPantalla > INTERVALO_PANTALLA_MS) {

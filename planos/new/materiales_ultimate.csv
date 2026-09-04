@@ -1,0 +1,13 @@
+id,material,espesor_seccion,cantidad_estimada,uso
+M-01,MDF,12 mm,1 pieza 800 × 520,Base estructural
+M-02,Plywood/MDF,3 mm,2 láminas 600 × 900 aprox.,"Casa, cubiertas, pisos y faldón"
+M-03,Acrílico transparente,1.5 mm,1 lámina 600 × 900,Invernadero
+M-04,Acrílico transparente,3 mm,1 lámina 300 × 450,Gabinete y tapas removibles
+M-05,Listón cuadrado,7 × 7 mm,2.5 m,Bastidores e invernadero
+M-06,Listón cuadrado,8 × 8 mm,1.2 m,Porche y cumbrera
+M-07,PVC espumado,2 mm,1 lámina A3,Bancales y jardineras
+M-08,PET/acetato flexible,0.5 mm,4 recortes,Forros impermeables removibles
+M-09,Imán neodimio,Ø8 × 4 mm,4 pares,Techo removible de la casa
+M-10,Pasamuros/tapón,Ø12 mm,5 unidades,"Accesos futuros, entregados cerrados"
+M-11,Adhesivo PVA + cemento acrílico,-,Según consumo,Uniones estructurales
+M-12,Pintura/sellador,-,Negro mate + protector,"Base, cantos y madera"

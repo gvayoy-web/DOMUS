@@ -1,0 +1,9 @@
+id,ubicacion,centro_referencia_mm,accion,entrega
+H-01,Base bajo invernadero,X 120 / Y 196,Ø12 pasante,Colocar tapón; sin cable
+H-02,Base bajo casa,X 400 / Y 250,Ø12 pasante,Colocar tapón; sin cable
+H-03,Base bajo porche,X 372 / Y 205,Ø12 pasante,Colocar tapón; sin cable
+H-04,Base bajo Jarvis,X 642 / Y 205,Ø12 pasante,Colocar tapón; sin cable
+H-05,Base bajo gabinete,X 740 / Y 200,Ø12 pasante,Colocar tapón; sin cable
+H-06,"Techo casa, 4 esquinas",A 8 mm de cada borde,Ø8 × 4 prof.,Alojamiento de imanes
+H-07,Hatch muro posterior,Centrado; borde inf. 15,70 × 40,Recorte reutilizado como tapa
+H-08,Insertos de bancal,Local 30 / 112,16 × 16 removible,Marcar Ø8; no abrir hasta medir sonda

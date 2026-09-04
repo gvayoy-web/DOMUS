@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: auditoria
-actualizado: 2026-09-01
+actualizado: 2026-09-03
 ---
 
 # Errores y contradicciones encontradas
@@ -22,9 +22,9 @@ actualizado: 2026-09-01
 
 ## Importantes
 
-6. El firmware llama “capacitivo” al sensor de suelo, pero el inventario confirmado es resistivo. Debe calibrarse como el módulo real y, para reducir corrosión, energizarse solo durante lecturas si el circuito lo permite.
-7. El firmware lee un supuesto sensor de viento en GPIO2, pero no existe uno confirmado. El motor con aspa es un ventilador, no un sensor calibrado.
-8. El firmware incluye bibliotecas OLED aunque no hay OLED. No obliga a comprarla; el LCD es suficiente.
+6. El firmware llamaba “capacitivo” al sensor de suelo, pero el inventario confirmado es resistivo. **Corregido en software**; aún debe calibrarse y, si el circuito lo permite, energizarse solo durante lecturas.
+7. El firmware leía un supuesto sensor de viento en GPIO2. **Corregido:** esa función fue retirada y GPIO2 queda provisionalmente para nivel de agua.
+8. El firmware incluía bibliotecas OLED aunque no hay OLED. **Corregido:** LCD1602 es la única pantalla y las dependencias OLED fueron retiradas.
 9. La ranura del DFPlayer no es un sistema de archivos accesible por el ESP32. Falta un lector microSD SPI y una tarjeta propia; si se usa el DFPlayer, requiere una segunda tarjeta.
 10. Los capacitores del kit descritos como “104 pF (10k pF)” están mal nombrados. Código 104 = 100,000 pF = 100 nF = 0.1 µF.
 11. El 74HC595 existente no sirve como reemplazo directo del 74AHCT125 para la señal WS2812.
@@ -39,8 +39,8 @@ actualizado: 2026-09-01
 
 ## Documentación
 
-17. “OLED/LCD implementado” describe capacidad del código, no hardware disponible. Debe decir “LCD disponible; OLED no requerido”.
-18. “Ocho relés implementados” describe ocho GPIO, no ocho relés físicos.
+17. “OLED/LCD implementado” era incorrecto. **Corregido:** LCD disponible y único; OLED no requerido.
+18. “Ocho relés implementados” era incorrecto. **Corregido:** cinco salidas lógicas para cinco cargas.
 19. “Sistema solar” debe presentarse como fase posterior hasta medir generación, consumo y tiempo de carga.
 20. El inventario menciona el adaptador I2C dos veces. Confirmar físicamente si hay una o dos placas; solo se necesita una.
 

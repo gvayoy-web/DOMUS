@@ -1,0 +1,31 @@
+codigo,pieza,cantidad,material,medida_mm,observacion
+B-01,Base,1,MDF 12,800 × 520,Cantos escuadrados
+B-02,Faldón frontal,1,Plywood 3,800 × 75,Cuelga 63 mm bajo base
+B-03,Tapa canal,1,Plywood 3,552 × 22.4,Removible
+C-01,Piso casa,1,Plywood 3,344 × 260,Sobre bastidor 7 × 7
+C-02,Muro posterior,1,Plywood 3,344 × 225,Hatch removible 70 × 40
+C-03,Muros laterales,2,Plywood 3,260 × 225,Frente completamente abierto
+C-04,Techo casa,1,Plywood 3,356.8 × 272.8,Removible
+C-05,Alero frontal,1,Plywood 3,368 × 17.6,Bajo techo
+C-06,Tabique dormitorio,1,Plywood 3,182.4 × 188,Desmontable
+P-01,Plataforma porche,1,Plywood 3,200 × 156,Sobre bastidor
+P-02,Cubierta porche,1,Plywood 3,212.8 × 168,Alero perimetral
+P-03,Postes porche,2,Listón 8 × 8,134 largo,Altura libre 134
+P-04,Pasarela,1,Plywood 3,46.4 × 88,Centrada
+P-05,Jardineras,2,PVC 2,30.4 × 108 × 26 ext.,Con forro removible
+I-01,Base invernadero,1,Plywood 3,200 × 280,Sobre bastidor
+I-02,Laterales transparentes,2,Acrílico 1.5,280 × 165,Sin taladros
+I-03,Panel posterior,1,Acrílico 1.5,200 × 165,Sin taladros
+I-04,Cubiertas inclinadas,2,Acrílico 1.5,280 × 108.1,Ángulo 22.3°
+I-05,Postes exteriores,4,Listón 7 × 7,165 largo,Esquinas
+I-06,Postes cumbrera,2,Listón 7 × 7,206 largo,Centro frente/fondo
+I-07,Viga cumbrera,1,Listón 8 × 8,280 largo,Cota superior 225
+I-08,Bancales para tierra,2,PVC 2,60.8 × 224 × 42 ext.,Interior 56.8 × 220 × 38
+J-01,Frente Jarvis,1,Plywood 3,84 × 290,Removible y sin huecos finales
+J-02,Fondo Jarvis,1,Plywood 3,84 × 290,Estructural
+J-03,Laterales Jarvis,2,Plywood 3,88.4 × 290,Entre frente y fondo
+J-04,Tapa/fondo horizontal,2,Plywood 3,78 × 88.4,Caja vacía
+G-01,Base gabinete,1,Plywood 7,88 × 120,Cota Z 12-19
+G-02,Fondo gabinete,1,Plywood 3,88 × 250,Estructural
+G-03,Laterales gabinete,2,Acrílico 3,120 × 250,Transparentes
+G-04,Frente gabinete,1,Acrílico 3,88 × 250,Removible

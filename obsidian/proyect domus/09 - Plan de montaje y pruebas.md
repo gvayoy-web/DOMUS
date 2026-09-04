@@ -1,10 +1,15 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: pruebas
-actualizado: 2026-09-01
+actualizado: 2026-09-03
 ---
 
 # Plan de montaje y pruebas
+
+> [!IMPORTANT]
+> La puerta obligatoria antes de cualquier montaje permanente está detallada en
+> [[16 - Plan de testeo antes de construccion]]. Después de aprobarla, usar
+> [[17 - Diagramas generales de conexiones]].
 
 ## Fase 0 — antes de comprar más
 
@@ -24,13 +29,18 @@ actualizado: 2026-09-01
 
 ## Fase 2 — corregir firmware base
 
-- [ ] Sustituir GPIO22 por un pin válido confirmado en la placa.
+- [x] Sustituir GPIO22 en software por GPIO13 provisional; confirmación física pendiente.
 - [x] Cambiar de ocho relés a cinco en software.
 - [x] Eliminar/deshabilitar sensor de viento inexistente.
 - [x] Adaptar el firmware al sensor de humedad de suelo resistivo; calibración física pendiente.
 - [x] Añadir lógica PIR con GPIO9 provisional; prueba física pendiente.
 - [x] Añadir nivel de agua con GPIO2 y umbral provisionales; prueba física pendiente.
 - [x] Compilar con LCD1602 como única pantalla; prueba física pendiente.
+- [x] Añadir histéresis separada de encendido/apagado para riego y ventilación.
+- [x] Añadir supervisor de memoria, reinicios críticos y modo seguro.
+- [x] Limitar ráfagas Serial conservando prioridad absoluta para `PARO`.
+- [x] Cortar salidas automáticas cuando falla su sensor crítico.
+- [x] Ejecutar pruebas de simulador y contratos antes de la compilación en CI.
 
 ## Fase 3 — pruebas de cinco funciones
 

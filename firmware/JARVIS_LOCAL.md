@@ -1,12 +1,12 @@
 # Jarvis local — estado de implementación
 
 `casa_inteligente_v4/casa_inteligente_v4.ino` es la base autónoma de sensores, relés,
-automatización y BLE.
+automatización y control local por USB Serial.
 
 ## Qué está habilitado ahora
 
 - Sensores y automatización local.
-- Control de relés por BLE.
+- Control de relés por USB Serial y controles físicos.
 - Estado seguro al reiniciar.
 - Pantalla y registro serial.
 - Bloque de voz protegido por `JARVIS_LOCAL_HABILITADO`.
@@ -46,8 +46,8 @@ SILENCIO
 Frases como “Jarvis, apaga la luz de la sala uno”, “Jarvis, desactiva la luz
 de la sala uno” y “Jarvis, deja apagada la sala uno” deben mapear a
 `LUZ_SALA_1_OFF`. La inferencia no debe modificar GPIO directamente: debe
-crear una orden con origen `VOZ` y pasarla por el mismo despachador que BLE y
-la automatización.
+crear una orden con origen `VOZ` y pasarla por el mismo despachador que los
+controles locales y la automatización.
 
 ## Respuestas
 
@@ -69,6 +69,11 @@ voz únicamente cuando el modelo haya superado las métricas del plan:
 - 80 % a 1 m con ruido moderado.
 - Cero activaciones falsas durante una hora.
 - Tres demos completas consecutivas sin reset ni bloqueo.
+
+Además, el motor de voz debe respetar el modo seguro del firmware: límite de
+confianza, ventana de escucha, procesamiento acotado, micrófono pausado al
+hablar y desconexión de la voz ante fallos repetidos. La automatización y los
+controles físicos deben seguir funcionando aunque Jarvis esté deshabilitado.
 
 ## Wi‑Fi y servicios
 
