@@ -2,6 +2,10 @@
 
 Fecha: 4 de septiembre de 2026.
 
+Estado actualizado: núcleo compilado con mejoras de robustez; pruebas físicas
+y Jarvis integrado pendientes. Ver `obsidian/proyect domus/23 - Cierre de robustez y entrenamiento pendiente.md`.
+La preparación del entrenamiento no equivale a tener una IA entrenada.
+
 ## Código terminado
 
 - Firmware principal: `firmware/casa_inteligente_v4/casa_inteligente_v4.ino`.

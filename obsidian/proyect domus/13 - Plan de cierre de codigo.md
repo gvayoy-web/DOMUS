@@ -2,17 +2,16 @@
 proyecto: PROJECT DOMUS
 tipo: plan-cierre
 actualizado: 2026-09-04
-estado_codigo: terminado_verificable
+estado_codigo: nucleo_compilado_voz_y_banco_pendientes
 ---
 
 # Plan de cierre de código
 
-> [!SUCCESS] NÚCLEO DE CÓDIGO TERMINADO
-> El firmware doméstico offline, el simulador, las pruebas, el supervisor
-> anti-colapso y la automatización están terminados, compilados y validados por
-> software. Jarvis hablado no se marca como terminado porque requiere hardware,
-> dataset y modelos int8 que todavía no existen. Eso es un bloqueo externo, no
-> una función oculta o incompleta del núcleo.
+> [!IMPORTANT] ESTADO ACTUAL
+> El núcleo doméstico compila y tiene pruebas automatizadas, pero la validación
+> física está pendiente. Jarvis requiere datos, entrenamiento e integración de
+> software: no es solo un bloqueo de hardware. Véase
+> [[23 - Cierre de robustez y entrenamiento pendiente]] para el estado vigente.
 
 ## Definición de terminado
 
@@ -37,9 +36,9 @@ hardware real.
 | Emergencia y MIC OFF | TERMINADO | Paro prioritario, rearme explícito y respaldo físico/Serial. |
 | Resiliencia | TERMINADO | Watchdog, modo seguro, memoria, reinicios y límite de órdenes. |
 | Simulador | TERMINADO | Replica estados, límites, fallos, emergencia y recuperación. |
-| Pruebas/CI | TERMINADO | 20 pruebas de comportamiento + 18 contratos antes de compilar. |
+| Pruebas/CI | AMPLIADAS | 20 pruebas de comportamiento + 22 contratos y pruebas C++ integradas. |
 | INMP441 y audio I2S | PREPARADO | PoC separados; requieren módulos físicos. |
-| Jarvis español | BLOQUEADO POR DATOS | Requiere dataset y modelos int8 medidos. |
+| Jarvis español | PENDIENTE | Dataset; entrenamiento; frontend e intérprete en ESP32; captura y salida integrada. |
 | Pinout y calibración | BLOQUEADO POR HARDWARE | Requiere inspección y mediciones de la placa. |
 | Solar/batería | FASE POSTERIOR | Requiere medir consumo del montaje completo. |
 

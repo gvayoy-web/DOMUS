@@ -66,3 +66,35 @@ int main() {
 }
 '''
         self.run_cpp(code)
+
+    def test_i2c_scan_is_bounded_when_bus_is_stuck(self):
+        source = SKETCH.read_text(encoding="utf-8")
+        code = r'''
+#include <cassert>
+#include <cstdint>
+#include <string>
+constexpr int HEX=16;
+constexpr uint8_t DIR_LCD_1=0x27,DIR_LCD_2=0x3f;
+struct String:std::string {
+  using std::string::string;
+  String(uint8_t n,int):std::string(std::to_string(n)) {}
+};
+void log(const char*,const std::string&) {}
+struct Bus {
+  int calls=0; uint8_t current=0; int responding=-1;
+  void beginTransmission(uint8_t addr) {current=addr;}
+  int endTransmission() {calls++;return current==responding?0:5;}
+} Wire;
+'''
+        code += function(source, "bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd)")
+        code += r'''
+int main() {
+  bool found=true; uint8_t address=0;
+  assert(!escanearBusI2C(found,address)); assert(!found && Wire.calls==2);
+  Wire.calls=0; Wire.responding=0x27;
+  assert(escanearBusI2C(found,address)); assert(found && address==0x27 && Wire.calls==2);
+  Wire.calls=0; Wire.responding=0x3f;
+  assert(escanearBusI2C(found,address)); assert(found && address==0x3f && Wire.calls==2);
+}
+'''
+        self.run_cpp(code)

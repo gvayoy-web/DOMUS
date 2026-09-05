@@ -1,5 +1,16 @@
 # Compilación del núcleo doméstico
 
+## Actualización de robustez (2026-09-05)
+
+Código `a81d07a`: watchdog comprobado, I2C acotado, calibración NVS y cola SD.
+Windows N16R8: 414,338 bytes de programa y 25,092 bytes globales.
+SHA-256 local: `F096E686F305820D85C5301D764145D6E904C2F20220072B5186F2F844C66998`.
+[Cinco perfiles Linux correctos, incluido SD](https://github.com/gvayoy-web/domusv1/actions/runs/33942958851).
+El registro siguiente corresponde a la versión anterior; la nota 23 de
+Obsidian mantiene el estado de las nuevas pruebas y del entrenamiento pendiente.
+
+## Registro anterior
+
 Validación del 4 de septiembre de 2026, código `f811065`; ajuste de matriz
 QSPI en `1f6b6a4`. La auditoría anterior detectó un fallo real de generación
 de prototipos Arduino. Los tipos de órdenes ahora están en `domus_types.h`.
