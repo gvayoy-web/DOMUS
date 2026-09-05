@@ -47,6 +47,22 @@ jobs:
     needs: pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: n16r8-original
+            board: FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1
+            economical: 0
+          - name: n16r8-economico
+            board: FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1
+            economical: 1
+          - name: 4m-sin-psram
+            board: FlashSize=4M,PSRAM=disabled,PartitionScheme=huge_app,CPUFreq=160,LoopCore=0
+            economical: 0
+          - name: 8m-qspi
+            board: FlashSize=8M,PSRAM=qspi,PartitionScheme=default_8MB,CPUFreq=80,LoopCore=1
+            economical: 0
 
     steps:
       - name: Descargar el proyecto
@@ -68,10 +84,11 @@ jobs:
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
 
-      - name: Compilar para ESP32-S3 N16R8
+      - name: Compilar perfil ${{ matrix.name }}
         run: |
           arduino-cli compile \
-            --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" \
+            --fqbn "esp32:esp32:esp32s3:${{ matrix.board }}" \
+            --build-property "compiler.cpp.extra_flags=-DDOMUS_SALIDAS_ECONOMICAS=${{ matrix.economical }}" \
             --warnings all \
             --output-dir build/firmware \
             firmware/casa_inteligente_v4
@@ -79,7 +96,7 @@ jobs:
       - name: Guardar binarios
         uses: actions/upload-artifact@v4
         with:
-          name: project-domus-esp32s3
+          name: project-domus-${{ matrix.name }}
           path: build/firmware/
           if-no-files-found: error
           retention-days: 14

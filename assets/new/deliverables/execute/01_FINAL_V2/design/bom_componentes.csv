@@ -3,22 +3,25 @@ control,ESP32-S3 N16R8,1,Controlador único local,No habilitar radios
 sensores,DHT11,1,Temperatura y humedad interior,
 sensores,LDR con divisor resistivo,1,Luz ambiental,Calibrar umbral físicamente
 sensores,PIR,1,Presencia en entrada,
-sensores,Sensor capacitivo de humedad de suelo,1,Riego automático,Preferible al resistivo
+sensores,Sensor resistivo de humedad de suelo,1,Riego automático,Inventario confirmado; calibrar y vigilar corrosión
 sensores,Sensor de nivel de agua,1,Bloqueo de bomba,
-voz,Micrófono INMP441,1,Comandos locales,Con interruptor MIC OFF físico
-voz,Amplificador MAX98357A,1,Audio local,
-voz,Altavoz pequeño,1,Respuesta de Jarvis,
-interfaz,Aro WS2812 de 16 LED,1,Estado de Jarvis,
-interfaz,Pantalla local,1,Estado y menús,Confirmar modelo antes de cortar torre
-interfaz,Pulsadores,7,Controles locales,AUTO; cargas; emergencia
-actuadores,Módulo de relés compatible con 3.3 V,1,Conmutación de cargas,Verificar lógica y consumo
+opcional-voz,Micrófono INMP441,1,Comandos locales,Posponer compra; voz deshabilitada
+opcional-voz,Amplificador MAX98357A,1,Audio local,Posponer compra
+opcional-voz,Altavoz pequeño,1,Respuesta de Jarvis,Posponer compra
+opcional-interfaz,Aro WS2812 de 16 LED,1,Estado de Jarvis,Posponer compra
+interfaz,LCD1602 I2C,1,Estado,Verificar niveles I2C según manual 18
+interfaz,Pulsadores,2,Controles locales,DEMO GPIO12; paro GPIO10
+opcional-interfaz,Interruptor MIC OFF,1,Bloqueo micrófono,GPIO11; opcional mientras voz esté deshabilitada
+actuadores,Relé individual compatible con 3.3 V,1,Bomba,Activo LOW; existente
+alternativa-original,Relé de cuatro canales compatible con 3.3 V,1,Luces y ventilador,Perfil 0; omitir solo tras validar alternativa económica nota 21
+alternativa-economica,S8050 y diodos y resistencias,1 lote,Driver ventilador y LED,Perfil 1; ver valores y pruebas en nota 21; no comprar ambos montajes
 actuadores,Mini bomba 5 V,1,Riego,
 actuadores,Ventilador 5 V,1,Ventilación,
 actuadores,LED de iluminación,3,Sala; dormitorio; invernadero,
 energía,Fuente regulada 5 V,1,Alimentación de pruebas,Dimensionar después de medir corriente
 energía,Fusible 3 A y portafusible,1,Protección general,
 energía,Interruptor general,1,Corte físico,
-energía,Panel solar didáctico 5 V,2,Demostración energética,No prometer autonomía sin mediciones
+opcional-energía,Panel solar didáctico 5 V,2,Demostración energética,Posponer compra hasta medir consumo
 montaje,Regleta o barra 5V-GND,1,Distribución eléctrica,
 montaje,Canaleta pequeña,1,Cableado oculto,
 montaje,Manguera de silicona,1,Riego,Longitud aproximada 1.5 m

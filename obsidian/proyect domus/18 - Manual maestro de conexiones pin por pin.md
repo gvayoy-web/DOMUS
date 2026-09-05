@@ -7,6 +7,11 @@ estado: listo_para_banco
 
 # Manual maestro de conexiones pin por pin
 
+Este manual y el visualizador describen el perfil original de relés
+`DOMUS_SALIDAS_ECONOMICAS=0`. La alternativa con un relé, LED y transistor
+está detallada en [[21 - Simplificacion y reduccion de costos]]; seleccionar
+`DOMUS_SALIDAS_ECONOMICAS=1` solamente después de adaptar las cinco salidas.
+
 > [!DANGER]
 > Este documento describe baja tensión DC. No llevar 120/230 V a la maqueta.
 > Elegir **una sola** ruta de alimentación. No unir directamente fuente USB,

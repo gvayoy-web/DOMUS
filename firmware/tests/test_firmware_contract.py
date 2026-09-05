@@ -17,6 +17,34 @@ class FirmwareContractTests(unittest.TestCase):
         self.assertRegex(self.source, r"#define\s+CANTIDAD_RELES\s+5\b")
         self.assertNotRegex(self.source, r"PINES_RELES\s*\[\s*8\s*\]")
 
+    def test_arduino_prototypes_can_resolve_command_types(self):
+        self.assertIn('#include "domus_types.h"', self.source)
+        header = FIRMWARE.with_name("domus_types.h").read_text(encoding="utf-8")
+        for declaration in ("enum OrigenOrden", "struct OrdenActuador", "struct ResultadoOrden"):
+            self.assertIn(declaration, header)
+
+    def test_serial_discards_entire_overlong_line_and_yields(self):
+        serial = self.source.split("void revisarComandosSerial() {", 1)[1].split("void revisarControlesFisicos", 1)[0]
+        self.assertIn("bytesProcesados < 128", serial)
+        self.assertIn("descartarComandoHastaNuevaLinea = true", serial)
+        self.assertIn("if (caracter == '\\n') descartarComandoHastaNuevaLinea = false", serial)
+        self.assertLess(serial.index("if (descartarComandoHastaNuevaLinea)"), serial.index("procesarComandoTexto"))
+
+    def test_adc_rails_are_rejected(self):
+        import re
+        for low, high in (("HUMEDAD_MIN_VALIDA", "HUMEDAD_MAX_VALIDA"),
+                          ("NIVEL_AGUA_MIN_VALIDO", "NIVEL_AGUA_MAX_VALIDO"),
+                          ("LDR_MIN_VALIDO", "LDR_MAX_VALIDO")):
+            minimum = int(re.search(r"#define\s+" + low + r"\s+(\d+)", self.source)[1])
+            maximum = int(re.search(r"#define\s+" + high + r"\s+(\d+)", self.source)[1])
+            self.assertTrue(0 < minimum < maximum < 4095)
+
+    def test_economical_outputs_require_explicit_selection(self):
+        self.assertIn("#define DOMUS_SALIDAS_ECONOMICAS 0", self.source)
+        self.assertNotIn("RELE_ACTIVO_EN_LOW", self.source)
+        self.assertIn("nivelSalida(indice, true)", self.source)
+        self.assertIn("nivelSalida(indice, false)", self.source)
+
     def test_invalid_gpio22_and_fake_wind_sensor_do_not_return(self):
         self.assertNotIn("GPIO22", self.source)
         self.assertNotIn("PIN_VIENTO", self.source)
@@ -135,7 +163,7 @@ class FirmwareContractTests(unittest.TestCase):
             self.assertIn(f"static_assert({expression}", self.source)
 
     def test_relays_are_preloaded_off_before_output_mode(self):
-        preload = "digitalWrite(PINES_RELES[i], RELE_ACTIVO_EN_LOW ? HIGH : LOW);"
+        preload = "digitalWrite(PINES_RELES[i], nivelSalida(i, false));"
         output = "pinMode(PINES_RELES[i], OUTPUT);"
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))

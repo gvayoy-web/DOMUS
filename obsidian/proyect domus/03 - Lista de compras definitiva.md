@@ -11,6 +11,12 @@ Los precios son referencias web consultadas el 1 de septiembre de 2026. No inclu
 
 ## A. Comprar primero — casa funcional sin Jarvis ni solar
 
+**Alternativa económica implementada:** véase [[21 - Simplificacion y reduccion de costos]].
+Permite omitir el relé de cuatro canales si los LED individuales y el driver
+del ventilador superan las pruebas indicadas. Presupuesto condicionado: L485
+sin cable, L520 con cable desde L35. La tabla siguiente conserva la alternativa
+original de relés; no comprar ambos montajes.
+
 | Compra | Cant. | Precio visto | Subtotal | Motivo |
 |---|---:|---:|---:|---|
 | Fuente 5 V/3 A USB-C con interruptor | 1 | C&D L350 | L350 | Alimentación estable de feria. |

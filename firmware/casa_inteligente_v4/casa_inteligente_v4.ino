@@ -91,6 +91,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <limits.h>
+#include "domus_types.h"
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
@@ -146,8 +147,11 @@
 #define TIPO_DHT        DHT11
 DHT dht(PIN_DHT11, TIPO_DHT);
 
-// --- Cinco cargas: relé existente para bomba + módulo nuevo de 4 canales ---
-#define RELE_ACTIVO_EN_LOW true   // CALIBRAR: cambiar a false si tu módulo es al revés
+// --- Cinco salidas con etapa de potencia mínima y económica ---
+// La bomba conserva el relé existente, activo en LOW. Las tres luces son LED
+// individuales con resistencia de 1 kΩ y el ventilador usa el S8050 existente
+// con resistor de base de 1 kΩ y diodo flyback; esas cuatro salidas son activas
+// en HIGH. Si se instala un módulo de relés distinto, calibrar esta tabla.
 #define CANTIDAD_RELES 5
 
 #define PIN_RELE_BOMBA           4
@@ -158,6 +162,15 @@ DHT dht(PIN_DHT11, TIPO_DHT);
 const int PINES_RELES[CANTIDAD_RELES] = {
   PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO, PIN_RELE_VENTILADOR,
   PIN_RELE_LUZ_INVERNADERO
+};
+// Mantener 0 para el cableado original de relés. Seleccionar 1 únicamente
+// después de montar la alternativa descrita en la nota 21 de Obsidian.
+#ifndef DOMUS_SALIDAS_ECONOMICAS
+#define DOMUS_SALIDAS_ECONOMICAS 0
+#endif
+const bool SALIDA_ACTIVA_EN_LOW[CANTIDAD_RELES] = {
+  true, !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS,
+  !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS
 };
 const char* NOMBRES_RELES[CANTIDAD_RELES] = {
   "Bomba", "Luz Sala", "Luz Cuarto", "Ventilador",
@@ -189,10 +202,11 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 #define UMBRAL_HUMEDAD_SECA_PCT  35     // el riego automático se activa por debajo de este %
 #define UMBRAL_HUMEDAD_HUMEDA_PCT 45    // y se apaga al alcanzar este %, evitando oscilaciones
 
-#define HUMEDAD_MIN_VALIDA      50     // por debajo/encima de este rango, se asume
-#define HUMEDAD_MAX_VALIDA      4095   // sensor desconectado o en corto -> se ignora
-#define NIVEL_AGUA_MIN_VALIDO          0
-#define NIVEL_AGUA_MAX_VALIDO          4095
+#define HUMEDAD_MIN_VALIDA      50     // los rieles ADC se tratan como fallo
+#define HUMEDAD_MAX_VALIDA      4045
+#define NIVEL_AGUA_MIN_VALIDO          16
+#define NIVEL_AGUA_MAX_VALIDO          4079
+#define NIVEL_AGUA_MUESTRAS_ESTABLES   3
 #define NIVEL_AGUA_MINIMO_CRUDO        600 // PROVISIONAL: calibrar con deposito casi vacio
 #define PIR_RETENCION_MS              30000UL
 
@@ -203,8 +217,8 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 // linterna/luz directa y anota en LDR_LECTURA_BRILLANTE.
 #define LDR_LECTURA_OSCURO      3200   // ADC crudo casi sin luz (0%)
 #define LDR_LECTURA_BRILLANTE   400    // ADC crudo con luz directa (100%)
-#define LDR_MIN_VALIDO          0
-#define LDR_MAX_VALIDO          4095
+#define LDR_MIN_VALIDO          16
+#define LDR_MAX_VALIDO          4079
 #define UMBRAL_LUZ_OSCURO_PCT   25     // por debajo de este % se considera "oscuro" para automatización
 #define UMBRAL_LUZ_CLARO_PCT    40     // histéresis: apagar solo al superar este valor
 
@@ -305,6 +319,7 @@ HardwareSerial SerialMP3(1); // UART1 para el módulo MP3
 SPIClass spiMicroSD(FSPI);
 bool microSdMontada = false;
 String bufferComandoSerial;
+bool descartarComandoHastaNuevaLinea = false;
 bool micHabilitado = true;
 bool paroEmergenciaActivo = false;
 bool modoSeguroActivo = false;
@@ -329,26 +344,11 @@ bool estadoReles[CANTIDAD_RELES] = {false, false, false, false, false};
 
 // Toda fuente de control pasa por el mismo contrato. Esto evita que controles
 // físicos, Serial, automatización y voz mantengan estados incompatibles.
-enum OrigenOrden { ORIGEN_SISTEMA, ORIGEN_MANUAL, ORIGEN_AUTOMATICO, ORIGEN_VOZ, ORIGEN_WIFI };
 enum PropietarioActuador {
   PROPIETARIO_NINGUNO,
   PROPIETARIO_MANUAL_ON,
   PROPIETARIO_MANUAL_OFF,
   PROPIETARIO_AUTOMATICO
-};
-
-struct OrdenActuador {
-  int indiceRele;
-  bool encender;
-  OrigenOrden origen;
-  float confianza;
-  const char* nombre;
-};
-
-struct ResultadoOrden {
-  bool exito;
-  bool cambioReal;
-  const char* motivo;
 };
 
 PropietarioActuador propietarioReles[CANTIDAD_RELES] = {
@@ -669,10 +669,12 @@ int fallosVerificacionRele[CANTIDAD_RELES] = {0, 0, 0, 0, 0};
 // haya cambiado físicamente. Para detectar el estado físico real del relé
 // haría falta una señal de realimentación por hardware (ej. leer el propio
 // contacto NO/NC del relé hacia un pin de entrada), que este kit no tiene.
+int nivelSalida(int indice, bool encendida) {
+  return encendida == SALIDA_ACTIVA_EN_LOW[indice] ? LOW : HIGH;
+}
+
 bool verificarEstadoLogicoGpio(int indice, bool estadoEsperado) {
-  int nivelEsperado = estadoEsperado
-    ? (RELE_ACTIVO_EN_LOW ? LOW : HIGH)
-    : (RELE_ACTIVO_EN_LOW ? HIGH : LOW);
+  int nivelEsperado = nivelSalida(indice, estadoEsperado);
   int nivelReal = digitalRead(PINES_RELES[indice]);
   return nivelReal == nivelEsperado;
 }
@@ -687,7 +689,7 @@ bool encenderRele(int indice, bool anunciarPorVoz = true) {
   }
   if (estadoReles[indice]) return true; // ya encendido, se considera éxito idempotente
 
-  digitalWrite(PINES_RELES[indice], RELE_ACTIVO_EN_LOW ? LOW : HIGH);
+  digitalWrite(PINES_RELES[indice], nivelSalida(indice, true));
   delay(5); // pequeña espera para que el relé mecánico termine de conmutar antes de releer
 
   if (!verificarEstadoLogicoGpio(indice, true)) {
@@ -718,7 +720,7 @@ bool apagarRele(int indice, bool anunciarPorVoz = true) {
   }
   if (!estadoReles[indice]) return true; // ya apagado, éxito idempotente
 
-  digitalWrite(PINES_RELES[indice], RELE_ACTIVO_EN_LOW ? HIGH : LOW);
+  digitalWrite(PINES_RELES[indice], nivelSalida(indice, false));
   delay(5);
 
   if (!verificarEstadoLogicoGpio(indice, false)) {
@@ -865,6 +867,7 @@ int leerSensorPromediado(int pin, int muestras = 8) {
 
 int fallosConsecutivosHumedad = 0;
 int fallosConsecutivosNivelAgua = 0;
+uint8_t muestrasNivelAguaValidasConsecutivas = 0;
 #define MAX_FALLOS_ANTES_DE_REGISTRAR 3
 
 // Convierte una lectura ADC cruda a porcentaje 0-100% usando las constantes
@@ -900,6 +903,7 @@ bool leerHumedad(int &crudoSalida, int &pctSalida) {
 bool leerNivelAgua(int &valorSalida) {
   int lectura = leerSensorPromediado(PIN_NIVEL_AGUA);
   if (lectura < NIVEL_AGUA_MIN_VALIDO || lectura > NIVEL_AGUA_MAX_VALIDO) {
+    muestrasNivelAguaValidasConsecutivas = 0;
     fallosConsecutivosNivelAgua++;
     if (fallosConsecutivosNivelAgua >= MAX_FALLOS_ANTES_DE_REGISTRAR) {
       registrarError("SENSOR", "Nivel de agua fuera de rango, revisar conexion");
@@ -910,7 +914,10 @@ bool leerNivelAgua(int &valorSalida) {
   fallosConsecutivosNivelAgua = 0;
   valorSalida = lectura;
   ultimoNivelAguaValido = lectura;
-  return true;
+  if (muestrasNivelAguaValidasConsecutivas < NIVEL_AGUA_MUESTRAS_ESTABLES) {
+    muestrasNivelAguaValidasConsecutivas++;
+  }
+  return muestrasNivelAguaValidasConsecutivas >= NIVEL_AGUA_MUESTRAS_ESTABLES;
 }
 
 // ---- LDR (fotoresistor) - luz ambiental ----
@@ -1324,8 +1331,15 @@ void emitirEventoLocal(const String &linea) {
 }
 
 void revisarComandosSerial() {
-  while (Serial.available() > 0) {
+  // Ceder al lazo principal aun cuando el host transmita continuamente.
+  unsigned int bytesProcesados = 0;
+  while (Serial.available() > 0 && bytesProcesados < 128) {
+    bytesProcesados++;
     char caracter = (char)Serial.read();
+    if (descartarComandoHastaNuevaLinea) {
+      if (caracter == '\n') descartarComandoHastaNuevaLinea = false;
+      continue;
+    }
     if (caracter == '\r') continue;
     if (caracter == '\n') {
       if (bufferComandoSerial.length() > 0) {
@@ -1338,6 +1352,7 @@ void revisarComandosSerial() {
       bufferComandoSerial += caracter;
     } else {
       bufferComandoSerial = "";
+      descartarComandoHastaNuevaLinea = true;
       emitirEventoLocal("NACK;SERIAL;buffer_excedido");
     }
   }
@@ -1601,7 +1616,7 @@ void setup() {
   for (int i = 0; i < CANTIDAD_RELES; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
-    digitalWrite(PINES_RELES[i], RELE_ACTIVO_EN_LOW ? HIGH : LOW);
+    digitalWrite(PINES_RELES[i], nivelSalida(i, false));
     pinMode(PINES_RELES[i], OUTPUT);
     propietarioReles[i] = PROPIETARIO_NINGUNO;
   }
