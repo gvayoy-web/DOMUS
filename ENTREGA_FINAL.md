@@ -18,9 +18,9 @@ de esa fase.
 ## Validación terminada
 
 - 20 pruebas de comportamiento del gemelo digital.
-- 18 contratos estructurales del firmware.
-- 38/38 pruebas automáticas en PASS.
-- Compilación directa del firmware vigente para ESP32-S3 correcta.
+- 22 contratos estructurales del firmware.
+- 42 pruebas Python en PASS; prueba C++ adicional ejecutada en Ubuntu para ambos perfiles.
+- Compilación Arduino completa corregida; evidencia vigente en `firmware/COMPILACION_VALIDADA.md`.
 - Validación de planes, Wikilinks, mapa de pines y visualización central.
 - Revisión de sintaxis Python/JavaScript y diferencias sin errores.
 
@@ -32,7 +32,7 @@ python scripts/validate_project.py
 
 ## Planes terminados
 
-La bóveda `obsidian/proyect domus` contiene las notas 00–19. Las salidas
+La bóveda `obsidian/proyect domus` incluye auditoría y simplificación económica. Las salidas
 principales son:
 
 - `13 - Plan de cierre de codigo.md`.
@@ -42,6 +42,8 @@ principales son:
 - `17 - Diagramas generales de conexiones.md`.
 - `18 - Manual maestro de conexiones pin por pin.md`.
 - `19 - Plan de testeo despues de construccion.md`.
+- `21 - Simplificacion y reduccion de costos.md`.
+- `22 - Resultados de correcciones y regresion.md`.
 
 ## Visualizaciones terminadas
 
@@ -57,7 +59,7 @@ No puede cerrarse honestamente desde software:
 1. Confirmación del pinout serigrafiado de la placa exacta.
 2. Calibración de suelo, nivel, LDR, PIR y DHT.
 3. Prueba de relés, bomba, ventilador y caída de la fuente.
-4. Compra y validación de INMP441, MAX98357A, altavoz y microSD.
+4. Validación opcional futura de INMP441, MAX98357A, altavoz y microSD; no comprar para el núcleo.
 5. Entrenamiento del modelo de voz español.
 6. Medición de consumo antes de dimensionar batería y panel solar.
 

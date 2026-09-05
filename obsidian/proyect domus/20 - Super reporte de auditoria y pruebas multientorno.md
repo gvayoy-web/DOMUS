@@ -6,6 +6,10 @@ commit_base: 28227f41495e61bb166ae9f50b688eec983b78d7
 
 # Super reporte de auditoría y pruebas multientorno
 
+> Auditoría histórica del commit base. Las correcciones posteriores y sus
+> resultados están en [[22 - Resultados de correcciones y regresion]].
+> La alternativa económica está en [[21 - Simplificacion y reduccion de costos]].
+
 ## Veredicto ejecutivo
 
 **REQUEST CHANGES / NO CONSTRUIR NI CARGAR COMO VERSIÓN FINAL.**

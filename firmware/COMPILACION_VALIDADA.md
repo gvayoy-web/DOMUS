@@ -1,58 +1,48 @@
-# Compilación validada del firmware doméstico
+# Compilación del núcleo doméstico
 
-Fecha de última validación: 4 de septiembre de 2026.
+Validación del 4 de septiembre de 2026, código `f811065`; ajuste de matriz
+QSPI en `1f6b6a4`. La auditoría anterior detectó un fallo real de generación
+de prototipos Arduino. Los tipos de órdenes ahora están en `domus_types.h`.
+Esta evidencia sustituye las afirmaciones de compilación de versiones anteriores.
 
-La fase de compilación del núcleo doméstico se validó en GitHub Actions para
-la placa ESP32-S3 N16R8. Esta prueba confirma que el programa y sus dependencias
-son compatibles; no sustituye las pruebas eléctricas con la placa conectada.
+## Entorno reproducible
 
-## Configuración verificada
+- Windows, Arduino CLI 1.5.1, Arduino-ESP32 3.3.10.
+- LiquidCrystal I2C 1.1.2, DHT sensor library 1.4.7, Adafruit Unified Sensor 1.1.15.
+- Voz, MP3 y microSD deshabilitados.
+- FQBN producción: `esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1`.
 
-- Placa: `ESP32S3 Dev Module`.
-- FQBN: `esp32:esp32:esp32s3`.
-- Flash: 16 MB.
-- PSRAM: OPI, 8 MB en el módulo N16R8.
-- Partición: `app3M_fat9M_16MB`.
-- Arduino CLI: rama estable 1.x.
-- Arduino-ESP32: 3.3.10.
-- Jarvis local: desactivado durante esta fase.
+## Binario local N16R8 original, PASS
 
-## Dependencias fijadas
+- Programa: 402,374 bytes / 3,145,728 disponibles.
+- Memoria global: 25,020 bytes / 327,680 disponibles. No mide el pico de heap en ejecución.
+- Archivo: `build/prod_n16r8_v2/casa_inteligente_v4.ino.bin`, 402,528 bytes.
+- SHA-256: `F1C16A4DA8F88D81F559636ED81E9CA28D227393A22AEDEB896A99F8DF5FFCE1`.
+- Perfil predeterminado `DOMUS_SALIDAS_ECONOMICAS=0`: cinco salidas activas LOW.
 
-- LiquidCrystal I2C 1.1.2.
-- DHT sensor library 1.4.7.
-- Adafruit Unified Sensor 1.1.15.
+También compiló Windows 4 MB/sin PSRAM/160 MHz/Core 0: 397,180 bytes de
+programa y 24,544 de memoria global. Estas variantes son pruebas de compilación;
+no usar un binario de otra memoria/placa para la N16R8.
 
-## Resultado actual
+La compilación completa muestra advertencias de la biblioteca LCD
+(arquitectura AVR declarada y constantes binarias obsoletas) y de inicializadores
+en TinyUSB del core. No se modificaron bibliotecas instaladas para ocultarlas.
 
-- Programa: 402,218 bytes de 3,145,728 bytes disponibles, aproximadamente 12 %.
-- Memoria dinámica global: 25,020 bytes de 327,680, aproximadamente 7 %.
-- Binario principal: 402,368 bytes.
-- SHA-256: `86D7E20080F4239615D638FC4BB7741FE6DAC62C1709C23E1A2043B74B96ECF0`.
-- Resultado de GitHub Actions: compilación y generación de binarios correctas.
-- Ejecución final de referencia: https://github.com/gvayoy-web/proyecto-domus/actions/runs/33523880928
+## Automatización
 
-La versión actual incluye cinco cargas, PIR, nivel de agua, `MANUAL_OFF`, paro
-de emergencia, MIC OFF, control por USB Serial, soporte microSD, histéresis y
-supervisor anti-colapso. Se compiló localmente con Arduino CLI 1.5.1 y
-Arduino-ESP32 3.3.10. Los binarios quedaron en
-`.arduino-local/build/firmware-current/`.
+La matriz `.github/workflows/firmware-ci.yml` compila cuatro perfiles en Ubuntu:
+N16R8 original, N16R8 económico, 4 MB sin PSRAM y 8 MB QSPI (`PSRAM=enabled`).
+[Ejecución de referencia](https://github.com/gvayoy-web/domusv1/actions/runs/33941659044).
+El resultado consolidado está en la nota 22 de Obsidian.
 
-El aviso final procede de los metadatos de LiquidCrystal I2C 1.1.2, que declara
-solo arquitectura AVR aunque compila para ESP32. No quedaron advertencias del
-archivo principal al repetir la compilación con `--warnings all`.
+El validador ejecuta 20 pruebas del simulador y 22 contratos del firmware.
+Una prueba adicional compila y ejecuta funciones extraídas del sketch en C++
+para ambos perfiles de salida, comprobando desbordamiento Serial, fragmentación,
+límite por ciclo, recuperación ADC y polaridad. En Windows se omite explícitamente
+si no existe compilador C++ de escritorio; en Ubuntu se ejecuta con g++.
 
-El 4 de septiembre se volvió a compilar directamente el archivo vigente con el
-compilador Xtensa y las mismas banderas/bibliotecas de Arduino-ESP32 3.3.10. La
-compilación terminó sin errores después de añadir contratos `static_assert` que
-impiden GPIO duplicados, histéresis invertida y umbrales de recuperación de
-memoria incoherentes. La validación asociada ejecuta 20 pruebas del simulador y
-18 contratos del firmware: 38/38 en PASS.
+## Carga y banco pendientes
 
-## Siguiente prueba física
-
-1. Alimentar el ESP32-S3 por USB o fuente regulada, sin panel solar.
-2. Cargar los binarios o compilar desde Arduino IDE con la misma configuración.
-3. Confirmar cinco arranques consecutivos sin pulsos visibles en los relés.
-4. Probar cada salida, prioridad manual, corte de bomba y lecturas de sensores.
-5. Anotar el pinout real y cualquier canal activo en HIGH en lugar de LOW.
+La alternativa económica requiere adaptar el mazo según la nota 21 antes de
+definir `DOMUS_SALIDAS_ECONOMICAS=1`. Comprobar arranques, corrientes, sensores,
+paro y bomba en la placa real. Compilar no demuestra estabilidad eléctrica.

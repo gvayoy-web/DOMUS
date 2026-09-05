@@ -59,7 +59,8 @@ española funcional y será sustituido, no activado.
 
 ## Orden de implementación
 
-1. Confirmar el pinout exacto y adquirir INMP441, MAX98357A y altavoz 4 Ω/3 W.
+1. Confirmar pinout y elegir el perfil de salidas de la nota 21. Posponer INMP441,
+   MAX98357A y altavoz hasta la fase de voz.
 2. **Completado en software:** compilar el firmware doméstico sin módulos de
    voz y generar binarios para ESP32-S3 N16R8. La versión actual de cinco
    relés, PIR y nivel de agua fue recompilada correctamente.
