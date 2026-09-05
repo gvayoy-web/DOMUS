@@ -84,14 +84,23 @@
 // hardware. Mientras no exista ese artefacto, el resto de la casa debe seguir
 // compilando y funcionando sin el SDK de voz.
 #define JARVIS_LOCAL_HABILITADO false
+#ifndef MICROSD_HABILITADA
 #define MICROSD_HABILITADA false
+#endif
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
 #include <limits.h>
+#include <Preferences.h>
+#include <new>
+#include <atomic>
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#include "freertos/task.h"
 #include "domus_types.h"
+#include "domus_calibration.h"
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
@@ -270,6 +279,7 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 // --- I2C: reintentos ante fallo transitorio de pantalla ---
 #define I2C_MAX_REINTENTOS      3
 #define I2C_ESPERA_REINTENTO_MS 150
+#define I2C_TIMEOUT_MS 10
 
 // --- Lector microSD SPI independiente (pines provisionales) ---
 #define SD_SCK_PIN   38
@@ -317,12 +327,22 @@ static_assert(MEMORIA_LIBRE_CRITICA_BYTES < MEMORIA_LIBRE_RECUPERACION_BYTES,
 // ============================================================================
 HardwareSerial SerialMP3(1); // UART1 para el módulo MP3
 SPIClass spiMicroSD(FSPI);
-bool microSdMontada = false;
+std::atomic<bool> microSdMontada{false};
+std::atomic<uint32_t> sdDescartados{0};
+std::atomic<uint32_t> sdErrores{0};
+std::atomic<int> sdUltimaPrueba{0}; // 0 pendiente/no probada, 1 correcta, -1 fallo
+QueueHandle_t colaSD = nullptr;
 String bufferComandoSerial;
 bool descartarComandoHastaNuevaLinea = false;
 bool micHabilitado = true;
 bool paroEmergenciaActivo = false;
 bool modoSeguroActivo = false;
+bool watchdogActivo = false;
+CalibracionDomus calibracion = {1, HUMEDAD_LECTURA_SECA, HUMEDAD_LECTURA_HUMEDA,
+  LDR_LECTURA_OSCURO, LDR_LECTURA_BRILLANTE, NIVEL_AGUA_MINIMO_CRUDO, 0};
+CalibracionDomus calibracionPendiente = calibracion;
+bool calibracionGuardada = false;
+uint8_t direccionLcdActiva = 0;
 char motivoModoSeguro[48] = "ninguno";
 bool ultimoBotonDemo = HIGH;
 unsigned long ultimoCambioBotonDemoMs = 0;
@@ -442,6 +462,11 @@ String construirReporteDiagnostico() {
   r += "MODO_SEGURO=" + String(modoSeguroActivo ? "ON" : "OFF") + ";";
   r += "MOTIVO_SEGURO=" + String(motivoModoSeguro) + ";";
   r += "REINICIOS_CRITICOS=" + String(reiniciosCriticosConsecutivos) + ";";
+  r += "WATCHDOG=" + String(watchdogActivo ? "ON" : "FALLO") + ";";
+  r += "CALIBRACION=" + String(calibracionGuardada ? "NVS" : "PROVISIONAL") + ";";
+  r += "SD_DESCARTADOS=" + String(sdDescartados.load()) + ";";
+  r += "SD_ERRORES=" + String(sdErrores.load()) + ";";
+  r += "SD_PRUEBA=" + String(sdUltimaPrueba.load()) + ";";
   #if JARVIS_LOCAL_HABILITADO
     r += "VOZ=" + String(vozSuspendidaPorSalud ? "SUSPENDIDA" : (motorVozListo ? "LISTA" : "NO_LISTA")) + ";";
   #else
@@ -478,13 +503,12 @@ void log(const String &etiqueta, const String &mensaje) {
 // SECCIÓN 5B: ALMACENAMIENTO MICROSD LOCAL
 // ============================================================================
 void registrarLineaMicroSD(const String &linea) {
-  if (!microSdMontada) return;
-  File archivo = SD.open("/domus.log", FILE_APPEND);
-  if (!archivo) return;
-  archivo.print(millis());
-  archivo.print(';');
-  archivo.println(linea);
-  archivo.close();
+  if (!microSdMontada || colaSD == nullptr) return;
+  if (linea.length() >= sizeof(TrabajoSD::linea)) { sdDescartados++; return; }
+  TrabajoSD trabajo = {};
+  trabajo.momento = millis();
+  linea.toCharArray(trabajo.linea, sizeof(trabajo.linea));
+  if (xQueueSend(colaSD, &trabajo, 0) != pdTRUE) sdDescartados++;
 }
 
 bool probarMicroSD() {
@@ -495,8 +519,9 @@ bool probarMicroSD() {
   SD.remove(ruta);
   File salida = SD.open(ruta, FILE_WRITE);
   if (!salida) return false;
-  salida.println(marca);
+  bool escrita = salida.println(marca) == strlen(marca) + 2;
   salida.close();
+  if (!escrita) return false;
 
   File entrada = SD.open(ruta, FILE_READ);
   if (!entrada) return false;
@@ -506,25 +531,60 @@ bool probarMicroSD() {
   return contenido == marca;
 }
 
-void inicializarMicroSD() {
-  if (!MICROSD_HABILITADA) {
-    log("SD", "Deshabilitada hasta confirmar lector y pines SPI");
-    return;
-  }
-
+// Solo esta tarea posee el bus SD: ninguna orden de control espera a la tarjeta.
+void tareaMicroSD(void*) {
   spiMicroSD.begin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
   microSdMontada = SD.begin(SD_CS_PIN, spiMicroSD, 4000000U);
-  if (!microSdMontada) {
-    registrarError("SD", "No se pudo montar la tarjeta FAT16/FAT32");
-    return;
-  }
-
-  if (!probarMicroSD()) {
+  sdUltimaPrueba = probarMicroSD() ? 1 : -1;
+  if (sdUltimaPrueba != 1) {
     microSdMontada = false;
-    registrarError("SD", "Fallo la prueba de escritura/lectura");
-    return;
+    sdErrores++;
   }
-  log("SD", "Montada y verificada por escritura/lectura");
+  TrabajoSD trabajo;
+  while (microSdMontada && xQueueReceive(colaSD, &trabajo, portMAX_DELAY) == pdTRUE) {
+    bool ok = true;
+    if (trabajo.prueba) {
+      ok = probarMicroSD();
+      sdUltimaPrueba = ok ? 1 : -1;
+    } else {
+      File archivo = SD.open("/domus.log", FILE_APPEND);
+      ok = bool(archivo);
+      if (ok && archivo.size() + sizeof(trabajo.linea) + 16 > 256UL * 1024) {
+        archivo.close();
+        ok = !SD.exists("/domus.prev.log") || SD.remove("/domus.prev.log");
+        if (ok) ok = SD.rename("/domus.log", "/domus.prev.log");
+        if (ok) { archivo = SD.open("/domus.log", FILE_APPEND); ok = bool(archivo); }
+      }
+      if (ok) {
+        char registro[216];
+        int longitud = snprintf(registro, sizeof(registro), "%lu;%s\n",
+                                (unsigned long)trabajo.momento, trabajo.linea);
+        ok = longitud > 0 && longitud < (int)sizeof(registro) &&
+          archivo.write((const uint8_t*)registro, longitud) == (size_t)longitud;
+      }
+      archivo.close();
+    }
+    if (!ok) { sdErrores++; microSdMontada = false; }
+  }
+  SD.end();
+  vTaskDelete(NULL);
+}
+
+bool solicitarPruebaSD() {
+  if (!microSdMontada || colaSD == nullptr) return false;
+  TrabajoSD trabajo = {};
+  trabajo.prueba = true;
+  return xQueueSend(colaSD, &trabajo, 0) == pdTRUE;
+}
+
+void inicializarMicroSD() {
+  if (!MICROSD_HABILITADA) return;
+  colaSD = xQueueCreate(8, sizeof(TrabajoSD));
+  if (colaSD == nullptr || xTaskCreate(tareaMicroSD, "domus-sd", 6144, NULL, 1, NULL) != pdPASS) {
+    if (colaSD != nullptr) { vQueueDelete(colaSD); colaSD = nullptr; }
+    sdErrores++;
+    registrarError("SD", "Sin recursos; registro desactivado");
+  }
 }
 
 // ============================================================================
@@ -534,7 +594,8 @@ bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd) {
   hayLcd = false;
   int dispositivosEncontrados = 0;
 
-  for (uint8_t dir = 1; dir < 127; dir++) {
+  const uint8_t direcciones[] = {DIR_LCD_1, DIR_LCD_2};
+  for (uint8_t dir : direcciones) {
     Wire.beginTransmission(dir);
     uint8_t error = Wire.endTransmission();
     if (error == 0) {
@@ -547,7 +608,11 @@ bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd) {
 }
 
 void detectarPantalla() {
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
+  if (!Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN)) {
+    registrarError("I2C", "No se pudo iniciar; sin pantalla");
+    return;
+  }
+  Wire.setTimeOut(I2C_TIMEOUT_MS);
   delay(50);
 
   bool hayLcd = false;
@@ -567,7 +632,12 @@ void detectarPantalla() {
   }
 
   if (hayLcd) {
-    lcd = new LiquidCrystal_I2C(dirLcdEncontrada, 16, 2);
+    lcd = new (std::nothrow) LiquidCrystal_I2C(dirLcdEncontrada, 16, 2);
+    if (lcd == nullptr) {
+      registrarError("LCD", "Sin memoria; sin pantalla");
+      return;
+    }
+    direccionLcdActiva = dirLcdEncontrada;
     lcd->init();
     lcd->backlight();
     pantallaActiva = PANTALLA_LCD;
@@ -578,9 +648,18 @@ void detectarPantalla() {
   }
 }
 
+bool pantallaDisponible() {
+  if (pantallaActiva != PANTALLA_LCD || lcd == nullptr) return false;
+  Wire.beginTransmission(direccionLcdActiva);
+  if (Wire.endTransmission() == 0) return true;
+  pantallaActiva = PANTALLA_NINGUNA;
+  registrarError("LCD", "Desconectada; control sigue activo");
+  return false;
+}
+
 // ---- Pantalla de bienvenida ----
 void mostrarBienvenida() {
-  if (pantallaActiva != PANTALLA_LCD) return;
+  if (!pantallaDisponible()) return;
   lcd->clear();
   lcd->setCursor(0, 0);
   lcd->print("PROJECT DOMUS");
@@ -590,7 +669,7 @@ void mostrarBienvenida() {
 
 // ---- Pantalla principal de estado (llamada periódicamente en el loop) ----
 void actualizarPantallaEstado(int humedadPct, int nivelAgua, bool humedadValida, bool nivelValido, float tempC = -1.0, bool tempValida = false) {
-  if (pantallaActiva != PANTALLA_LCD) return;
+  if (!pantallaDisponible()) return;
   lcd->clear();
   lcd->setCursor(0, 0);
   lcd->print("H:");
@@ -609,7 +688,7 @@ void actualizarPantallaEstado(int humedadPct, int nivelAgua, bool humedadValida,
     if (estadoReles[4]) linea2 += "LI ";
     if (linea2 == "") {
       if (!nivelValido) linea2 = "Nivel ERR";
-      else if (nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) linea2 = "Nivel bajo";
+      else if (nivelAgua < calibracion.nivelMinimo) linea2 = "Nivel bajo";
       else linea2 = "Todo apagado";
     }
   }
@@ -621,7 +700,7 @@ void mostrarPantallaError() {
   String ultimoError = obtenerUltimoError();
   if (ultimoError.length() == 0) return;
 
-  if (pantallaActiva != PANTALLA_LCD) return;
+  if (!pantallaDisponible()) return;
   lcd->clear();
   lcd->setCursor(0, 0);
   lcd->print("ERROR:");
@@ -631,7 +710,7 @@ void mostrarPantallaError() {
 
 // ---- Pantalla de "escuchando" cuando se detecta wake word ----
 void mostrarEscuchando() {
-  if (pantallaActiva != PANTALLA_LCD) return;
+  if (!pantallaDisponible()) return;
   lcd->clear();
   lcd->setCursor(0, 0);
   lcd->print("Escuchando...");
@@ -794,7 +873,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   // encender la bomba si la lectura falta o está por debajo del mínimo.
   if (orden.indiceRele == 0 && orden.encender) {
     int nivelAgua = 0;
-    if (!leerNivelAgua(nivelAgua) || nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) {
+    if (!leerNivelAgua(nivelAgua) || nivelAgua < calibracion.nivelMinimo) {
       registrarError("SEGURIDAD", "Bomba bloqueada por nivel de agua bajo o invalido");
       ResultadoOrden bloqueo = {false, false, "nivel_agua_bajo"};
       if (orden.origen == ORIGEN_VOZ) {
@@ -874,9 +953,9 @@ uint8_t muestrasNivelAguaValidasConsecutivas = 0;
 // de calibración de la Sección 2. Funciona sin importar si "seca" es el
 // número más alto o más bajo (soporta sensores de cualquier polaridad).
 int convertirHumedadAPorcentaje(int lecturaCruda) {
-  long rango = (long)HUMEDAD_LECTURA_HUMEDA - (long)HUMEDAD_LECTURA_SECA;
+  long rango = (long)calibracion.sueloHumedo - (long)calibracion.sueloSeco;
   if (rango == 0) return 0; // evita división por cero si no se calibró
-  long pct = ((long)lecturaCruda - HUMEDAD_LECTURA_SECA) * 100L / rango;
+  long pct = ((long)lecturaCruda - calibracion.sueloSeco) * 100L / rango;
   if (pct < 0) pct = 0;
   if (pct > 100) pct = 100;
   return (int)pct;
@@ -927,9 +1006,9 @@ int fallosConsecutivosLdr = 0;
 // si "oscuro" es el número ADC más alto o más bajo, según cómo hayas armado
 // el divisor de voltaje del LDR.
 int convertirLdrAPorcentaje(int lecturaCruda) {
-  long rango = (long)LDR_LECTURA_BRILLANTE - (long)LDR_LECTURA_OSCURO;
+  long rango = (long)calibracion.luzClara - (long)calibracion.luzOscura;
   if (rango == 0) return 0;
-  long pct = ((long)lecturaCruda - LDR_LECTURA_OSCURO) * 100L / rango;
+  long pct = ((long)lecturaCruda - calibracion.luzOscura) * 100L / rango;
   if (pct < 0) pct = 0;
   if (pct > 100) pct = 100;
   return (int)pct;
@@ -1001,7 +1080,7 @@ void verificarRiegoAutomatico() {
 
   int nivelAgua = 0;
   bool nivelValido = leerNivelAgua(nivelAgua);
-  if (!nivelValido || nivelAgua < NIVEL_AGUA_MINIMO_CRUDO) {
+  if (!nivelValido || nivelAgua < calibracion.nivelMinimo) {
     if (estadoReles[0]) {
       OrdenActuador corte = {0, false, ORIGEN_SISTEMA, 1.0f, "NIVEL_AGUA_BAJO"};
       if (ejecutarOrdenActuador(corte).exito) {
@@ -1240,6 +1319,10 @@ void entrarModoSeguro(const char* motivo) {
 }
 
 bool recuperarModoSeguro() {
+  if (!watchdogActivo) {
+    emitirEventoLocal("NACK;RECUPERAR;watchdog_no_disponible");
+    return false;
+  }
   if (!modoSeguroActivo) {
     emitirEventoLocal("ACK;RECUPERAR;YA_ESTABLE");
     return true;
@@ -1274,6 +1357,92 @@ bool rearmarSistema() {
   return true;
 }
 
+void cargarCalibracion() {
+  Preferences prefs;
+  if (prefs.begin("domus-cal", true)) {
+    CalibracionDomus leida = {};
+    if (prefs.getBytesLength("config") == sizeof(leida) &&
+        prefs.getBytes("config", &leida, sizeof(leida)) == sizeof(leida) &&
+        calibracionValida(leida) && leida.checksum == checksumCalibracion(leida)) {
+      calibracion = leida;
+      calibracionGuardada = true;
+    }
+    prefs.end();
+  }
+  calibracionPendiente = calibracion;
+}
+
+bool procesarCalibracion(const String &comando) {
+  if (!comando.startsWith("CAL_")) return false;
+  if (comando == "CAL_VER") {
+    emitirEventoLocal("CAL;SECO=" + String(calibracionPendiente.sueloSeco) +
+      ";HUMEDO=" + String(calibracionPendiente.sueloHumedo) +
+      ";OSCURO=" + String(calibracionPendiente.luzOscura) +
+      ";CLARO=" + String(calibracionPendiente.luzClara) +
+      ";NIVEL=" + String(calibracionPendiente.nivelMinimo));
+    return true;
+  }
+  // NVS solo se modifica con paro enclavado y todas las salidas apagadas.
+  bool apagadas = true;
+  for (bool estado : estadoReles) apagadas = apagadas && !estado;
+  if (!paroEmergenciaActivo || !apagadas) {
+    emitirEventoLocal("NACK;CAL;requiere_paro");
+    return true;
+  }
+  if (comando == "CAL_GUARDAR") {
+    if (!calibracionValida(calibracionPendiente)) {
+      emitirEventoLocal("NACK;CAL;rangos_invalidos");
+      return true;
+    }
+    calibracionPendiente.checksum = checksumCalibracion(calibracionPendiente);
+    // Una misma configuración no vuelve a desgastar la flash.
+    bool guardada = calibracionGuardada &&
+      calibracion.checksum == calibracionPendiente.checksum;
+    if (!guardada) {
+      Preferences prefs;
+      if (prefs.begin("domus-cal", false)) {
+        guardada = prefs.putBytes("config", &calibracionPendiente,
+                                 sizeof(calibracionPendiente)) == sizeof(calibracionPendiente);
+        prefs.end();
+      }
+    }
+    if (guardada) {
+      calibracion = calibracionPendiente;
+      calibracionGuardada = true;
+      muestrasNivelAguaValidasConsecutivas = 0;
+    }
+    emitirEventoLocal(guardada ? "ACK;CAL_GUARDAR;OK" : "NACK;CAL;error_nvs");
+    return true;
+  }
+  if (comando == "CAL_CANCELAR") {
+    calibracionPendiente = calibracion;
+    emitirEventoLocal("ACK;CAL_CANCELAR;OK");
+    return true;
+  }
+  int separador = comando.indexOf('=');
+  if (separador < 0) { emitirEventoLocal("NACK;CAL;sintaxis"); return true; }
+  String numero = comando.substring(separador + 1);
+  if (numero.length() == 0 || numero.length() > 4) {
+    emitirEventoLocal("NACK;CAL;numero_invalido"); return true;
+  }
+  for (unsigned int i = 0; i < numero.length(); i++) {
+    if (numero[i] < '0' || numero[i] > '9') {
+      emitirEventoLocal("NACK;CAL;numero_invalido"); return true;
+    }
+  }
+  int valor = numero.toInt();
+  if (valor > 4095) { emitirEventoLocal("NACK;CAL;fuera_de_adc"); return true; }
+  String clave = comando.substring(0, separador);
+  if (clave == "CAL_SECO") calibracionPendiente.sueloSeco = valor;
+  else if (clave == "CAL_HUMEDO") calibracionPendiente.sueloHumedo = valor;
+  else if (clave == "CAL_OSCURO") calibracionPendiente.luzOscura = valor;
+  else if (clave == "CAL_CLARO") calibracionPendiente.luzClara = valor;
+  else if (clave == "CAL_NIVEL") calibracionPendiente.nivelMinimo = valor;
+  else { emitirEventoLocal("NACK;CAL;clave_invalida"); return true; }
+  emitirEventoLocal("ACK;CAL;PENDIENTE_GUARDAR");
+  return true;
+}
+
 void procesarComandoTexto(String comando) {
   comando.trim();
   comando.toUpperCase();
@@ -1293,6 +1462,7 @@ void procesarComandoTexto(String comando) {
     return;
   }
 
+  if (procesarCalibracion(comando)) return;
   if (!esComandoValido(comando)) {
     registrarError("COMANDO", "No reconocido: " + comando);
     emitirEventoLocal("NACK;" + comando + ";no_reconocido");
@@ -1322,7 +1492,7 @@ void procesarComandoTexto(String comando) {
   else if (comando == "REARMAR") rearmarSistema();
   else if (comando == "RECUPERAR") recuperarModoSeguro();
   else if (comando == "MIC_ESTADO") emitirEventoLocal(String("MIC;") + (micHabilitado ? "ON" : "OFF"));
-  else if (comando == "SD_PRUEBA") emitirEventoLocal(probarMicroSD() ? "ACK;SD_PRUEBA;OK" : "NACK;SD_PRUEBA;NO_DISPONIBLE");
+  else if (comando == "SD_PRUEBA") emitirEventoLocal(solicitarPruebaSD() ? "ACK;SD_PRUEBA;ENCOLADA" : "NACK;SD_PRUEBA;NO_DISPONIBLE");
 }
 
 void emitirEventoLocal(const String &linea) {
@@ -1582,6 +1752,21 @@ void supervisarSalud() {
 // ============================================================================
 // SECCIÓN 13: SETUP
 // ============================================================================
+bool inicializarWatchdog() {
+  esp_task_wdt_config_t configWdt = {
+    .timeout_ms = WATCHDOG_TIMEOUT_S * 1000,
+    .idle_core_mask = 0,
+    .trigger_panic = true
+  };
+  esp_err_t resultado = esp_task_wdt_init(&configWdt);
+  if (resultado == ESP_ERR_INVALID_STATE) {
+    resultado = esp_task_wdt_reconfigure(&configWdt);
+  }
+  if (resultado != ESP_OK) return false;
+  if (esp_task_wdt_status(NULL) != ESP_OK && esp_task_wdt_add(NULL) != ESP_OK) return false;
+  return esp_task_wdt_reset() == ESP_OK;
+}
+
 void setup() {
   Serial.begin(115200);
   delay(300);
@@ -1604,15 +1789,6 @@ void setup() {
   pinMode(PIN_BOTON_DEMO, INPUT_PULLUP);
   micHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
 
-  esp_task_wdt_config_t configWdt = {
-    .timeout_ms = WATCHDOG_TIMEOUT_S * 1000,
-    .idle_core_mask = 0,
-    .trigger_panic = true
-  };
-  esp_task_wdt_init(&configWdt);
-  esp_task_wdt_add(NULL);
-  log("SISTEMA", "Watchdog activo, timeout=" + String(WATCHDOG_TIMEOUT_S) + "s");
-
   for (int i = 0; i < CANTIDAD_RELES; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
@@ -1621,6 +1797,10 @@ void setup() {
     propietarioReles[i] = PROPIETARIO_NINGUNO;
   }
   log("SISTEMA", "Relés inicializados (todos apagados)");
+  watchdogActivo = inicializarWatchdog();
+  if (!watchdogActivo) entrarModoSeguro("watchdog_no_disponible");
+  else log("SISTEMA", "Watchdog verificado: " + String(WATCHDOG_TIMEOUT_S) + "s");
+  cargarCalibracion();
 
   if (arrancarEnModoSeguro) {
     entrarModoSeguro("reinicios_criticos_consecutivos");
@@ -1661,7 +1841,10 @@ unsigned long ultimaActualizacionPantalla = 0;
 #define DURACION_PANTALLA_ERROR_MS 4000
 
 void loop() {
-  esp_task_wdt_reset();
+  if (watchdogActivo && esp_task_wdt_reset() != ESP_OK) {
+    watchdogActivo = false;
+    entrarModoSeguro("watchdog_reset_fallo");
+  }
 
   // 1. Seguridad y controles físicos tienen prioridad máxima.
   revisarControlesFisicos();

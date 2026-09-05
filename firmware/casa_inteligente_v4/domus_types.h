@@ -1,4 +1,11 @@
 #pragma once
+#include <stdint.h>
+
+struct TrabajoSD {
+  bool prueba;
+  uint32_t momento;
+  char linea[192];
+};
 
 // Los tipos usados por firmas de funciones viven en un encabezado para que el
 // generador automático de prototipos de Arduino los conozca antes de declarar

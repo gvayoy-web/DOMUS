@@ -57,6 +57,10 @@ jobs:
           - name: n16r8-economico
             board: FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1
             economical: 1
+          - name: n16r8-sd
+            board: FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1
+            economical: 0
+            sd: 1
           - name: 4m-sin-psram
             board: FlashSize=4M,PSRAM=disabled,PartitionScheme=huge_app,CPUFreq=160,LoopCore=0
             economical: 0
@@ -88,7 +92,7 @@ jobs:
         run: |
           arduino-cli compile \
             --fqbn "esp32:esp32:esp32s3:${{ matrix.board }}" \
-            --build-property "compiler.cpp.extra_flags=-DDOMUS_SALIDAS_ECONOMICAS=${{ matrix.economical }}" \
+            --build-property "compiler.cpp.extra_flags=-DDOMUS_SALIDAS_ECONOMICAS=${{ matrix.economical }} -DMICROSD_HABILITADA=${{ matrix.sd || 0 }}" \
             --warnings all \
             --output-dir build/firmware \
             firmware/casa_inteligente_v4
