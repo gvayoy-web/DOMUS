@@ -69,6 +69,12 @@ Las PoC de audio aisladas no equivalen a Jarvis integrado en el firmware Arduino
 
 ## Evidencia disponible
 
+Última comprobación: [ejecución 33943428508 correcta](https://github.com/gvayoy-web/domusv1/actions/runs/33943428508),
+commit `4280e06`. Pasaron las pruebas, incluido el escaneo I2C bloqueado,
+y los cinco perfiles de compilación. En Linux se ejecutan 20 casos del
+simulador, 22 contratos y cuatro pruebas nativas C++: 46 pruebas correctas.
+La consulta inicialmente bloqueada por límite de uso se completó al retomar.
+
 - Firmware local N16R8: compilación correcta, 414,338 bytes de programa,
   25,092 bytes globales. Estos valores no son pico de RAM en funcionamiento.
 - [Firmware Linux: cinco perfiles correctos](https://github.com/gvayoy-web/domusv1/actions/runs/33942958851).
