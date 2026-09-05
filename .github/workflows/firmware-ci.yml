@@ -61,7 +61,7 @@ jobs:
             board: FlashSize=4M,PSRAM=disabled,PartitionScheme=huge_app,CPUFreq=160,LoopCore=0
             economical: 0
           - name: 8m-qspi
-            board: FlashSize=8M,PSRAM=qspi,PartitionScheme=default_8MB,CPUFreq=80,LoopCore=1
+            board: FlashSize=8M,PSRAM=enabled,PartitionScheme=default_8MB,CPUFreq=80,LoopCore=1
             economical: 0
 
     steps:
