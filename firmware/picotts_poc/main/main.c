@@ -15,7 +15,7 @@ static void escribir_audio(int16_t *samples, unsigned count)
     size_t bytes_written = 0;
     const size_t bytes = count * sizeof(int16_t);
     esp_err_t err = i2s_channel_write(tx_channel, samples, bytes,
-                                      &bytes_written, portMAX_DELAY);
+                                      &bytes_written, 1000);
     if (err != ESP_OK || bytes_written != bytes) {
         ESP_LOGE(TAG, "Fallo I2S: %s, %u/%u bytes",
                  esp_err_to_name(err), (unsigned)bytes_written, (unsigned)bytes);
@@ -41,7 +41,7 @@ static esp_err_t iniciar_max98357a(void)
 
     i2s_std_config_t std_cfg = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(PICOTTS_SAMPLE_FREQ_HZ),
-        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(
+        .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(
             I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO),
         .gpio_cfg = {
             .mclk = I2S_GPIO_UNUSED,

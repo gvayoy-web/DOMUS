@@ -32,3 +32,8 @@ deploy/
 # Editores
 .vscode/
 .idea/
+
+# Voces privadas y ejecuciones de entrenamiento
+ai/data/
+ai/runs/
+.venv-ia/

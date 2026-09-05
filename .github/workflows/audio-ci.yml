@@ -1,0 +1,27 @@
+name: Compilar pruebas de audio ESP-IDF
+on:
+  push:
+    paths: ["firmware/inmp441_poc/**", "firmware/picotts_poc/**", ".github/workflows/audio-ci.yml"]
+  pull_request:
+    paths: ["firmware/inmp441_poc/**", "firmware/picotts_poc/**", ".github/workflows/audio-ci.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [inmp441_poc, picotts_poc]
+    container: espressif/idf:v5.3.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar PoC aislado
+        shell: bash
+        working-directory: firmware/${{ matrix.project }}
+        run: |
+          . /opt/esp/idf/export.sh
+          idf.py set-target esp32s3
+          idf.py build

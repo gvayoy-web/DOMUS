@@ -39,8 +39,11 @@ static esp_err_t iniciar_inmp441(void)
 
     i2s_std_slot_config_t slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(
         I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO);
-    slot_cfg.slot_mask = CONFIG_JARVIS_MIC_RIGHT_CHANNEL
-        ? I2S_STD_SLOT_RIGHT : I2S_STD_SLOT_LEFT;
+#ifdef CONFIG_JARVIS_MIC_RIGHT_CHANNEL
+    slot_cfg.slot_mask = I2S_STD_SLOT_RIGHT;
+#else
+    slot_cfg.slot_mask = I2S_STD_SLOT_LEFT;
+#endif
 
     i2s_std_config_t std_cfg = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SAMPLE_RATE_HZ),
@@ -79,7 +82,7 @@ static void tarea_microfono(void *argument)
         size_t bytes_read = 0;
         esp_err_t err = i2s_channel_read(rx_channel, raw,
                                          BLOCK_SAMPLES * sizeof(int32_t),
-                                         &bytes_read, pdMS_TO_TICKS(1000));
+                                         &bytes_read, 1000);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "Lectura I2S falló: %s", esp_err_to_name(err));
             continue;
@@ -97,6 +100,8 @@ static void tarea_microfono(void *argument)
         unsigned saturated = 0;
         for (size_t i = 0; i < count; ++i) {
             int32_t centered = (int32_t)convertir_muestra(raw[i]) - mean;
+            if (centered > INT16_MAX) centered = INT16_MAX;
+            if (centered < INT16_MIN) centered = INT16_MIN;
             int32_t absolute = centered < 0 ? -centered : centered;
             if (absolute > peak) peak = absolute;
             if (absolute >= 30000) saturated++;
@@ -126,6 +131,11 @@ void app_main(void)
     ESP_ERROR_CHECK(iniciar_inmp441());
     ESP_LOGI(TAG, "INMP441: 16 kHz, mono, búfer PSRAM de %d segundos",
              RING_SECONDS);
-    xTaskCreatePinnedToCore(tarea_microfono, "jarvis_mic", 4096, NULL, 6,
-                            NULL, 0);
+    if (xTaskCreatePinnedToCore(tarea_microfono, "jarvis_mic", 4096, NULL, 6,
+                               NULL, 0) != pdPASS) {
+        ESP_LOGE(TAG, "No se pudo crear tarea de captura");
+        i2s_channel_disable(rx_channel);
+        i2s_del_channel(rx_channel);
+        heap_caps_free(audio_ring);
+    }
 }
