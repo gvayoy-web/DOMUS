@@ -9,6 +9,10 @@ Esta nota es la evidencia vigente del cierre ejecutable. Sustituye conteos y
 tamaños publicados en notas históricas; no convierte una compilación en una
 prueba eléctrica.
 
+Placa declarada como “N8R16”: se interpreta como 8 MB RAM y 16 MB de flash.
+El código oficial de Espressif para esa capacidad es `N16R8`; por eso la
+configuración permanece en 16 MB con PSRAM OPI.
+
 ## Resultado local
 
 | Objetivo | Programa | Globales | Resultado |
@@ -25,10 +29,20 @@ prueba eléctrica.
 Herramientas: Arduino CLI 1.5.1, Arduino-ESP32 3.3.10 y advertencias completas.
 Las advertencias residuales pertenecen a LiquidCrystal I2C y al core ESP32.
 
-El validador consolidado reporta 49 PASS y 5 SKIP: los SKIP son las ejecuciones
+El validador consolidado reporta 50 PASS y 5 SKIP: los SKIP son las ejecuciones
 nativas C++ que requieren un compilador de escritorio y se ejecutan en CI.
 La suite de IA reporta 16 PASS. El workflow compila los cinco perfiles del
 principal y los tres sketches auxiliares para impedir regresiones.
+
+## Campaña semirreal
+
+El gemelo digital ejecutó 10,000 pasos deterministas y 40,027 comprobaciones de
+invariantes. Inyectó 40 PARO, 22 entradas en modo seguro, 28 reinicios y 134
+fallos de sensor. Resultado: PASS, con registro de eventos limitado a 250.
+
+Esta campaña aproxima cambios ambientales y fallos lógicos, pero no reproduce
+ruido ADC, rebote eléctrico, consumo, caídas de 5 V, calor ni comportamiento
+real del relé/motor. Se reproduce con `python scripts/run_semireal_campaign.py`.
 
 ## Qué quedó funcional en el esqueleto
 
@@ -48,7 +62,9 @@ El software está cerrado hasta el banco. Falta identificar físicamente la plac
 confirmar GPIO 2/9/13, polaridades y tensión de cada etapa; calibrar los tres ADC;
 medir fuente, bomba y motor; probar PARO/rearme; ejecutar cinco arranques y el
 ensayo prolongado. Jarvis hablado requiere micrófono/corpus/modelo y la ruta de
-audio elegida. Batería y solar requieren arquitectura y componentes confirmados.
+audio elegida. Batería y solar quedan fuera del circuito y sólo serán estética.
+La fuente operativa será una fuente común regulada de 5 V; todavía deben medirse
+su corriente disponible y caída de tensión con cargas reales.
 
 La secuencia segura está en [[33 - Base modular funcional y plan de banco]].
 No habilitar salidas ni declarar terminado el sistema físico sin completar esa

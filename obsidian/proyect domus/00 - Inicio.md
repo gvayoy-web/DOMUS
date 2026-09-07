@@ -15,7 +15,7 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 - **microSD:** no obligatoria para el núcleo. DFPlayer necesita una tarjeta para sus pistas; lector SPI y otra tarjeta solo si se requiere almacenamiento independiente del ESP32.
 - **Voz Jarvis:** objetivo de comandos locales; falta micrófono y reconocimiento integrado/validado. Para respuestas grabadas reutilizar DFPlayer con altavoz y tarjeta; MAX98357A solo para la alternativa PicoTTS.
 - **Energía de feria:** falta una fuente real de 5 V/3 A y distribución segura. El módulo de alimentación de protoboard no debe alimentar bomba, cinco relés y audio.
-- **Batería:** no se necesitan TP4056 + CN3065 + otro BMS todos juntos. Se elige una arquitectura; véase [[04 - Energia bateria y solar]].
+- **Batería y solar:** quedan como estética, eléctricamente desconectados. La casa funciona con una fuente común regulada de 5 V.
 - **Software:** el núcleo offline, las cinco cargas, sensores, seguridad y
   simulación están integrados. Quedan calibración física y modelos de voz;
   véanse [[13 - Plan de cierre de codigo]] y
@@ -65,7 +65,7 @@ entrenado para DOMUS; la tabla histórica siguiente no certifica voz ni hardware
 | Entregable | Estado |
 |---|---|
 | Firmware doméstico y anti-colapso | Implementado y compilado; validación física pendiente |
-| Simulador y contratos automáticos | 49 PASS locales; 5 pruebas C++ omitidas por falta de compilador; además 16 pruebas de IA PASS; ver nota 34 |
+| Simulador y contratos automáticos | 50 PASS locales; 5 pruebas C++ omitidas por falta de compilador; además 16 pruebas de IA PASS y campaña semirreal de 10,000 pasos; ver nota 34 |
 | Planes de optimización, montaje y pruebas | DOCUMENTOS TERMINADOS |
 | Diagramas y manual de conexiones | TERMINADOS para banco; pines provisionales señalados |
 | Calibración y validación eléctrica | PENDIENTE DE HARDWARE |

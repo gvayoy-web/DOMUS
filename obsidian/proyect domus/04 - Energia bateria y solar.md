@@ -6,6 +6,11 @@ actualizado: 2026-09-04
 
 # Energía, batería y solar
 
+> **Decisión vigente (2026-09-06):** batería y panel solar serán únicamente
+> estéticos y permanecerán eléctricamente desconectados. La maqueta se alimenta
+> con una fuente común regulada de 5 V. Se conserva el análisis inferior como
+> referencia histórica, no como plan de montaje.
+
 ## Decisión de alcance 06-09-2026
 
 Alimentación aplazada por Isaac mientras se prepara el código. Objetivo de la

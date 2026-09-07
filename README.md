@@ -3,7 +3,12 @@
 > Estado y ruta recomendada: [`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md). Para probar
 > las piezas confirmadas usar la base modular, no los PoC de audio o pantallas.
 
-Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla cinco cargas, sensores, automatización local y la futura voz local de Jarvis. No hay aplicación móvil, BLE ni dependencia de internet para las funciones críticas. Los comandos de diagnóstico se aceptan localmente por USB Serial.
+Proyecto de feria basado en ESP32-S3 con 16 MB flash y 8 MB PSRAM: marcado
+oficial `N16R8` (descrito comercialmente por el propietario como “N8R16”, es
+decir, 8 MB RAM / 16 MB memoria). El firmware controla cinco cargas, sensores,
+automatización local y la futura voz local de Jarvis. No hay aplicación móvil,
+BLE ni dependencia de internet para las funciones críticas. Los comandos de
+diagnóstico se aceptan localmente por USB Serial.
 
 ## Estado actual
 
@@ -37,7 +42,7 @@ Ambas frases producen `LUZ_SALA_1_OFF`, apagan el relé y generan una respuesta 
 - INMP441 a 3.3 V, I2S mono a 16 kHz.
 - MAX98357A I2S y altavoz de 4 Ω/3 W para la voz generada.
 - Tira WS2812B de 8 LEDs como indicador azul.
-- Fuente regulada de 5 V/3 A para el conjunto; probar audio primero de forma aislada.
+- Fuente común regulada de 5 V; usar 3 A o más hasta medir el consumo real del conjunto. Probar audio primero de forma aislada.
 - 74AHCT125/74HCT14 recomendado para datos del WS2812B.
 
 Confirma el pinout de la placa antes de soldar. GPIO13 (SCL), GPIO9 (PIR) y GPIO2 (nivel de agua) son asignaciones provisionales. No alimentes altavoz o relés desde 3.3 V del ESP32.
