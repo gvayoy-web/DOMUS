@@ -8,8 +8,9 @@ Para continuar el trabajo usa [[13 - Plan de cierre de codigo]]. La protección
 del firmware y las reglas para habilitar Jarvis están en
 [[14 - Protocolo anti-colapso IA y ESP32]].
 
-El núcleo está marcado como terminado; las mejoras posteriores están ordenadas
-en [[15 - Plan de optimizacion de codigo]].
+El firmware principal es la referencia completa, pero la base modular sigue en
+validacion. Su estado vigente y pruebas estan en
+[[33 - Base modular funcional y plan de banco]].
 
 Antes de construir, completar [[16 - Plan de testeo antes de construccion]] y
 usar después [[17 - Diagramas generales de conexiones]]. El cableado exacto de

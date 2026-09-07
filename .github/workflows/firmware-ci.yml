@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "firmware/casa_inteligente_v4/**"
+      - "firmware/domus_esqueleto/**"
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
@@ -14,6 +15,7 @@ on:
   pull_request:
     paths:
       - "firmware/casa_inteligente_v4/**"
+      - "firmware/domus_esqueleto/**"
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
@@ -102,5 +104,37 @@ jobs:
         with:
           name: project-domus-${{ matrix.name }}
           path: build/firmware/
+          if-no-files-found: error
+          retention-days: 14
+
+  compilar-base-modular:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: "1.x"
+      - name: Instalar ESP32 y bibliotecas de la base
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.10
+          arduino-cli lib install "LiquidCrystal I2C@1.1.2"
+          arduino-cli lib install "DHT sensor library@1.4.7"
+          arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+      - name: Compilar DOMUS base modular
+        run: |
+          arduino-cli compile \
+            --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1" \
+            --warnings all \
+            --output-dir build/domus-esqueleto \
+            firmware/domus_esqueleto
+      - uses: actions/upload-artifact@v4
+        with:
+          name: project-domus-base-modular
+          path: build/domus-esqueleto/
           if-no-files-found: error
           retention-days: 14

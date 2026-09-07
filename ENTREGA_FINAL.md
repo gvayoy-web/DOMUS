@@ -23,7 +23,8 @@ de esa fase.
 
 - 20 pruebas de comportamiento del gemelo digital.
 - 22 contratos estructurales del firmware.
-- 42 pruebas Python en PASS; prueba C++ adicional ejecutada en Ubuntu para ambos perfiles.
+- El conteo vigente se obtiene con `scripts/validate_project.py`; no conservar
+  un total historico como criterio de aprobacion.
 - Compilación Arduino completa corregida; evidencia vigente en `firmware/COMPILACION_VALIDADA.md`.
 - Validación de planes, Wikilinks, mapa de pines y visualización central.
 - Revisión de sintaxis Python/JavaScript y diferencias sin errores.

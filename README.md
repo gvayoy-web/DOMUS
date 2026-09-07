@@ -1,10 +1,14 @@
 # Casa inteligente — Jarvis local v6
 
+> Estado y ruta recomendada: [`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md). Para probar
+> las piezas confirmadas usar la base modular, no los PoC de audio o pantallas.
+
 Proyecto de feria basado únicamente en ESP32-S3 N16R8. El firmware controla cinco cargas, sensores, automatización local y la futura voz local de Jarvis. No hay aplicación móvil, BLE ni dependencia de internet para las funciones críticas. Los comandos de diagnóstico se aceptan localmente por USB Serial.
 
 ## Estado actual
 
 - Firmware: [`firmware/casa_inteligente_v4/casa_inteligente_v4.ino`](firmware/casa_inteligente_v4/casa_inteligente_v4.ino)
+- Firmware recomendado para banco: [`firmware/domus_esqueleto`](firmware/domus_esqueleto)
 - Voz local: [`firmware/JARVIS_LOCAL.md`](firmware/JARVIS_LOCAL.md)
 - Plan completo: [`PLAN_PROYECTO.md`](PLAN_PROYECTO.md)
 - Entrega consolidada: [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md)
