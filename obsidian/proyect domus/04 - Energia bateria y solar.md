@@ -6,6 +6,18 @@ actualizado: 2026-09-04
 
 # Energía, batería y solar
 
+## Decisión de alcance 06-09-2026
+
+Alimentación aplazada por Isaac mientras se prepara el código. Objetivo de la
+versión económica: una única fuente externa regulada para varios ramales,
+sin baterías ni solar funcional. No es una fuente por módulo. La propuesta
+5 V/3 A requiere verificar voltajes de cargas, consumo de arranque y cable.
+El cargador existente aún no está confirmado apto: no contarlo como compra evitada.
+El módulo negro/amarillo se identificó visualmente como tipo MB102: banco
+ligero, no fuente general; **no conectar 19 V**. Comprobar variante física.
+Mantener red AC fuera de maqueta y agua separada del gabinete.
+Los diseños de batería siguientes son alternativas futuras, no lista de compras.
+
 ## Por qué parecía haber demasiada protección
 
 La lista anterior mezclaba tres diseños distintos. **No se montan todos a la vez.** Una batería de litio necesita:

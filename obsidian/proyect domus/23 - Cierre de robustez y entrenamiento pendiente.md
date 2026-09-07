@@ -5,6 +5,9 @@ fecha: 2026-09-05
 
 # Cierre de robustez y entrenamiento pendiente
 
+> Registro histórico de 2026-09-05. La evidencia vigente está en
+> [[34 - Cierre de software y matriz de verificacion]].
+
 ## Implementado
 
 - Watchdog: comprueba inicialización, reconfiguración, suscripción y alimentación.

@@ -101,6 +101,8 @@
 #include "freertos/task.h"
 #include "domus_types.h"
 #include "domus_calibration.h"
+#include "domus_voice_contract.h"
+#include "esp_heap_caps.h"
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
@@ -134,6 +136,9 @@
 #define MIC_WS_PIN      15   // WS  (Word Select)
 #define MIC_SD_PIN      16   // SD  (Serial Data / audio)
 #define MIC_SCK_PIN     17   // SCK (bit clock)
+#define TTS_BCLK_PIN    40   // provisional: confirmar exposición en placa
+#define TTS_WS_PIN      41
+#define TTS_DOUT_PIN    42
 // Fijos en el módulo (no son GPIO configurables):
 //   VDD -> 3.3V (¡JAMÁS 5V, se quema el chip!)   GND -> GND   L/R -> GND
 
@@ -297,7 +302,8 @@ constexpr int PINES_RESERVADOS_DOMUS[] = {
   PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
   I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN,
   MP3_RX_PIN, MP3_TX_PIN, I2C_SDA_PIN,
-  SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN
+  SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN,
+  TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN
 };
 
 constexpr bool pinesDomusSonUnicos() {
@@ -455,6 +461,12 @@ String construirReporteDiagnostico() {
   String r = "DIAGNOSTICO;";
   r += "UPTIME_S=" + String(millis() / 1000) + ";";
   r += "MEM_LIBRE=" + String(esp_get_free_heap_size()) + ";";
+  r += "RAM_INTERNA=" + String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)) + ";";
+  r += "RAM_INTERNA_MIN=" + String(heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)) + ";";
+  r += "RAM_BLOQUE_MAX=" + String(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)) + ";";
+  r += "PSRAM_LIBRE=" + String(heap_caps_get_free_size(MALLOC_CAP_SPIRAM)) + ";";
+  r += "PSRAM_MIN=" + String(heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM)) + ";";
+  r += "PSRAM_BLOQUE_MAX=" + String(heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM)) + ";";
   r += "ERRORES_TOTAL=" + String(totalErroresAcumulados) + ";";
   r += "ULTIMO_ERROR=" + (obtenerUltimoError().length() > 0 ? obtenerUltimoError() : "ninguno") + ";";
   r += "PANTALLA=" + String(pantallaActiva == PANTALLA_LCD ? "LCD" : "NINGUNA") + ";";
@@ -850,9 +862,15 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     return {false, false, "indice_invalido"};
   }
 
+  // Revalidar al ejecutar: MIC OFF también invalida resultados ya calculados.
+  if (orden.origen == ORIGEN_VOZ &&
+      (!micHabilitado || digitalRead(PIN_MIC_OFF) == LOW)) {
+    return {false, false, "mic_off"};
+  }
+
   // Una confianza baja jamás puede modificar la casa. Las fuentes que no
   // dependen de inferencia deben enviar 1.0.
-  if (orden.origen == ORIGEN_VOZ && orden.confianza < 0.75f) {
+  if (orden.origen == ORIGEN_VOZ && !domusVoiceConfidenceValid(orden.confianza)) {
     log("VOZ", "Orden rechazada por baja confianza: " + String(orden.confianza, 2));
     ResultadoOrden rechazo = {false, false, "confianza_baja"};
     responderJarvis(construirRespuestaJarvis(orden, estadoReles[orden.indiceRele], rechazo));
@@ -1532,6 +1550,7 @@ void revisarControlesFisicos() {
   bool nuevoMicHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
   if (nuevoMicHabilitado != micHabilitado) {
     micHabilitado = nuevoMicHabilitado;
+    if (!micHabilitado) ventanaEscuchaActiva = false;
     emitirEventoLocal(String("EVENTO;MIC;") + (micHabilitado ? "ON" : "OFF"));
   }
 

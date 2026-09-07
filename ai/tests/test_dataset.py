@@ -64,3 +64,32 @@ class DatasetTests(unittest.TestCase):
         manifest = self.manifest([["../a.wav","p1","JARVIS","train","real","yes"]])
         with self.assertRaisesRegex(ValueError, "fuera"):
             audit(manifest)
+
+    def provenance_manifest(self, source="synthetic", split="train", license="CC0-1.0"):
+        self.wav()
+        path = self.root / "provenance.csv"
+        with path.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.writer(stream)
+            writer.writerow(["path","speaker","label","split","source","consent",
+                             "license","source_url","origin_id","transcript"])
+            writer.writerow(["audio.wav","voice1","JARVIS",split,source,"yes",
+                             license,"https://example.invalid/fixture","recording1","jarvis"])
+        return path
+
+    def test_synthetic_requires_explicit_flag_and_provenance(self):
+        path = self.provenance_manifest()
+        records = audit(path, {"train":0,"validation":0,"test":0}, allow_synthetic_train=True)
+        self.assertEqual(records[0]["source"], "synthetic")
+        self.assertEqual(records[0]["origin_id"], "recording1")
+        with self.assertRaisesRegex(ValueError, "procedencia"):
+            audit(self.provenance_manifest(license=""), allow_synthetic_train=True)
+
+    def test_synthetic_cannot_contaminate_evaluation(self):
+        for split in ("validation", "test"):
+            with self.assertRaisesRegex(ValueError, "evaluación real"):
+                audit(self.provenance_manifest(split=split), allow_synthetic_train=True)
+
+    def test_truncated_csv_is_rejected_cleanly(self):
+        path = self.manifest([["audio.wav","speaker"]])
+        with self.assertRaisesRegex(ValueError, "incompletos"):
+            audit(path)

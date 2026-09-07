@@ -4,13 +4,10 @@ import csv
 import hashlib
 import sys
 import wave
+from intents import LABELS
 from collections import Counter, defaultdict
 from pathlib import Path
 
-LABELS = ("JARVIS", "LUZ_SALA_1_ON", "LUZ_SALA_1_OFF", "LUZ_CUARTO_ON",
-          "LUZ_CUARTO_OFF", "RIEGO_ON", "RIEGO_OFF", "VENTILADOR_ON",
-          "VENTILADOR_OFF", "INVERNADERO_ON", "INVERNADERO_OFF",
-          "DESCONOCIDO", "RUIDO", "SILENCIO")
 SPLITS = ("train", "validation", "test")
 
 
@@ -35,13 +32,14 @@ def inspect_wav(path):
             "frames": frames, "clipping": clipping}
 
 
-def audit(manifest, minimum_counts=None):
+def audit(manifest, minimum_counts=None, *, allow_synthetic_train=False):
     manifest = Path(manifest).resolve()
     if not manifest.is_file():
         raise ValueError(f"Falta el manifiesto de audios reales: {manifest}")
     minimum_counts = minimum_counts or {"train": 20, "validation": 5, "test": 5}
     records, hashes = [], set()
     speakers = defaultdict(set)
+    origins = defaultdict(set)
     counts = Counter()
     with manifest.open(encoding="utf-8-sig", newline="") as stream:
         reader = csv.DictReader(stream)
@@ -49,8 +47,21 @@ def audit(manifest, minimum_counts=None):
         if not required.issubset(reader.fieldnames or []):
             raise ValueError("Columnas requeridas: " + ",".join(sorted(required)))
         for line, row in enumerate(reader, 2):
-            if row["source"] != "real" or row["consent"] != "yes":
-                raise ValueError(f"Fila {line}: solo grabaciones reales con consentimiento")
+            if any(value is None for value in row.values()):
+                raise ValueError(f"Fila {line}: campos incompletos")
+            synthetic = row["source"] == "synthetic"
+            if synthetic and allow_synthetic_train:
+                if row["split"] != "train":
+                    raise ValueError(f"Fila {line}: síntesis solo en train, evaluación real obligatoria")
+            elif row["source"] != "real":
+                raise ValueError(f"Fila {line}: solo grabaciones reales salvo opción explícita de síntesis")
+            if row["consent"] != "yes":
+                raise ValueError(f"Fila {line}: falta autorización de uso")
+            if allow_synthetic_train:
+                for field in ("license", "source_url", "origin_id", "transcript"):
+                    if not row.get(field, "").strip():
+                        raise ValueError(f"Fila {line}: falta procedencia {field}")
+                origins[row["origin_id"]].add(row["split"])
             if row["label"] not in LABELS or row["split"] not in SPLITS or not row["speaker"].strip():
                 raise ValueError(f"Fila {line}: etiqueta, hablante o partición inválida")
             path = (manifest.parent / row["path"]).resolve()
@@ -67,6 +78,8 @@ def audit(manifest, minimum_counts=None):
             records.append({**row, **info, "path": str(path)})
     if any(len(partitions) != 1 for partitions in speakers.values()):
         raise ValueError("Un hablante aparece en más de una partición")
+    if any(len(partitions) != 1 for partitions in origins.values()):
+        raise ValueError("Una grabación original aparece en más de una partición")
     missing = [f"{split}/{label}: {counts[split,label]}/{minimum_counts[split]}"
                for split in SPLITS for label in LABELS if counts[split,label] < minimum_counts[split]]
     if missing:

@@ -5,6 +5,8 @@
 #include <vector>
 #include "domus_types.h"
 #include "domus_calibration.h"
+#include "domus_voice_contract.h"
+#include <limits>
 struct String : std::string {
   using std::string::string;
   String(const std::string &s):std::string(s) {}
@@ -12,6 +14,8 @@ struct String : std::string {
   String(float n,int):std::string(std::to_string(n)) {}
 };
 constexpr int LOW=0,HIGH=1,CANTIDAD_RELES=5,PIN_PARO_EMERGENCIA=10;
+constexpr int PIN_MIC_OFF=11;
+bool micHabilitado=true;
 constexpr int MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE=3;
 constexpr bool MP3_HABILITADO=false;
 constexpr unsigned long TIEMPO_MAXIMO_BOMBA_MS=120000, MEMORIA_LIBRE_RECUPERACION_BYTES=65536;
@@ -43,6 +47,7 @@ unsigned long esp_get_free_heap_size() {return heap;}
 // ACTUAL_FUNCTIONS
 int main() {
   gpio[PIN_PARO_EMERGENCIA]=HIGH;
+  gpio[PIN_MIC_OFF]=HIGH;
   for(int profile=0;profile<2;profile++) {
     for(int i=0;i<5;i++) SALIDA_ACTIVA_EN_LOW[i]=(i==0 || profile==0);
     for(int i=0;i<5;i++) {
@@ -61,10 +66,22 @@ int main() {
     agua=1000; sensorValido=false;
     assert(!ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"pump"}).exito);
     sensorValido=true;
+    micHabilitado=false;
+    assert(!ejecutarOrdenActuador({1,true,ORIGEN_VOZ,1,"mic disabled"}).exito);
+    assert(ejecutarOrdenActuador({1,true,ORIGEN_MANUAL,1,"manual allowed"}).exito);
+    assert(!ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"mic disabled"}).exito);
+    assert(estadoReles[1]);
+    micHabilitado=true; gpio[PIN_MIC_OFF]=LOW;
+    assert(!ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"physical mic off"}).exito);
+    gpio[PIN_MIC_OFF]=HIGH;
+    assert(ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"voice enabled"}).exito);
     assert(ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"pump"}).exito);
     reloj+=TIEMPO_MAXIMO_BOMBA_MS; verificarLimiteBomba(); assert(!estadoReles[0]);
     assert(propietarioReles[0]==PROPIETARIO_MANUAL_OFF);
     assert(!ejecutarOrdenActuador({1,true,ORIGEN_VOZ,0.2f,"voice"}).exito);
+    for (float bad : {std::numeric_limits<float>::quiet_NaN(),
+                      std::numeric_limits<float>::infinity(), -1.0f, 1.01f})
+      assert(!ejecutarOrdenActuador({1,true,ORIGEN_VOZ,bad,"invalid confidence"}).exito);
     entrarModoSeguro("test");
     assert(!ejecutarOrdenActuador({1,true,ORIGEN_MANUAL,1,"on"}).exito);
     watchdogActivo=false; assert(!recuperarModoSeguro());

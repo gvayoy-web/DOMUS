@@ -5,6 +5,8 @@ on:
     paths:
       - "firmware/casa_inteligente_v4/**"
       - "firmware/domus_esqueleto/**"
+      - "firmware/domus_selftest/**"
+      - "firmware/domus_anim/**"
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
@@ -16,6 +18,8 @@ on:
     paths:
       - "firmware/casa_inteligente_v4/**"
       - "firmware/domus_esqueleto/**"
+      - "firmware/domus_selftest/**"
+      - "firmware/domus_anim/**"
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
@@ -111,6 +115,13 @@ jobs:
     needs: pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        sketch:
+          - domus_esqueleto
+          - domus_selftest
+          - domus_anim
     steps:
       - uses: actions/checkout@v4
       - uses: arduino/setup-arduino-cli@v2
@@ -125,16 +136,16 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
-      - name: Compilar DOMUS base modular
+      - name: Compilar ${{ matrix.sketch }}
         run: |
           arduino-cli compile \
             --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1" \
             --warnings all \
-            --output-dir build/domus-esqueleto \
-            firmware/domus_esqueleto
+            --output-dir build/${{ matrix.sketch }} \
+            firmware/${{ matrix.sketch }}
       - uses: actions/upload-artifact@v4
         with:
-          name: project-domus-base-modular
-          path: build/domus-esqueleto/
+          name: project-domus-${{ matrix.sketch }}
+          path: build/${{ matrix.sketch }}/
           if-no-files-found: error
           retention-days: 14

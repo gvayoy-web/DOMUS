@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: indice
-actualizado: 2026-09-04
+actualizado: 2026-09-06
 ---
 
 # PROJECT DOMUS — bóveda técnica
@@ -11,9 +11,9 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 ## Respuesta rápida
 
 - **Pantalla:** ya existe LCD1602 con interfaz I2C. No comprar OLED.
-- **Relés:** hay 1 canal disponible. Para las cinco cargas previstas falta **un módulo de 4 canales**, no uno de 8.
-- **microSD:** comprar un lector SPI dedicado y una tarjeta FAT32 para archivos accesibles por el ESP32. La ranura del DFPlayer solo sirve para sus pistas; si se usa como respaldo, necesita una segunda tarjeta.
-- **Voz Jarvis:** faltan INMP441, MAX98357A, altavoz 4 Ω/3 W y los modelos de voz entrenados.
+- **Relés:** reutilizar el único relé para la minibomba. El módulo de cuatro canales es alternativa, no compra obligatoria, si LEDs y driver del ventilador resultan aptos.
+- **microSD:** no obligatoria para el núcleo. DFPlayer necesita una tarjeta para sus pistas; lector SPI y otra tarjeta solo si se requiere almacenamiento independiente del ESP32.
+- **Voz Jarvis:** objetivo de comandos locales; falta micrófono y reconocimiento integrado/validado. Para respuestas grabadas reutilizar DFPlayer con altavoz y tarjeta; MAX98357A solo para la alternativa PicoTTS.
 - **Energía de feria:** falta una fuente real de 5 V/3 A y distribución segura. El módulo de alimentación de protoboard no debe alimentar bomba, cinco relés y audio.
 - **Batería:** no se necesitan TP4056 + CN3065 + otro BMS todos juntos. Se elige una arquitectura; véase [[04 - Energia bateria y solar]].
 - **Software:** el núcleo offline, las cinco cargas, sensores, seguridad y
@@ -22,6 +22,11 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
   [[14 - Protocolo anti-colapso IA y ESP32]].
 
 ## Navegación
+
+Resumen actualizado de decisiones y ejemplo inicial: [[31 - Esqueleto y decisiones consolidadas]].
+Metas y criterios vigentes de la base modular: [[32 - Metas y madurez de la base DOMUS]].
+Implementacion vigente y secuencia de banco: [[33 - Base modular funcional y plan de banco]].
+Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz de verificacion]].
 
 1. [[01 - Inventario confirmado]]
 2. [[02 - Matriz funciones y componentes]]
@@ -42,19 +47,40 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 17. [[17 - Diagramas generales de conexiones]]
 18. [[18 - Manual maestro de conexiones pin por pin]]
 19. [[19 - Plan de testeo despues de construccion]]
+20. [[33 - Base modular funcional y plan de banco]]
+21. [[34 - Cierre de software y matriz de verificacion]]
 
 ## Estado real del proyecto
 
+Plan vigente de Jarvis: [[25 - Plan ejecutable Jarvis offline fiable y entrenado]].
+Prioriza reconocimiento de intenciones; la alternativa económica usa DFPlayer
+para frases grabadas según nota 30, sin sustituir silenciosamente PicoTTS. Conversación libre
+con Barista queda experimental. Entrenamiento e integración siguen pendientes.
+
+Actualización: ver [[23 - Cierre de robustez y entrenamiento pendiente]] para
+la evidencia vigente y [[24 - Viabilidad Barista DOMUS memoria voz y entrenamiento]]
+para el prototipo generativo propuesto. Barista todavía no está integrado ni
+entrenado para DOMUS; la tabla histórica siguiente no certifica voz ni hardware.
+
 | Entregable | Estado |
 |---|---|
-| Firmware doméstico y anti-colapso | TERMINADO y compilado |
-| Simulador y contratos automáticos | TERMINADOS; 38/38 en PASS |
+| Firmware doméstico y anti-colapso | Implementado y compilado; validación física pendiente |
+| Simulador y contratos automáticos | 49 PASS locales; 5 pruebas C++ omitidas por falta de compilador; además 16 pruebas de IA PASS; ver nota 34 |
 | Planes de optimización, montaje y pruebas | DOCUMENTOS TERMINADOS |
 | Diagramas y manual de conexiones | TERMINADOS para banco; pines provisionales señalados |
 | Calibración y validación eléctrica | PENDIENTE DE HARDWARE |
 | Jarvis hablado, batería y solar | FASES BLOQUEADAS por módulos/mediciones faltantes |
 
+## Alternativas de costo y ampliación
+
+[[27 - Comparador de planes costo y versatilidad]] reúne
+[[28 - Plan A DOMUS minimo desembolso]], [[29 - Plan B DOMUS ampliable y reutilizable]]
+y [[30 - Plan C Jarvis offline por etapas]]. Son propuestas, no pruebas de montaje aprobadas.
+
 ## Visualización central
+
+Avance Jarvis: [[26 - Avance Jarvis contrato entrenamiento y pruebas]]. Voz integrada y
+entrenamiento útil siguen pendientes; los resultados antiguos no aprueban esos cambios.
 
 Abrir [PROJECT DOMUS — sistema completo](../../visualizaciones/sistema-domus.html)
 para cambiar entre fuente, batería y solar y consultar los pines de cada módulo.

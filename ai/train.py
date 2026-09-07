@@ -8,6 +8,8 @@ import hashlib
 import json
 from pathlib import Path
 from dataset import LABELS, audit
+from intents import CONTRACT_SHA256
+from evaluation import select_thresholds, evaluate
 
 
 def train(records, output, epochs):
@@ -16,6 +18,10 @@ def train(records, output, epochs):
     tf.keras.utils.set_random_seed(20260905)
     tf.config.experimental.enable_op_determinism()
     output.mkdir(parents=True, exist_ok=False)
+    (output / "status.json").write_text(json.dumps({"status": "INCOMPLETE", "firmware_enabled": False}), encoding="utf-8")
+    # Refuse to exhaust the workstation while caching features (incl. copies).
+    if len(records) * 198 * 40 * 4 * 3 > 2 * 1024**3:
+        raise ValueError("Dataset excede presupuesto de caché de 2 GiB; usar entrenamiento por streaming")
     mel = tf.signal.linear_to_mel_weight_matrix(40, 257, 16000, 80, 7600)
 
     def feature(path):
@@ -55,6 +61,8 @@ def train(records, output, epochs):
     converter.inference_input_type = tf.int8
     converter.inference_output_type = tf.int8
     binary = converter.convert()
+    if len(binary) > 1024 * 1024:
+        raise ValueError("Modelo supera presupuesto inicial de 1 MiB")
     (output / "jarvis_candidate_int8.tflite").write_bytes(binary)
     interpreter = tf.lite.Interpreter(model_content=binary)
     interpreter.allocate_tensors()
@@ -63,37 +71,53 @@ def train(records, output, epochs):
     out_scale, out_zero = out["quantization"]
     if scale <= 0 or out_scale <= 0:
         raise ValueError("Cuantización inválida")
-    matrix = np.zeros((len(LABELS), len(LABELS)), dtype=int)
+    def infer(samples):
+        result = []
+        for sample in samples:
+            quantized = np.clip(np.round(sample / scale + zero), -128, 127).astype(np.int8)
+            interpreter.set_tensor(inp["index"], quantized[None])
+            interpreter.invoke()
+            probs = (interpreter.get_tensor(out["index"])[0].astype(float)-out_zero)*out_scale
+            result.append(probs.tolist())
+        return result
+
+    thresholds = select_thresholds(infer(data["validation"][0]), data["validation"][1].tolist())
+    test_probabilities = infer(data["test"][0])
+    metrics = evaluate(test_probabilities, data["test"][1].tolist(), thresholds)
+    matrix = np.array(metrics["confusion_matrix"])
     accepted, wrong_accepts = 0, 0
-    for sample, truth in zip(*data["test"]):
-        quantized = np.clip(np.round(sample / scale + zero), -128, 127).astype(np.int8)
-        interpreter.set_tensor(inp["index"], quantized[None])
-        interpreter.invoke()
-        probs = (interpreter.get_tensor(out["index"])[0].astype(float)-out_zero)*out_scale
+    for probs, truth in zip(test_probabilities, data["test"][1]):
         prediction = int(np.argmax(probs))
-        matrix[truth,prediction] += 1
         if prediction < 11 and probs[prediction] >= .75:
             accepted += 1
             wrong_accepts += int(prediction != truth)
-    recall = np.diag(matrix) / matrix.sum(axis=1)
     report = {
         "status": "CANDIDATE_NOT_VALIDATED_ON_ESP32", "firmware_enabled": False,
         "sha256": hashlib.sha256(binary).hexdigest(), "model_bytes": len(binary),
         "labels": LABELS, "seed": 20260905, "tensorflow": tf.__version__,
+        "intent_contract_sha256": CONTRACT_SHA256,
+        "validation_selected_threshold_metrics": metrics,
+        "history": history.history,
         "epochs": len(history.history["loss"]),
-        "int8_test_accuracy": float(np.trace(matrix)/matrix.sum()),
-        "recall_by_label": dict(zip(LABELS, recall.tolist())),
+        "int8_test_accuracy": metrics["accuracy"],
+        "recall_by_label": metrics["recall_by_label"],
         "confusion_matrix": matrix.tolist(), "accepted_at_075": accepted,
         "wrong_accepts_at_075": wrong_accepts,
         "input_quantization": [scale, zero], "output_quantization": [out_scale, out_zero],
         "frontend": {"sample_rate":16000,"samples":32000,"frame":400,"hop":160,
             "fft":512,"mel_bins":40,"low_hz":80,"high_hz":7600,"log_epsilon":1e-6},
-        "dataset": [{k:r[k] for k in ("speaker","label","split","sha256_pcm")} for r in records],
+        "dataset": [{k:r.get(k) for k in ("speaker","label","split","sha256_pcm", "source", "license", "source_url", "origin_id", "transcript")} for r in records],
         "pending": ["equivalent ESP32 frontend and interpreter integration",
             "measured inference time and tensor arena", "one-hour false-wake test",
             "speaker echo and microphone validation", "wake-window/command integration"]}
-    (output / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    (output / "report.json").write_text(json.dumps(report, indent=2, allow_nan=False), encoding="utf-8")
     (output / "labels.json").write_text(json.dumps(LABELS, indent=2), encoding="utf-8")
+    model.save(output / "checkpoint.keras")
+    np.savez(output / "frontend_reference.npz", mel=mel.numpy(),
+             hann=tf.signal.hann_window(400).numpy(),
+             features=data["test"][0][0], probabilities=np.array(test_probabilities[0]))
+    (output / "status.json").write_text(json.dumps({"status": report["status"], "firmware_enabled": False,
+        "sha256": report["sha256"]}), encoding="utf-8")
     print(json.dumps({k:report[k] for k in ("status","sha256","model_bytes","int8_test_accuracy")}, indent=2))
 
 
@@ -103,9 +127,11 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--epochs", type=int, default=60)
     parser.add_argument("--audit-only", action="store_true")
+    parser.add_argument("--allow-synthetic-train", action="store_true",
+                        help="Síntesis solo en train, con procedencia; validation/test siempre reales")
     args = parser.parse_args()
     try:
-        records = audit(args.manifest)
+        records = audit(args.manifest, allow_synthetic_train=args.allow_synthetic_train)
         if args.audit_only:
             print(f"DATASET_OK: {len(records)} grabaciones; particiones sin hablantes compartidos")
             return 0

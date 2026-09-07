@@ -1,5 +1,24 @@
 # Compilación del núcleo doméstico
 
+## Cierre local vigente (2026-09-06)
+
+Arduino-ESP32 3.3.10 y Arduino CLI 1.5.1, todas con `--warnings all`:
+
+| Objetivo | Programa | Globales | Resultado |
+|---|---:|---:|---|
+| Principal N16R8 original | 415,250 | 25,092 | PASS |
+| Principal N16R8 económico | 415,250 | 25,092 | PASS |
+| Principal N16R8 + microSD | 456,182 | 25,228 | PASS |
+| Principal 4 MB sin PSRAM | 410,056 | 24,616 | PASS |
+| Principal 8 MB QSPI | 412,942 | 24,692 | PASS |
+| Base modular N16R8 | 373,286 | 24,388 | PASS |
+| Autotest N16R8 | 417,913 | 24,556 | PASS |
+| Animaciones N16R8 | 382,598 | 24,340 | PASS |
+
+Las advertencias restantes proceden de LiquidCrystal I2C 1.1.2 y del core
+ESP32, no de los sketches DOMUS. La compilación certifica software; no sustituye
+la medición de GPIO, polaridades, fuente, bomba, motor y sensores en la placa.
+
 ## Actualización de robustez (2026-09-05)
 
 Código `a81d07a`: watchdog comprobado, I2C acotado, calibración NVS y cola SD.
@@ -41,12 +60,13 @@ en TinyUSB del core. No se modificaron bibliotecas instaladas para ocultarlas.
 
 ## Automatización
 
-La matriz `.github/workflows/firmware-ci.yml` compila cuatro perfiles en Ubuntu:
-N16R8 original, N16R8 económico, 4 MB sin PSRAM y 8 MB QSPI (`PSRAM=enabled`).
+La matriz `.github/workflows/firmware-ci.yml` compila cinco perfiles en Ubuntu:
+N16R8 original, N16R8 económico, N16R8 con microSD, 4 MB sin PSRAM y 8 MB QSPI
+(`PSRAM=enabled`). Otra matriz compila base modular, autotest y animaciones.
 [Ejecución de referencia](https://github.com/gvayoy-web/domusv1/actions/runs/33941659044).
 El resultado consolidado está en la nota 22 de Obsidian.
 
-El validador ejecuta 20 pruebas del simulador y 22 contratos del firmware.
+El validador ejecuta 20 pruebas del simulador y los contratos del firmware.
 Una prueba adicional compila y ejecuta funciones extraídas del sketch en C++
 para ambos perfiles de salida, comprobando desbordamiento Serial, fragmentación,
 límite por ciclo, recuperación ADC y polaridad. En Windows se omite explícitamente

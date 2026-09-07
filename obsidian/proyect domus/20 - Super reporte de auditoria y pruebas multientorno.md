@@ -9,6 +9,8 @@ commit_base: 28227f41495e61bb166ae9f50b688eec983b78d7
 > Auditoría histórica del commit base. Las correcciones posteriores y sus
 > resultados están en [[22 - Resultados de correcciones y regresion]].
 > La alternativa económica está en [[21 - Simplificacion y reduccion de costos]].
+> Los conteos de esta nota pertenecen a 2026-09-04; la evidencia vigente está
+> en [[34 - Cierre de software y matriz de verificacion]].
 
 ## Veredicto ejecutivo
 

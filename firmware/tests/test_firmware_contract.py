@@ -168,6 +168,12 @@ class FirmwareContractTests(unittest.TestCase):
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))
 
+    def test_mic_off_rechecked_at_dispatch_and_cancels_window(self):
+        dispatch = self.source.split("ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("!micHabilitado || digitalRead(PIN_MIC_OFF) == LOW", dispatch)
+        self.assertIn('return {false, false, "mic_off"}', dispatch)
+        self.assertIn("if (!micHabilitado) ventanaEscuchaActiva = false;", self.source)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

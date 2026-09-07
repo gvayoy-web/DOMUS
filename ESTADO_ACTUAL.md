@@ -12,9 +12,17 @@ Usar `firmware/domus_esqueleto/domus_esqueleto.ino`. Integra el hardware
 confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton,
 PARO, un rele de bomba, tres LED y driver de ventilador.
 
-Compila correctamente para ESP32-S3 N16R8. Las salidas permanecen deshabilitadas
+Compila correctamente para ESP32-S3 N16R8: 373,286 bytes de programa y 24,388
+bytes globales. Las salidas permanecen deshabilitadas
 por defecto porque todavia no se han verificado polaridades, fuente y etapas en
 el montaje real. Seguir la nota 33 antes de cambiar esa proteccion.
+
+## Cierre de software local
+
+El 6 de septiembre de 2026 pasaron los cinco perfiles del firmware principal,
+la base modular, el autotest y la demostracion de pantallas. Tambien pasaron el
+validador consolidado y las pruebas de IA. La evidencia y los tamanos exactos
+estan en `obsidian/proyect domus/34 - Cierre de software y matriz de verificacion.md`.
 
 ## Referencias conservadas
 

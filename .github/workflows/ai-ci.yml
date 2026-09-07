@@ -1,15 +1,19 @@
 name: Verificar entrenador de voz
 on:
   push:
-    paths: ["ai/**", ".github/workflows/ai-ci.yml"]
+    paths: ["ai/**", "firmware/casa_inteligente_v4/domus_intents.def", ".github/workflows/ai-ci.yml"]
   pull_request:
-    paths: ["ai/**", ".github/workflows/ai-ci.yml"]
+    paths: ["ai/**", "firmware/casa_inteligente_v4/domus_intents.def", ".github/workflows/ai-ci.yml"]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   entrenador:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
       TF_NUM_INTRAOP_THREADS: "1"

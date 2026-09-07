@@ -6,7 +6,18 @@ actualizado: 2026-09-03
 
 # Jarvis, audio, pantalla y microSD
 
-## Cadena final
+## Opciones actuales, no integraciones terminadas
+
+Actualización 06-09-2026: para mínimo desembolso se propone INMP441 →
+reconocimiento de órdenes en ESP32 → control seguro → DFPlayer → altavoz.
+DFPlayer reproduce grabaciones de su microSD, no entiende voz ni sintetiza texto.
+Pulsar para hablar con botón propio es la propuesta inicial; asignación de ese
+botón pendiente de auditoría, sin reutilizar PARO o MIC OFF. Ver [[30 - Plan C Jarvis offline por etapas]].
+INMP441, altavoz y tarjeta no están confirmados disponibles. El modelo español
+útil y su integración siguen pendientes. Ni activar una bandera ni comprar
+micrófono resuelve ese trabajo. No comprar MAX98357A y DFPlayer para la misma salida.
+
+## Cadena alternativa PicoTTS prevista
 
 ```text
 INMP441 → audio 16 kHz → detector “Jarvis” → clasificador TinyML
@@ -23,7 +34,7 @@ INMP441 → audio 16 kHz → detector “Jarvis” → clasificador TinyML
 | Búfer de audio y tensores | PSRAM de 8 MB. |
 | Calibraciones/credenciales | NVS interna. |
 | Archivos del ESP32 | lector microSD SPI separado + tarjeta FAT32. |
-| MP3 opcionales | segunda microSD dentro del DFPlayer. |
+| MP3 opcionales | microSD dentro del DFPlayer; solo sería segunda tarjeta si también se usa lector SPI. |
 
 La microSD no vuelve inteligente a Jarvis ni sustituye la flash del modelo, pero sí permite al ESP32 abrir recursos, configuraciones y registros externos.
 

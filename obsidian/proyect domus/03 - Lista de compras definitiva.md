@@ -7,6 +7,12 @@ actualizado: 2026-09-01
 
 # Lista de compras definitiva
 
+> Actualización 06-09-2026: consultar [[27 - Comparador de planes costo y versatilidad]]
+> antes de comprar. La sección B histórica agrupa voz y almacenamiento: lector
+> SPI y microSD NO son obligatorios para arrancar la ruta PicoTTS del plan 25.
+> DFPlayer sí requiere su almacenamiento de pistas. No comprar ambos motores
+> de audio por defecto. Las cifras siguientes no constituyen cotización actual.
+
 Los precios son referencias web consultadas el 1 de septiembre de 2026. No incluyen envío a Choluteca y deben reconfirmarse antes de pagar.
 
 ## A. Comprar primero — casa funcional sin Jarvis ni solar

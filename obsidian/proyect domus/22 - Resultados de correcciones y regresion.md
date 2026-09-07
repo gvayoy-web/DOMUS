@@ -7,6 +7,9 @@ matriz: 1f6b6a4
 
 # Resultados de correcciones y regresión
 
+> Registro histórico de 2026-09-04. Para la matriz y conteos vigentes consultar
+> [[34 - Cierre de software y matriz de verificacion]].
+
 ## Resultado
 
 Se resolvió el fallo de compilación de la nota 20. El firmware actual compila

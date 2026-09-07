@@ -11,6 +11,7 @@ import wave
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from dataset import LABELS
+from intents import CONTRACT_SHA256
 from train import train
 
 
@@ -34,5 +35,20 @@ class TrainingPlumbingTest(unittest.TestCase):
             train(records, output, 1)
             report = json.loads((output/"report.json").read_text())
             self.assertFalse(report["firmware_enabled"])
+            json.dumps(report, allow_nan=False)
+            self.assertGreaterEqual(report["int8_test_accuracy"], 0)
+            self.assertLessEqual(report["int8_test_accuracy"], 1)
             self.assertEqual(len(report["confusion_matrix"]),len(LABELS))
             self.assertGreater(report["model_bytes"],100)
+            self.assertLessEqual(report["model_bytes"], 1024 * 1024)
+            self.assertEqual(report["intent_contract_sha256"], CONTRACT_SHA256)
+            self.assertEqual(report["epochs"], 1)
+            status = json.loads((output/"status.json").read_text())
+            self.assertEqual(status["status"], "CANDIDATE_NOT_VALIDATED_ON_ESP32")
+            self.assertFalse(status["firmware_enabled"])
+            self.assertEqual(status["sha256"], report["sha256"])
+            self.assertTrue((output/"checkpoint.keras").is_file())
+            with np.load(output/"frontend_reference.npz") as reference:
+                self.assertEqual(reference["features"].shape, (198, 40, 1))
+                self.assertEqual(reference["mel"].shape, (257, 40))
+                self.assertTrue(np.isfinite(reference["features"]).all())
