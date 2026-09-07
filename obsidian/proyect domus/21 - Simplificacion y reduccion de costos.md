@@ -5,6 +5,11 @@ fecha: 2026-09-04
 
 # Simplificación y reducción de costos
 
+> [!WARNING]
+> Alternativa histórica no elegida. Isaac eligió el perfil 1+4 relés de
+> [[36 - Configuracion final 1 mas 4 reles y planos v4]]. No cablear las etapas
+> LED/S8050 de esta nota con el firmware vigente de cinco salidas activas LOW.
+
 ## Decisión aplicada
 
 El programa conserva riego, tres luces, ventilación, sensores, pantalla,

@@ -13,7 +13,7 @@ actualizado: 2026-09-04
 | Humedad suelo | 1 | Disponible; el sensor real es resistivo, no capacitivo. |
 | Nivel de agua | 2 | Reasignado en software; entrada analógica provisional y umbral pendiente de calibrar. |
 | LDR | 3 | Disponible; usar divisor con 10 kΩ. |
-| Relés | 4–8 | Cinco cargas lógicas: bomba, sala, dormitorio, ventilador e invernadero. |
+| Relés | 4–8 | Perfil elegido: relé individual de bomba + módulo de cuatro canales; todos activos LOW previstos. |
 | PIR | 9 | Entrada digital provisional; confirmar nivel activo y pin expuesto. |
 | DHT11 | 14 | Disponible. |
 | INMP441 WS/SD/SCK | 15/16/17 | Provisional; falta hardware. |
@@ -25,7 +25,7 @@ actualizado: 2026-09-04
 
 1. Confirmar físicamente que GPIO13 está expuesto y usarlo como I2C SCL, o reasignarlo.
 2. Confirmar la serigrafía/pinout exacto del DevKitC N16R8; no asumir que todos los GPIO del chip están disponibles.
-3. Verificar las cinco salidas de relé ya reducidas en software.
+3. Verificar por separado el relé individual y los cuatro canales del módulo con lógica de 3.3 V.
 4. Validar GPIO9 para PIR y GPIO2 para nivel de agua con los módulos reales.
 5. El “sensor de viento” ya fue eliminado del firmware; no reintroducirlo sin hardware real.
 6. Reservar tres GPIO para salida MAX98357A. El PoC propone 40/41/42 como valores iniciales, no definitivos.

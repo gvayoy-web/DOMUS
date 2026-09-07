@@ -18,7 +18,10 @@ constexpr uint8_t PIN_SUELO = 1, PIN_NIVEL = 2, PIN_LUZ = 3;
 constexpr uint8_t PIN_PIR = 9, PIN_PARO = 10, PIN_MIC_OFF = 11, PIN_BOTON = 12;
 constexpr uint8_t PIN_DHT = 14, PIN_LCD_SDA = 21, PIN_LCD_SCL = 13;
 constexpr uint8_t PINES[] = {4, 5, 6, 7, 8};
-constexpr bool ACTIVA_LOW[] = {true, false, false, false, false};
+// Perfil elegido: rele individual para bomba + modulo de cuatro reles para
+// sala, cuarto, ventilador e invernadero. Confirmar el nivel activo del modulo
+// fisico antes de habilitar salidas; el hardware previsto es activo en LOW.
+constexpr bool ACTIVA_LOW[] = {true, true, true, true, true};
 constexpr uint8_t LCD_DIRECCIONES[] = {0x27, 0x3F};
 // Reservas de voz: microfono15/16/17 y DFPlayer18/19.
 constexpr uint8_t RESERVADOS[] = {1,2,3,4,5,6,7,8,9,10,11,12,14,21,13,15,16,17,18,19};

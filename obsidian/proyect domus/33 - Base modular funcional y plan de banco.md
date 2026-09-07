@@ -10,7 +10,8 @@ fuente_estado: ../../ESTADO_ACTUAL.md
 > [[35 - Preparacion Arduino IDE y revision documental]].
 
 La ruta recomendada para probar las piezas confirmadas es
-`firmware/domus_esqueleto`. Esta nota sustituye la descripcion limitada de las
+`firmware/domus_esqueleto`. Usa el perfil elegido de un relé individual más un
+módulo de cuatro relés, todos activos LOW previstos. Esta nota sustituye la descripcion limitada de las
 notas 31 y 32, pero no declara validacion fisica.
 
 ## Capacidades integradas
@@ -37,8 +38,8 @@ Las salidas siguen en `false`; compilar no prueba electricidad.
 | B03 | LCD y DHT | Direccion/modelo confirmados, 20 lecturas validas | PENDIENTE |
 | B04 | ADC y PIR | Lecturas responden al estimulo y no quedan en rieles | PENDIENTE |
 | B05 | Calibracion | Valores reales guardados, reinicio conserva checksum | PENDIENTE |
-| B06 | LED uno por uno | ON/OFF/AUTO y boton sin inversion | PENDIENTE |
-| B07 | Driver ventilador | Corriente, temperatura y flyback aprobados | PENDIENTE |
+| B06 | Relés uno por uno, sin carga | Cinco canales ON/OFF/AUTO sin inversión ni pulsos | PENDIENTE |
+| B07 | Ventilador mediante relé | Corriente, temperatura y flyback aprobados | PENDIENTE |
 | B08 | Rele y bomba | Nivel bajo y 10 s cortan; rearme no enciende | PENDIENTE |
 | B09 | PARO y fallos | PARO durante cada carga; sensores retirados fallan seguro | PENDIENTE |
 | B10 | Duracion | 24 h o 1000 ciclos sin reset ni crecimiento sostenido | PENDIENTE |

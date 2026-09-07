@@ -1,6 +1,6 @@
 /* PROJECT DOMUS: controlador local modular ESP32-S3.
- * Hardware confirmado: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR, un rele,
- * tres LED y driver de ventilador. Voz, red y solar quedan fuera.
+ * Perfil elegido: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR, un rele de bomba
+ * y un modulo de cuatro reles para las otras cargas. Voz, red y solar quedan fuera.
  */
 #include <Arduino.h>
 #include <DHT.h>
@@ -155,7 +155,10 @@ void actualizarPantalla() {
   else if (sensores.ambienteValido) snprintf(fila,sizeof(fila),"T:%4.1fC H:%2.0f%% ",sensores.temperatura,sensores.humedadAire);
   else snprintf(fila,sizeof(fila),"DHT SIN DATOS   ");
   lcd->print("                "); lcd->setCursor(0,0); lcd->print(fila); lcd->setCursor(0,1);
-  if (calibracionGuardada) snprintf(fila,sizeof(fila),"S:%3d%% L:%3d%%   ",sensores.sueloPct,sensores.luzPct);
+  if (calibracionGuardada && sensores.sueloValido && sensores.luzValida)
+    snprintf(fila,sizeof(fila),"S:%3d%% L:%3d%%   ",sensores.sueloPct,sensores.luzPct);
+  else if (calibracionGuardada)
+    snprintf(fila,sizeof(fila),"S:%s L:%s ",sensores.sueloValido?"OK ":"ERR",sensores.luzValida?"OK ":"ERR");
   else snprintf(fila,sizeof(fila),"CAL PENDIENTE   ");
   lcd->print("                "); lcd->setCursor(0,1); lcd->print(fila);
 }

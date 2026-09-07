@@ -12,18 +12,17 @@ actualizado: 2026-09-07
 > SPI y microSD NO son obligatorios para arrancar la ruta PicoTTS del plan 25.
 > DFPlayer sí requiere su almacenamiento de pistas. No comprar ambos motores
 > de audio por defecto. Las cifras siguientes no constituyen cotización actual.
-> Decisión vigente: usar la alternativa económica de la nota 21; no comprar el
-> relé de cuatro canales. Batería y solar son decoración, no compras eléctricas.
+> Decisión vigente: perfil 1+4 relés. Reutilizar el relé individual para bomba
+> y comprar o confirmar un módulo de cuatro canales para las otras cargas.
+> Batería y solar son decoración, no compras eléctricas.
 
 Los precios son referencias web consultadas el 1 de septiembre de 2026. No incluyen envío a Choluteca y deben reconfirmarse antes de pagar.
 
 ## A. Comprar primero — casa funcional sin Jarvis ni solar
 
-**Alternativa económica implementada:** véase [[21 - Simplificacion y reduccion de costos]].
-Permite omitir el relé de cuatro canales si los LED individuales y el driver
-del ventilador superan las pruebas indicadas. Presupuesto condicionado: L485
-sin cable, L520 con cable desde L35. La tabla siguiente conserva la alternativa
-original de relés; no comprar ambos montajes.
+**Perfil elegido:** véanse [[29 - Plan B DOMUS ampliable y reutilizable]] y
+[[36 - Configuracion final 1 mas 4 reles y planos v4]]. La tabla siguiente es
+la ruta activa. La alternativa con LED/S8050 de la nota 21 queda histórica.
 
 | Compra | Cant. | Precio visto | Subtotal | Motivo |
 |---|---:|---:|---:|---|

@@ -8,17 +8,17 @@ actualizado: 2026-09-01
 
 ## Estructura
 
-- Base de 100 × 65 cm: MDF de 12 mm según la lista de corte vigente; alternativa provisional, doble cartón corrugado con vetas cruzadas.
-- Vivienda de 43 × 32.5 cm, paredes de 22.5 cm de alto y techo removible de 44.6 × 34.1 cm.
-- Invernadero de 25 × 35 cm.
-- Torre Jarvis de 10.5 × 29 cm y bahía electrónica contigua.
-- Entrada cubierta aproximada de 25 × 19.5 cm.
+- Base de 80 × 52 cm: MDF de 12 mm según `planos/new`.
+- Vivienda de 34.4 × 26 cm, paredes de 22.5 cm y techo removible de 35.68 × 27.28 cm.
+- Invernadero de 20 × 28 cm.
+- Torre Jarvis de 8.4 × 9.44 × 29 cm y gabinete contiguo de 8.8 × 12 × 25 cm.
+- Entrada cubierta aproximada de 20 × 15.6 cm.
 
 ## Materiales físicos todavía no confirmados
 
 | Material | Cantidad orientativa | Uso |
 |---|---:|---|
-| MDF/cartón base | 1 pieza 100×65 cm | Base rígida. |
+| MDF/cartón base | 1 pieza 80×52 cm | Base rígida. |
 | Plywood/cartón paredes | según plano | Casa y divisiones. |
 | Acrílico transparente | 1–2 láminas | Invernadero y tapa electrónica. |
 | Listones/bajantes reciclados | lote | Refuerzos y techo. |
@@ -61,7 +61,7 @@ actualizado: 2026-09-01
 ## Recursos visuales terminados
 
 - Visor offline: `assets/new/deliverables/execute/01_FINAL_V2/design/modelo_3d_interactivo.html`.
-- Plano A3 de seis páginas: `output/pdf/planos_tecnicos_project_domus.pdf`.
+- Plano A3 vigente de diez páginas: `planos/new/PLANOS_ULTIMATE_CONSTRUCCION_MAQUETA.pdf`.
 - Capturas verificadas: `visor_desktop_1440x900.png`, `visor_mobile_390x844.png` y `visor_mobile_390x844_cerrado.png`.
 - Renders: general, interior sin techo y vista explotada dentro de `01_FINAL_V2/design`.
 - Modelo editable: `project_domus.obj` y `project_domus.mtl`.

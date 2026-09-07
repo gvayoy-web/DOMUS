@@ -8,14 +8,14 @@ audio en ramales desmontables. **Tecnología:** Arduino y perfiles existentes 0/
 **Compatibilidad:** mismo despachador, protecciones y protocolo; no detección automática eléctrica.
 **TDD:** fuera de esta entrega documental; regresión por cada cambio futuro.
 **Verificación:** compilaciones separadas, inspección de mazo y protocolo de banco.
-**Estado:** propuesta recomendada como estructura física de A y futura C.
+**Estado:** ELEGIDO, pendiente de compra/confirmación del módulo y pruebas de banco.
 
 ## Dos opciones excluyentes de potencia
 
-- **B económica:** etapas del plan A, perfil 1, solo cargas compatibles.
-- **B relés:** relé individual existente + módulo de cuatro canales compatible,
-  perfil 0, esquema de nota 18. Compra adicional si no se tiene; no es más barato
-  por definición, pero evita depender del S8050 si el motor no resulta apto.
+- **Ruta elegida B relés:** relé individual existente + módulo de cuatro canales
+  compatible, perfil 0, esquema de nota 18. Evita depender del S8050 y mantiene
+  las cinco cargas aisladas de los GPIO.
+- **B económica:** alternativa histórica de nota 21; no se mezcla con el mazo elegido.
 
 No combinar polaridades a voluntad: el perfil económico actual fija bomba LOW
 y las otras cuatro HIGH. Un montaje mixto distinto requiere configuración y

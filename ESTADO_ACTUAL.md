@@ -10,7 +10,8 @@ en la nota 18.
 
 Usar `firmware/domus_esqueleto/domus_esqueleto.ino`. Integra el hardware
 confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton,
-PARO, un rele de bomba, tres LED y driver de ventilador.
+PARO, un rele de bomba y un modulo de cuatro reles para sala, dormitorio,
+ventilador e invernadero.
 
 Compila correctamente para ESP32-S3 de 16 MB flash + 8 MB PSRAM (`N16R8`
 oficial; “N8R16” en la descripción comercial): 373,286 bytes de programa y 24,388
@@ -40,7 +41,7 @@ nueva debe entrar primero en la base modular y tener una prueba o contrato.
 
 1. Confirmar placa y GPIO 2, 9 y 13.
 2. Probar sensores y guardar calibracion real.
-3. Validar niveles OFF/ON sin cargas y despues cada etapa individual.
+3. Validar que los cinco canales sean activos LOW, primero sin cargas y despues cada etapa individual.
 4. Ejecutar cinco arranques y PARO/rearme bajo carga.
 5. Completar la matriz de la nota 33 y ensayo prolongado.
 6. Solo entonces considerar la base candidata a reemplazar el firmware principal.

@@ -10,10 +10,10 @@ actualizado: 2026-09-07
 |---|---|---|---|
 | Control central | ESP32-S3 N16R8 | Sí | Cargar y validar firmware en placa real. |
 | Pantalla de estado | LCD1602 + adaptador I2C | Sí | Código corregido a GPIO13 provisional y detección 0x27/0x3F; confirmar pin físicamente. |
-| Luz sala | LED + resistencia | Sí | GPIO5, activo HIGH; validar corriente y polaridad. |
-| Luz dormitorio | LED + resistencia | Sí | GPIO6, activo HIGH; validar corriente y polaridad. |
-| Luz invernadero | LED + resistencia | Sí | GPIO8, activo HIGH; validar corriente y polaridad. |
-| Ventilación | Motor+aspa, S8050, resistencias y diodo | Sí/Parcial | Driver previsto en GPIO7; medir arranque y temperatura. |
+| Luz sala | Canal 1 del módulo de 4 relés + luz DC | Parcial | GPIO5, activo LOW previsto; validar módulo y carga. |
+| Luz dormitorio | Canal 2 del módulo de 4 relés + luz DC | Parcial | GPIO6, activo LOW previsto; validar módulo y carga. |
+| Luz invernadero | Canal 4 del módulo de 4 relés + luz DC | Parcial | GPIO8, activo LOW previsto; validar módulo y carga. |
+| Ventilación | Canal 3 del módulo de 4 relés + motor/aspa y diodo | Parcial | GPIO7, activo LOW previsto; medir arranque y temperatura. |
 | Riego | Bomba+tubo, relé, depósito | Sí/Parcial | Usar relé de 1 canal existente; falta depósito físico y prueba de fugas. |
 | Humedad de suelo | Sonda resistiva | Sí | Código e histéresis completos; calibrar seco/húmedo físicamente. |
 | Temperatura/humedad de aire | DHT11/DHT22 | Sí | Confirmar modelo real y calibrar. |
@@ -40,18 +40,18 @@ El diseño tiene **cinco cargas conmutadas**:
 4. Ventilador.
 5. Luz de invernadero.
 
-Asignación operativa económica:
+Asignación operativa elegida (1 + 4 relés):
 
 | Hardware | GPIO/canal | Carga |
 |---|---:|---|
 | Relé de 1 canal que ya tienes | 1 | Bomba |
-| LED + resistencia | GPIO5 | Luz sala |
-| LED + resistencia | GPIO6 | Luz dormitorio |
-| S8050 + diodo + resistencias | GPIO7 | Ventilador |
-| LED + resistencia | GPIO8 | Luz invernadero |
+| Módulo de 4 relés, canal 1 | GPIO5 | Luz sala |
+| Módulo de 4 relés, canal 2 | GPIO6 | Luz dormitorio |
+| Módulo de 4 relés, canal 3 | GPIO7 | Ventilador |
+| Módulo de 4 relés, canal 4 | GPIO8 | Luz invernadero |
 
-**Conclusión:** no comprar relé multicanal para esta configuración. El firmware
-ya expone cinco salidas lógicas sobre un relé, tres LED y un driver de motor.
+**Conclusión:** comprar o confirmar un módulo de cuatro relés compatible con
+lógica de 3.3 V. Junto al relé individual completa las cinco salidas físicas.
 
 ## Qué se mostrará aunque Jarvis aún no esté listo
 

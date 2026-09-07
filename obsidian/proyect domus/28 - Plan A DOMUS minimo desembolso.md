@@ -1,5 +1,10 @@
 # Plan A: DOMUS con mínimo desembolso
 
+> [!WARNING]
+> Alternativa no elegida. Se conserva para comparar costos; la ejecución
+> vigente está en [[29 - Plan B DOMUS ampliable y reutilizable]] y
+> [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+
 **Objetivo:** casa funcional con cinco controles y el máximo material existente.
 **Arquitectura/tecnología:** ESP32-S3 Arduino, perfil económico existente,
 relé de bomba, LEDs individuales y driver ventilador validado.

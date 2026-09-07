@@ -4,6 +4,10 @@
 
 Este paquete sirve únicamente para fabricar la **maqueta física en crudo**. Los compañeros deben cortar, perforar, ensamblar y acabar las piezas descritas en los planos. No deben instalar sensores, cableado, bombas, tuberías, placas, relés, iluminación funcional ni conexiones eléctricas.
 
+La integración posterior elegida usa un relé individual y un módulo de cuatro
+relés. Esta decisión no cambia las cotas estructurales ni autoriza perforaciones
+adicionales: medir módulos y conectores antes de abrir el gabinete o las fachadas.
+
 Los agujeros H01–H05 son pasos mecánicos vacíos y se entregan con tapones removibles. H06 y H07 pertenecen a cierres y acceso físico. H08 es solamente una marca de centro: **no se perfora** hasta medir el sensor real.
 
 ## Medida rectora

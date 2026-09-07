@@ -23,7 +23,7 @@ actualizado: 2026-09-07
 ## Fase 1 — energía de pared
 
 - [ ] Confirmar fuente común regulada de 5 V; usar 3 A o más hasta medir consumo.
-- [ ] No comprar relé de 4 canales para el perfil económico.
+- [ ] Comprar o confirmar módulo de 4 relés, activo LOW y compatible con lógica de 3.3 V.
 - [ ] Construir barra 5 V/GND en estrella.
 - [ ] Verificar 5.0 V sin carga y con bomba/ventilador encendidos.
 - [ ] No permitir agua sobre protoboard o fuente.

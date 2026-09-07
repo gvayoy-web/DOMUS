@@ -7,9 +7,15 @@ fuente: assets/new/deliverables/execute
 
 # Migración de deliverables y del historial del chat
 
-## Resultado de la revisión
+> [!WARNING]
+> Snapshot histórico del diseño v3. Para fabricar usar exclusivamente
+> `planos/new` y [[36 - Configuracion final 1 mas 4 reles y planos v4]].
 
-La carpeta `assets/new/deliverables/execute` contiene el paquete más completo generado para el proyecto. No todo tiene el mismo nivel de autoridad. La regla de esta nota es simple: **`01_FINAL_V2` es la base de diseño vigente; `02_HISTORIAL_V1` se conserva como evidencia, pero no se fabrica ni se presenta**.
+## Resultado histórico de la revisión
+
+La carpeta `assets/new/deliverables/execute` fue el paquete más completo de la
+versión v3. No todo tiene el mismo nivel de autoridad. `01_FINAL_V2` se conserva
+como referencia histórica; la fuente constructiva vigente es `planos/new`.
 
 ## Qué sí se puede usar
 
@@ -50,7 +56,7 @@ El BOM de `01_FINAL_V2` describe un sensor capacitivo de suelo y un aro WS2812 d
 
 ### Fase 0 — congelar la fuente de verdad
 
-1. Fabricar únicamente desde `01_FINAL_V2`.
+1. Conservar `01_FINAL_V2` como referencia histórica; fabricar únicamente desde `planos/new`.
 2. Mantener esta bóveda como registro de decisiones y no editar decisiones técnicas solo en un chat.
 3. Etiquetar cada cambio como `DECIDIDO`, `PENDIENTE`, `MEDIDO` o `DESCARTADO`.
 
@@ -78,7 +84,7 @@ El BOM de `01_FINAL_V2` describe un sensor capacitivo de suelo y un aro WS2812 d
 
 ### Fase 4 — maqueta y exposición
 
-1. Cortar base de 1000 × 650 mm y vivienda de una planta solo después de medir espesores.
+1. Cortar base de 800 × 520 mm y vivienda de 344 × 260 mm solo después de medir espesores.
 2. Mantener depósito y mangueras en el extremo izquierdo, gabinete transparente a la derecha y techo removible.
 3. Etiquetar cada sensor, relé, fusible, switch y flujo de agua.
 4. Preparar una demostración repetible: arranque seguro, luz por presencia, ventilación por temperatura, riego bloqueado por nivel bajo y una orden local de Jarvis.
@@ -122,10 +128,13 @@ Estas son las decisiones que deben sobrevivir a cualquier conversación nueva:
 
 Copiar este resumen inicial:
 
-> Estoy trabajando en PROJECT DOMUS. Usa como fuente de verdad `obsidian/proyect domus/00 - Inicio.md`, `01 - Inventario confirmado.md`, `05 - Auditoria de pines y cableado.md`, `06 - Jarvis audio pantalla y microSD.md` y esta nota de migración. El diseño físico vigente es `assets/new/deliverables/execute/01_FINAL_V2`; `02_HISTORIAL_V1` no se fabrica. El sistema es local en ESP32-S3, sin Kotlin, app, BLE, MQTT ni nube. Distingue siempre entre “ya tengo”, “falta comprar”, “pendiente de medir” y “descartado”.
+> Estoy trabajando en PROJECT DOMUS. Usa como fuente de verdad las notas 00 y 36. El diseño físico vigente es `planos/new`, 800 × 520 mm. La salida elegida usa un relé individual más un módulo de cuatro relés. El sistema es local en ESP32-S3, sin Kotlin, app, BLE, MQTT ni nube. Distingue siempre entre “ya tengo”, “falta comprar”, “pendiente de medir” y “descartado”.
 
 Antes de proponer una compra o cambiar el plano, comprobar esta bóveda y el inventario confirmado. Si una idea contradice estas decisiones, marcarla como propuesta y no como cambio aprobado.
 
 ## Próximo paso recomendado
 
-Usar el plano v3 y el gemelo digital para presentar la distribución, pero cerrar el mapa de GPIO y medir espesores/componentes físicos antes de cortar o cablear. Después comprar solo la fase estable: fuente 5 V, módulo de cuatro relés, fusible, cableado, lector microSD SPI y tarjeta FAT32; Jarvis de voz y el sistema solar quedan detrás de esa prueba.
+Usar `planos/new` v4 para fabricar, pero cerrar el mapa de GPIO y medir
+espesores/componentes físicos antes de cortar o cablear. Comprar primero fuente
+5 V, módulo de cuatro relés, fusible y cableado. microSD, Jarvis y solar quedan
+detrás de esa prueba.

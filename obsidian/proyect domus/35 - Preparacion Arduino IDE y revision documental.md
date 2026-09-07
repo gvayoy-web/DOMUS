@@ -54,7 +54,7 @@ un archivo `DHT.h` suelto ni eliminar el sensor del código.
 ## Decisiones documentales vigentes
 
 - Controlador: ESP32-S3 con 16 MB flash y 8 MB PSRAM.
-- Salidas económicas: relé de bomba, tres LED y driver S8050 de ventilador.
+- Salidas elegidas: relé individual de bomba y módulo de cuatro relés para las otras cargas.
 - Alimentación: una fuente común regulada de 5 V; 3 A o más hasta medir consumo.
 - Batería y solar: estética, terminales aislados y sin conexión al circuito.
 - Jarvis: fase separada; no bloquea el núcleo doméstico.

@@ -12,8 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 VAULT = ROOT / "obsidian" / "proyect domus"
 SIMULATOR = ROOT / "assets" / "new" / "deliverables" / "execute" / "01_FINAL_V2" / "simulator"
 FIRMWARE_TESTS = ROOT / "firmware" / "tests"
+PLAN_TESTS = ROOT / "planos" / "tests"
 FIRMWARE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
+BENCH_CONFIG = ROOT / "firmware" / "domus_esqueleto" / "domus_config.h"
 MASTER_WIRING = VAULT / "18 - Manual maestro de conexiones pin por pin.md"
+CURRENT_DECISION = VAULT / "36 - Configuracion final 1 mas 4 reles y planos v4.md"
+CURRENT_BUILD_GUIDE = ROOT / "planos" / "new" / "GUIA_MONTAJE_ULTIMATE.md"
 VISUAL_SOURCE = ROOT / "visualizaciones" / "sistema-domus-fragment.html"
 VISUAL_STANDALONE = ROOT / "visualizaciones" / "sistema-domus.html"
 WIKILINK = re.compile(r"\[\[([^\]|#]+)")
@@ -53,7 +57,7 @@ def validate_vault() -> list[str]:
     markdown_files = list(VAULT.glob("*.md"))
     available = {path.stem.casefold() for path in markdown_files}
 
-    for number in range(20):
+    for number in range(37):
         prefix = f"{number:02d} - "
         if not any(path.name.startswith(prefix) for path in markdown_files):
             errors.append(f"Falta una nota de plan con prefijo {prefix!r}")
@@ -64,6 +68,30 @@ def validate_vault() -> list[str]:
             normalized = target.strip().replace("\\", "/").split("/")[-1]
             if normalized.casefold() not in available:
                 errors.append(f"{source.name}: enlace inexistente [[{target}]]")
+    return errors
+
+
+def validate_current_decisions() -> list[str]:
+    """Comprueba las decisiones activas que no deben volver a divergir."""
+    errors: list[str] = []
+    if not CURRENT_DECISION.is_file():
+        return ["Falta la nota 36 de configuración final"]
+
+    decision = CURRENT_DECISION.read_text(encoding="utf-8")
+    guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
+    config = BENCH_CONFIG.read_text(encoding="utf-8")
+    required = {
+        "Nota 36": (decision, "módulo de 4 relés"),
+        "Geometría v4": (decision, "800 × 520 mm"),
+        "Guía Ultimate": (guide, "Base total: **800 × 520 mm**"),
+        "Firmware de banco": (
+            config,
+            "constexpr bool ACTIVA_LOW[] = {true, true, true, true, true};",
+        ),
+    }
+    for owner, (text, term) in required.items():
+        if " ".join(term.split()).casefold() not in " ".join(text.split()).casefold():
+            errors.append(f"{owner}: falta decisión vigente {term!r}")
     return errors
 
 
@@ -130,9 +158,14 @@ def validate_visualization() -> list[str]:
 
 
 def main() -> int:
-    tests_ok = run_tests(SIMULATOR) and run_tests(FIRMWARE_TESTS)
+    tests_ok = (
+        run_tests(SIMULATOR)
+        and run_tests(FIRMWARE_TESTS)
+        and run_tests(PLAN_TESTS)
+    )
     vault_errors = (
         validate_vault()
+        + validate_current_decisions()
         + validate_firmware_wiring_contract()
         + validate_visualization()
     )
@@ -140,7 +173,7 @@ def main() -> int:
         print(f"ERROR PLANES: {error}", file=sys.stderr)
 
     if tests_ok and not vault_errors:
-        print("VALIDACION_OK: código, pruebas y planes Obsidian coherentes")
+        print("VALIDACION_OK: lógica, decisiones vigentes, firmware y planos comprobados")
         return 0
     return 1
 

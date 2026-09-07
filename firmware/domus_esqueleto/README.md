@@ -31,14 +31,15 @@ interruptor (0 bloqueado, 1 habilitado), no reconocimiento de voz.
 
 | Funcion | GPIO | Etapa |
 |---|---:|---|
-| Bomba | 4 | Un rele activo LOW, compatible con logica 3.3 V |
-| Sala/cuarto/invernadero | 5/6/8 | Un LED con resistencia por salida, activo HIGH |
-| Ventilador | 7 | Driver validado activo HIGH; no motor directo |
+| Bomba | 4 | Rele individual activo LOW, compatible con logica 3.3 V |
+| Sala/cuarto/ventilador/invernadero | 5/6/7/8 | Modulo de cuatro reles activo LOW; cargas solo en contactos NO |
 | Suelo/nivel/luz | 1/2/3 | Senales analogicas <=3.3 V |
 | PIR | 9 | Senal compatible <=3.3 V |
 | PARO / MIC OFF / boton sala | 10/11/12 | Contacto a GND, pull-up interno |
 
 Configuracion en `domus_config.h`; solo despues de verificar el montaje se puede cambiar `SALIDAS_HABILITADAS`.
+Este es el perfil 1+4 elegido. No conectar LEDs o un transistor directamente a
+GPIO5-8 mientras esta configuracion de cinco salidas activas LOW esté cargada.
 La bomba exige ademas una calibracion valida guardada en NVS. Se asume que nivel
 mayor significa mas agua; verificarlo antes de guardar el umbral.
 Los limites ADC detectan rieles, **no garantizan detectar un cable abierto**.

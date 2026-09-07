@@ -44,6 +44,13 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         self.assertIn("apagarTodo()", recovery)
         self.assertNotIn("true)", recovery)
 
+    def test_lcd_does_not_present_invalid_adc_as_a_percentage(self):
+        display = self.sketch.split("void actualizarPantalla()", 1)[1].split(
+            "void cargarCalibracion()", 1
+        )[0]
+        self.assertIn("sensores.sueloValido && sensores.luzValida", display)
+        self.assertIn('"ERR"', display)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

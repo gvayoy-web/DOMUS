@@ -12,6 +12,9 @@ estado: historico_superado_por_nota_33
 > órdenes de una letra descritos históricamente quedan retirados. Consultar
 > README actual; los tamaños siguientes pertenecen a la primera versión.
 
+> La configuración económica LED/S8050 descrita abajo también es histórica.
+> La elección vigente es [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+
 ## Archivo creado
 
 - [Sketch educativo](../../firmware/domus_esqueleto/domus_esqueleto.ino).
@@ -42,7 +45,7 @@ LCD/backpack, sensores y controles. Pico/ESP8266 y otros extras quedan de reserv
 usar todas las piezas no es requisito. La fotografía de un kit no prueba
 variantes/cantidades. DHT11/22, motor y cargador requieren identificación física.
 
-## Configuración económica acordada como dirección
+## Configuración económica histórica no elegida
 
 | Elemento | Función | Condición |
 |---|---|---|

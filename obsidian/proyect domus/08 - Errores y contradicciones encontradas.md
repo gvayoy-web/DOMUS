@@ -15,7 +15,7 @@ actualizado: 2026-09-03
 ## Críticos
 
 1. **GPIO22 no existe en ESP32-S3.** Corregido en software a GPIO13 provisional; falta confirmación física.
-2. **El software declaraba ocho relés, pero solo hay uno y el diseño necesita cinco.** Corregido a cinco salidas; aún falta comprar el módulo de cuatro canales.
+2. **El software declaraba ocho relés, pero el diseño necesita cinco.** Corregido a cinco salidas; decisión vigente: un relé individual más un módulo de cuatro canales.
 3. **PIR y nivel de agua no tenían pines ni lógica.** Integrados provisionalmente en GPIO9/GPIO2; no afirmar validación física hasta probarlos.
 4. **La voz no está integrada.** Existen PoC separados, pero faltan INMP441, MAX98357A, altavoz y modelos.
 5. **La fuente de protoboard no es una fuente general de alta corriente.** Puede causar resets si se conectan bomba, relés, audio y LEDs.
@@ -47,7 +47,7 @@ actualizado: 2026-09-03
 ## Decisiones corregidas
 
 - Pantalla oficial: LCD1602 I2C.
-- Salidas: un relé existente para bomba, tres LED con resistencia y driver S8050 para ventilador.
+- Salidas: un relé existente para bomba y módulo de cuatro canales para sala, dormitorio, ventilador e invernadero.
 - microSD: lector SPI + tarjeta obligatorios para almacenamiento directo del ESP32; segunda tarjeta opcional para DFPlayer.
 - Fuente de feria: 5 V/3 A.
 - Jarvis: TinyML/PicoTTS en flash/PSRAM; DFPlayer solo respaldo.
