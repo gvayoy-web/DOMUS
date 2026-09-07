@@ -54,7 +54,7 @@ actualizado: 2026-09-01
 4. Funcionamiento local al desconectar Wi-Fi.
 5. Jarvis solo si supera las pruebas; de lo contrario, explicar su arquitectura y usar respaldo de botón/USB Serial.
 6. Ruta de energía visible y separada del agua.
-7. Panel solar presentado como recarga medida, no decoración ni autosuficiencia inventada.
+7. Panel y batería presentados como elementos estéticos desconectados; no afirmar generación ni autonomía.
 8. Gemelo digital v3 en la vista Radiografía para explicar agua, energía, señal, sensores y piezas removibles.
 9. Juego de planos A3 v3 abierto en planta, esquema eléctrico o riego según la explicación del momento.
 

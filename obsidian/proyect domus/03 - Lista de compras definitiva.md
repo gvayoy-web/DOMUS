@@ -2,7 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: compras
 moneda: HNL
-actualizado: 2026-09-01
+actualizado: 2026-09-07
 ---
 
 # Lista de compras definitiva
@@ -12,6 +12,8 @@ actualizado: 2026-09-01
 > SPI y microSD NO son obligatorios para arrancar la ruta PicoTTS del plan 25.
 > DFPlayer sí requiere su almacenamiento de pistas. No comprar ambos motores
 > de audio por defecto. Las cifras siguientes no constituyen cotización actual.
+> Decisión vigente: usar la alternativa económica de la nota 21; no comprar el
+> relé de cuatro canales. Batería y solar son decoración, no compras eléctricas.
 
 Los precios son referencias web consultadas el 1 de septiembre de 2026. No incluyen envío a Choluteca y deben reconfirmarse antes de pagar.
 
@@ -55,7 +57,7 @@ original de relés; no comprar ambos montajes.
 **Subtotal local de voz y almacenamiento:** L528 + precio/importación del INMP441. Con segunda microSD para DFPlayer: L687 + INMP441.  
 El lector SPI y el DFPlayer no comparten tarjeta: cada ranura tiene una función distinta.
 
-## C. Solar y batería — comprar solo después de medir
+## C. Solar y batería — referencia histórica, no comprar
 
 ### Estimación de una opción de 7,500 mAh, no orden de compra inmediata
 
@@ -70,7 +72,7 @@ El lector SPI y el DFPlayer no comparten tarjeta: cada ranura tiene una función
 | Interruptor KCD1 ON/OFF | 1 | C&D L25 | L25 |
 | Capacitor 6800 µF/25 V | 1 | C&D L35 | L35 |
 
-**Subtotal solar:** L1,355, sin cableado, fusible ni envío.
+**Subtotal histórico solar:** L1,355, excluido del presupuesto vigente.
 
 No uses los TP4056 a la vez que CN3065/protección. Los TP4056 quedan para una
 arquitectura USB separada o para pruebas de una sola celda. Esta tabla solo

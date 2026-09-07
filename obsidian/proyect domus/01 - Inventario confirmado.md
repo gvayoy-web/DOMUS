@@ -2,19 +2,21 @@
 proyecto: PROJECT DOMUS
 tipo: inventario
 fuente: lista confirmada por Isaac
-actualizado: 2026-09-03
+actualizado: 2026-09-07
 ---
 
 # Inventario confirmado
 
 > [!IMPORTANT]
-> Esta nota es la fuente de verdad. No se asume que tienes panel solar, batería 18650, OLED, micrófono, altavoz, MAX98357A, relé multicanal ni fuente de 5 V/3 A.
+> Esta nota es la fuente de verdad del inventario confirmado. La alimentación
+> decidida es una fuente común regulada de 5 V; falta confirmar su corriente y
+> medirla bajo carga. Batería y panel solar son decoración desconectada.
 
 ## Controladores
 
 | Componente | Cant. | Estado en DOMUS | Uso real |
 |---|---:|---|---|
-| ESP32-S3 N16R8 DevKitC | 1 | YA TIENES · núcleo | Único controlador principal; 16 MB flash y 8 MB PSRAM. |
+| ESP32-S3, 16 MB flash + 8 MB PSRAM | 1 | YA TIENES · núcleo | Código oficial esperado `N16R8`; “N8R16” es la descripción memoria/RAM usada por el propietario. Confirmar texto del blindaje. |
 | Raspberry Pi Pico | 1 | YA TIENES · reserva | No hace falta para la arquitectura actual. |
 | ESP8266 | 1 | YA TIENES · reserva | No hace falta: el ESP32-S3 ya tiene Wi-Fi. |
 

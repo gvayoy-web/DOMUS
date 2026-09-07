@@ -6,6 +6,9 @@ fuente_estado: ../../ESTADO_ACTUAL.md
 
 # Base modular funcional y plan de banco
 
+> Dependencias de Arduino IDE y solución de `DHT.h` en
+> [[35 - Preparacion Arduino IDE y revision documental]].
+
 La ruta recomendada para probar las piezas confirmadas es
 `firmware/domus_esqueleto`. Esta nota sustituye la descripcion limitada de las
 notas 31 y 32, pero no declara validacion fisica.

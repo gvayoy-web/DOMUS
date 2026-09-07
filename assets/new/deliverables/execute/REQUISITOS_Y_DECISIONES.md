@@ -1,5 +1,9 @@
 # PROJECT DOMUS — requisitos y decisiones acordadas
 
+> Snapshot histórico de requisitos visuales. La decisión vigente usa fuente
+> común de 5 V; batería y solar son estética desconectada. Véase
+> `../../../../ESTADO_ACTUAL.md`.
+
 ## Regla principal
 
 PROJECT DOMUS será un sistema completamente local. No tendrá aplicación móvil, Kotlin, Bluetooth, BLE, Wi-Fi, MQTT, API, nube, servidor, Home Assistant, control remoto ni dependencia de Internet.

@@ -1,5 +1,9 @@
 # PROJECT DOMUS — Validación de factibilidad y simplificación
 
+> **Informe histórico del 2 de septiembre de 2026.** Para el estado vigente,
+> consultar `ESTADO_ACTUAL.md` y las notas 34 y 35 de Obsidian. Sus conteos no
+> deben usarse como resultado actual.
+
 **Fecha:** 2 de septiembre de 2026  
 **Objeto:** auditar las recomendaciones de la conversación proporcionada y contrastarlas con el proyecto, pruebas ejecutables, cálculos conservadores y documentación técnica.
 

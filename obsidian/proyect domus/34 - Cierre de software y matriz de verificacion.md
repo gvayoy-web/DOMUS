@@ -66,6 +66,13 @@ audio elegida. Batería y solar quedan fuera del circuito y sólo serán estéti
 La fuente operativa será una fuente común regulada de 5 V; todavía deben medirse
 su corriente disponible y caída de tensión con cargas reales.
 
+## Dependencia DHT detectada el 7 de septiembre
+
+Una compilación desde Arduino IDE informó `DHT.h: No such file or directory`.
+El firmware conserva el DHT real y no fabrica datos: se deben instalar `DHT
+sensor library` de Adafruit y `Adafruit Unified Sensor` en el sketchbook activo.
+La guía completa está en [[35 - Preparacion Arduino IDE y revision documental]].
+
 La secuencia segura está en [[33 - Base modular funcional y plan de banco]].
 No habilitar salidas ni declarar terminado el sistema físico sin completar esa
 matriz con mediciones reales.

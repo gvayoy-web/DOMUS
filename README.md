@@ -21,6 +21,7 @@ diagnóstico se aceptan localmente por USB Serial.
 - Prueba de micrófono: [`firmware/inmp441_poc`](firmware/inmp441_poc)
 - Prueba de voz española: [`firmware/picotts_poc`](firmware/picotts_poc)
 - Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)
+- Preparación de Arduino IDE: [`obsidian/proyect domus/35 - Preparacion Arduino IDE y revision documental.md`](obsidian/proyect%20domus/35%20-%20Preparacion%20Arduino%20IDE%20y%20revision%20documental.md)
 - Pruebas antes de construir: [`obsidian/proyect domus/16 - Plan de testeo antes de construccion.md`](obsidian/proyect%20domus/16%20-%20Plan%20de%20testeo%20antes%20de%20construccion.md)
 - Diagramas generales: [`obsidian/proyect domus/17 - Diagramas generales de conexiones.md`](obsidian/proyect%20domus/17%20-%20Diagramas%20generales%20de%20conexiones.md)
 - Cableado pin por pin: [`obsidian/proyect domus/18 - Manual maestro de conexiones pin por pin.md`](obsidian/proyect%20domus/18%20-%20Manual%20maestro%20de%20conexiones%20pin%20por%20pin.md)
@@ -60,11 +61,11 @@ arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,Partitio
 ```
 
 La compilación comprueba el software; el pinout, los relés y los sensores aún
-deben validarse físicamente con fuente regulada antes de conectar la fase solar.
+deben validarse físicamente con la fuente regulada de 5 V. Batería y panel solar
+son decoración y permanecen desconectados.
 
-La compilación offline actual ocupa 402,218 bytes de programa y 25,020 bytes
-de memoria global. Los binarios generados están en
-`.arduino-local/build/firmware-current/`.
+Los tamaños y perfiles vigentes están en `firmware/COMPILACION_VALIDADA.md`;
+no usar cifras históricas para seleccionar particiones.
 
 ## Comandos locales por USB
 

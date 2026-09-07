@@ -1,9 +1,9 @@
 # PROJECT DOMUS — entrega técnica consolidada
 
-Fecha: 4 de septiembre de 2026.
+Actualizado: 7 de septiembre de 2026.
 
-Estado actualizado: núcleo compilado con mejoras de robustez; pruebas físicas
-y Jarvis integrado pendientes. Ver `obsidian/proyect domus/23 - Cierre de robustez y entrenamiento pendiente.md`.
+Estado: software doméstico compilado y sometido a campaña semirreal; pruebas
+físicas y Jarvis integrado pendientes. Ver las notas 34 y 35 de Obsidian.
 La preparación del entrenamiento no equivale a tener una IA entrenada.
 
 ## Código terminado
@@ -22,7 +22,9 @@ de esa fase.
 ## Validación terminada
 
 - 20 pruebas de comportamiento del gemelo digital.
-- 22 contratos estructurales del firmware.
+- 50 pruebas locales PASS y 5 pruebas C++ nativas omitidas localmente, ejecutables en CI.
+- Campaña semirreal: 10,000 pasos y 40,027 invariantes PASS.
+- 16 pruebas de IA PASS; el modelo generado sigue siendo candidato, no validado en ESP32.
 - El conteo vigente se obtiene con `scripts/validate_project.py`; no conservar
   un total historico como criterio de aprobacion.
 - Compilación Arduino completa corregida; evidencia vigente en `firmware/COMPILACION_VALIDADA.md`.
@@ -66,7 +68,7 @@ No puede cerrarse honestamente desde software:
 3. Prueba de relés, bomba, ventilador y caída de la fuente.
 4. Validación opcional futura de INMP441, MAX98357A, altavoz y microSD; no comprar para el núcleo.
 5. Entrenamiento del modelo de voz español.
-6. Medición de consumo antes de dimensionar batería y panel solar.
+6. Medición de consumo y caída de la fuente común de 5 V. Batería y solar son decoración desconectada.
 
 Las pruebas físicas están completamente especificadas en los planes 16 y 19;
 no se marcan como PASS hasta ejecutarlas sobre el montaje real.

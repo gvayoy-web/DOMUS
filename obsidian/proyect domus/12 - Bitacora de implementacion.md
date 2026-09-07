@@ -119,3 +119,17 @@ actualizado: 2026-09-03
 - Pinout final, calibraciones y cargas requieren la placa y mediciones físicas.
 - La voz requiere INMP441, MAX98357A, altavoz, dataset y modelos int8 validados.
 - `JARVIS_LOCAL_HABILITADO=false` y `MICROSD_HABILITADA=false` siguen siendo estados correctos hasta disponer de esos artefactos.
+
+## 2026-09-07 — entorno semirreal, energía y documentación
+
+- Campaña determinista de 10,000 pasos: 40,027 invariantes, 40 PARO, 22 modos
+  seguros, 28 reinicios y 134 fallos de sensor; resultado PASS.
+- Total local consolidado: 50 PASS y 5 SKIP nativos dependientes de CI; IA 16 PASS.
+- Alimentación cerrada a fuente común regulada de 5 V. Batería y panel solar
+  quedan como estética eléctricamente desconectada.
+- Aclarado que 16 MB flash + 8 MB PSRAM corresponde al código oficial `N16R8`;
+  “N8R16” se conserva como descripción comercial memoria/RAM del propietario.
+- Diagnosticado `DHT.h: No such file or directory` como dependencia ausente del
+  sketchbook de Arduino IDE. Se documentaron bibliotecas y versiones.
+- Revisados 70 archivos Markdown; se actualizaron fuentes operativas y se
+  preservaron reportes antiguos como evidencia histórica.

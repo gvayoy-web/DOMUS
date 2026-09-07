@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: indice
-actualizado: 2026-09-06
+actualizado: 2026-09-07
 ---
 
 # PROJECT DOMUS — bóveda técnica
@@ -27,6 +27,7 @@ Resumen actualizado de decisiones y ejemplo inicial: [[31 - Esqueleto y decision
 Metas y criterios vigentes de la base modular: [[32 - Metas y madurez de la base DOMUS]].
 Implementacion vigente y secuencia de banco: [[33 - Base modular funcional y plan de banco]].
 Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz de verificacion]].
+Preparacion del IDE y auditoria Markdown: [[35 - Preparacion Arduino IDE y revision documental]].
 
 1. [[01 - Inventario confirmado]]
 2. [[02 - Matriz funciones y componentes]]
@@ -49,6 +50,7 @@ Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz
 19. [[19 - Plan de testeo despues de construccion]]
 20. [[33 - Base modular funcional y plan de banco]]
 21. [[34 - Cierre de software y matriz de verificacion]]
+22. [[35 - Preparacion Arduino IDE y revision documental]]
 
 ## Estado real del proyecto
 
@@ -57,7 +59,7 @@ Prioriza reconocimiento de intenciones; la alternativa económica usa DFPlayer
 para frases grabadas según nota 30, sin sustituir silenciosamente PicoTTS. Conversación libre
 con Barista queda experimental. Entrenamiento e integración siguen pendientes.
 
-Actualización: ver [[23 - Cierre de robustez y entrenamiento pendiente]] para
+Actualización: ver [[34 - Cierre de software y matriz de verificacion]] para
 la evidencia vigente y [[24 - Viabilidad Barista DOMUS memoria voz y entrenamiento]]
 para el prototipo generativo propuesto. Barista todavía no está integrado ni
 entrenado para DOMUS; la tabla histórica siguiente no certifica voz ni hardware.
@@ -69,7 +71,8 @@ entrenado para DOMUS; la tabla histórica siguiente no certifica voz ni hardware
 | Planes de optimización, montaje y pruebas | DOCUMENTOS TERMINADOS |
 | Diagramas y manual de conexiones | TERMINADOS para banco; pines provisionales señalados |
 | Calibración y validación eléctrica | PENDIENTE DE HARDWARE |
-| Jarvis hablado, batería y solar | FASES BLOQUEADAS por módulos/mediciones faltantes |
+| Jarvis hablado | PENDIENTE de micrófono, modelo real e integración física |
+| Batería y solar | Sólo estética; desconectados del circuito por decisión |
 
 ## Alternativas de costo y ampliación
 
@@ -83,7 +86,8 @@ Avance Jarvis: [[26 - Avance Jarvis contrato entrenamiento y pruebas]]. Voz inte
 entrenamiento útil siguen pendientes; los resultados antiguos no aprueban esos cambios.
 
 Abrir [PROJECT DOMUS — sistema completo](../../visualizaciones/sistema-domus.html)
-para cambiar entre fuente, batería y solar y consultar los pines de cada módulo.
+para consultar los pines y las rutas históricas de energía. La ruta operativa
+vigente usa únicamente la fuente común de 5 V.
 
 ## Regla de control
 

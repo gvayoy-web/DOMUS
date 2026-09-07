@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: pruebas
-actualizado: 2026-09-03
+actualizado: 2026-09-07
 ---
 
 # Plan de montaje y pruebas
@@ -22,7 +22,8 @@ actualizado: 2026-09-03
 
 ## Fase 1 — energía de pared
 
-- [ ] Comprar fuente 5 V/3 A, relé de 4 canales, fusible, capacitores y conectores.
+- [ ] Confirmar fuente común regulada de 5 V; usar 3 A o más hasta medir consumo.
+- [ ] No comprar relé de 4 canales para el perfil económico.
 - [ ] Construir barra 5 V/GND en estrella.
 - [ ] Verificar 5.0 V sin carga y con bomba/ventilador encendidos.
 - [ ] No permitir agua sobre protoboard o fuente.
@@ -64,14 +65,12 @@ actualizado: 2026-09-03
 - [ ] Montar lector microSD SPI independiente, formatear la tarjeta y verificar lectura/escritura desde el ESP32.
 - [ ] Añadir DFPlayer con una segunda tarjeta solo como respaldo si se desea.
 
-## Fase 5 — batería y solar
+## Fase 5 — batería y solar decorativos
 
-- [ ] Medir corriente media durante 30 minutos de demo.
-- [ ] Registrar pico con bomba, relés, voz y LEDs.
-- [ ] Elegir capacidad con la fórmula de [[04 - Energia bateria y solar]].
-- [ ] Probar batería con carga electrónica o montaje real.
-- [ ] Integrar panel/CN3065 solo al final.
-- [ ] Medir tiempo real de carga y no prometer autosuficiencia sin datos.
+- [ ] Fijar batería y panel sin conexión eléctrica.
+- [ ] Aislar y cubrir todos sus terminales.
+- [ ] Rotularlos como representación estética.
+- [ ] No conectar panel, batería, cargador ni elevador al `5V_BUS`.
 
 ## Prueba previa a exposición
 

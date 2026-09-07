@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: matriz
-actualizado: 2026-09-03
+actualizado: 2026-09-07
 ---
 
 # Matriz de funciones y componentes
@@ -10,10 +10,10 @@ actualizado: 2026-09-03
 |---|---|---|---|
 | Control central | ESP32-S3 N16R8 | Sí | Cargar y validar firmware en placa real. |
 | Pantalla de estado | LCD1602 + adaptador I2C | Sí | Código corregido a GPIO13 provisional y detección 0x27/0x3F; confirmar pin físicamente. |
-| Luz sala | LED(s), resistencia, relé | Parcial | LED/resistencia sí; canal de relé vendrá del módulo de 4 canales. |
-| Luz dormitorio | LED(s), resistencia, relé | Parcial | Igual que sala. |
-| Luz invernadero | LED(s), resistencia, relé | Parcial | Igual que sala. |
-| Ventilación | Motor+aspa, relé o driver, diodo | Sí/Parcial | Motor y diodo sí; canal en relé de 4 canales. Medir corriente. |
+| Luz sala | LED + resistencia | Sí | GPIO5, activo HIGH; validar corriente y polaridad. |
+| Luz dormitorio | LED + resistencia | Sí | GPIO6, activo HIGH; validar corriente y polaridad. |
+| Luz invernadero | LED + resistencia | Sí | GPIO8, activo HIGH; validar corriente y polaridad. |
+| Ventilación | Motor+aspa, S8050, resistencias y diodo | Sí/Parcial | Driver previsto en GPIO7; medir arranque y temperatura. |
 | Riego | Bomba+tubo, relé, depósito | Sí/Parcial | Usar relé de 1 canal existente; falta depósito físico y prueba de fugas. |
 | Humedad de suelo | Sonda resistiva | Sí | Código e histéresis completos; calibrar seco/húmedo físicamente. |
 | Temperatura/humedad de aire | DHT11/DHT22 | Sí | Confirmar modelo real y calibrar. |
@@ -28,7 +28,7 @@ actualizado: 2026-09-03
 | Diagnóstico local | USB Serial del ESP32-S3 | Sí | Estado, diagnóstico, paro, rearme, recuperación y limitación de ráfagas implementados. |
 | Supervisor anti-colapso | ESP32-S3 | Sí | Modo seguro por memoria/reinicios, watchdog y recuperación explícita implementados. |
 | Wi-Fi/MQTT | ESP32-S3 + router | Fuera de alcance | No pertenece al núcleo local decidido; solo sería una extensión futura. |
-| Solar | panel, cargador solar, batería, protección y elevador | No | Fase posterior a medición. |
+| Solar y batería | Elementos de maqueta | Estética | Permanecen eléctricamente desconectados. |
 
 ## Recuento correcto de relés
 
@@ -40,17 +40,18 @@ El diseño tiene **cinco cargas conmutadas**:
 4. Ventilador.
 5. Luz de invernadero.
 
-Asignación recomendada:
+Asignación operativa económica:
 
-| Hardware | Canal | Carga |
+| Hardware | GPIO/canal | Carga |
 |---|---:|---|
 | Relé de 1 canal que ya tienes | 1 | Bomba |
-| Nuevo relé de 4 canales | 1 | Luz sala |
-| Nuevo relé de 4 canales | 2 | Luz dormitorio |
-| Nuevo relé de 4 canales | 3 | Ventilador |
-| Nuevo relé de 4 canales | 4 | Luz invernadero |
+| LED + resistencia | GPIO5 | Luz sala |
+| LED + resistencia | GPIO6 | Luz dormitorio |
+| S8050 + diodo + resistencias | GPIO7 | Ventilador |
+| LED + resistencia | GPIO8 | Luz invernadero |
 
-**Conclusión:** el relé de 8 canales no es necesario. Solo conviene si se decide añadir tres cargas nuevas reales. El firmware debe cambiarse de ocho salidas lógicas a cinco o marcar claramente las tres salidas sin hardware.
+**Conclusión:** no comprar relé multicanal para esta configuración. El firmware
+ya expone cinco salidas lógicas sobre un relé, tres LED y un driver de motor.
 
 ## Qué se mostrará aunque Jarvis aún no esté listo
 

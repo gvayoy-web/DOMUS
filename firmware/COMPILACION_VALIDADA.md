@@ -1,5 +1,10 @@
 # Compilación del núcleo doméstico
 
+> Para Arduino IDE, instalar `DHT sensor library` 1.4.7, `Adafruit Unified
+> Sensor` 1.1.15 y `LiquidCrystal I2C` 1.1.2. Un error `DHT.h: No such file or
+> directory` indica una biblioteca ausente en el sketchbook activo, no un fallo
+> del código. Véase la nota 35 de Obsidian.
+
 ## Cierre local vigente (2026-09-06)
 
 Arduino-ESP32 3.3.10 y Arduino CLI 1.5.1, todas con `--warnings all`:

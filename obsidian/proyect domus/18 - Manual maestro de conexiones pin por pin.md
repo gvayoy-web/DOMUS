@@ -16,6 +16,9 @@ está detallada en [[21 - Simplificacion y reduccion de costos]]; seleccionar
 > Este documento describe baja tensión DC. No llevar 120/230 V a la maqueta.
 > Elegir **una sola** ruta de alimentación. No unir directamente fuente USB,
 > batería y panel solar. Desenergizar antes de mover un cable.
+> Decisión vigente: conectar únicamente la fuente común regulada de 5 V. Las
+> rutas de batería/solar inferiores son históricas y no se montan. Usar el
+> perfil económico de la nota 21: un relé, tres LED y driver S8050.
 
 Este es el esquema maestro de PROJECT DOMUS. Reúne alimentación, protección,
 ESP32, sensores, botones, pantalla, relés, cargas, audio, microSD y la fase
@@ -173,10 +176,10 @@ esquina sin comparar la serigrafía con el pinout del fabricante.
 | `GPIO2` | AO nivel de agua | activo provisional; calibrar |
 | `GPIO3` | nodo del divisor LDR | activo |
 | `GPIO4` | IN relé bomba | activo |
-| `GPIO5` | IN1 relé 4 canales/sala | activo |
-| `GPIO6` | IN2 relé 4 canales/dormitorio | activo |
-| `GPIO7` | IN3 relé 4 canales/ventilador | activo |
-| `GPIO8` | IN4 relé 4 canales/invernadero | activo |
+| `GPIO5` | resistencia + LED sala | activo HIGH |
+| `GPIO6` | resistencia + LED dormitorio | activo HIGH |
+| `GPIO7` | driver S8050 ventilador | activo HIGH |
+| `GPIO8` | resistencia + LED invernadero | activo HIGH |
 | `GPIO9` | OUT PIR | activo provisional |
 | `GPIO10` | botón PARO a GND | activo, `INPUT_PULLUP` |
 | `GPIO11` | switch MIC OFF a GND | activo, `INPUT_PULLUP` |
@@ -315,12 +318,10 @@ No llevar 5 V a los botones: el firmware usa resistencias internas
 | relé 1 canal | `VCC` | `5V_BUS` |
 | relé 1 canal | `GND` | `GND` |
 | relé 1 canal | `IN` | `GPIO4` bomba |
-| relé 4 canales | `VCC` | `5V_BUS` |
-| relé 4 canales | `GND` | `GND` |
-| relé 4 canales | `IN1` | `GPIO5` sala |
-| relé 4 canales | `IN2` | `GPIO6` dormitorio |
-| relé 4 canales | `IN3` | `GPIO7` ventilador |
-| relé 4 canales | `IN4` | `GPIO8` invernadero |
+| LED sala + resistencia | ánodo desde `GPIO5`; cátodo | `GND` |
+| LED dormitorio + resistencia | ánodo desde `GPIO6`; cátodo | `GND` |
+| driver S8050 | base desde `GPIO7` por 1 kΩ; emisor | `GND` |
+| LED invernadero + resistencia | ánodo desde `GPIO8`; cátodo | `GND` |
 
 Si el módulo tiene `JD-VCC`, retirar o conservar el puente solo según el esquema
 impreso del módulo. Verificar con una carga de prueba que HIGH significa apagado;
@@ -436,7 +437,7 @@ Cada ampliación futura necesita un cambio explícito de firmware, pinout y test
 7. Añadir una carga por vez; después probar la combinación de máximo consumo.
 8. Ejecutar T00–T10 de [[16 - Plan de testeo antes de construccion]].
 9. Solo después fabricar mazo final y fijar componentes.
-10. Jarvis, microSD, WS2812, batería y solar se integran como fases separadas.
+10. Jarvis, microSD y WS2812 se integran por fases; batería y solar quedan desconectados como estética.
 
 ## 15. Lista de comprobación final de cada cable
 

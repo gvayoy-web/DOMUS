@@ -1,6 +1,6 @@
 # Estado actual de PROJECT DOMUS
 
-Actualizado: 6 de septiembre de 2026.
+Actualizado: 7 de septiembre de 2026.
 
 Esta es la fuente breve para saber que ejecutar. El inventario fisico sigue en
 `obsidian/proyect domus/01 - Inventario confirmado.md` y el cableado detallado
@@ -48,3 +48,6 @@ nueva debe entrar primero en la base modular y tener una prueba o contrato.
 La alimentación operativa será una fuente común regulada de 5 V; batería y
 solar quedan como elementos estéticos, eléctricamente desconectados. Jarvis y
 microSD no forman parte del cierre de banco actual.
+
+Arduino IDE requiere `DHT sensor library`, `Adafruit Unified Sensor` y
+`LiquidCrystal I2C`. La instalación y diagnóstico están en la nota 35.

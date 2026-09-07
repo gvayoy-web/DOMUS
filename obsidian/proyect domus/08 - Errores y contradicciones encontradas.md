@@ -10,7 +10,7 @@ actualizado: 2026-09-03
 
 - Corregidos en software: GPIO22, ocho relés lógicos, sensor de viento inexistente, identificación del sensor resistivo, PIR y nivel de agua.
 - Pendientes de hardware: confirmar los pines provisionales GPIO13/GPIO9/GPIO2, calibrar sensores y validar las cinco cargas en placa.
-- Jarvis, la fuente definitiva y la energía solar continúan pendientes según las fases del plan.
+- Jarvis y la prueba de la fuente de 5 V continúan pendientes; batería y solar fueron retirados del circuito y quedan como estética.
 
 ## Críticos
 
@@ -47,8 +47,8 @@ actualizado: 2026-09-03
 ## Decisiones corregidas
 
 - Pantalla oficial: LCD1602 I2C.
-- Relés: 1 canal existente + 4 canales nuevos.
+- Salidas: un relé existente para bomba, tres LED con resistencia y driver S8050 para ventilador.
 - microSD: lector SPI + tarjeta obligatorios para almacenamiento directo del ESP32; segunda tarjeta opcional para DFPlayer.
 - Fuente de feria: 5 V/3 A.
 - Jarvis: TinyML/PicoTTS en flash/PSRAM; DFPlayer solo respaldo.
-- Energía: pared primero, batería después, solar al final.
+- Energía: sólo fuente común regulada de 5 V; batería y solar desconectados.

@@ -6,6 +6,18 @@ persistente, propiedad manual, PARO, watchdog y modo seguro. Aun requiere
 validacion fisica supervisada y no sustituye al firmware principal hasta pasar
 la matriz de pruebas de la nota 33. No se ha grabado ninguna placa.
 
+## Dependencias Arduino
+
+Instalar desde **Programa > Incluir libreria > Administrar bibliotecas**:
+
+- `DHT sensor library` de Adafruit, version 1.4.7 o compatible.
+- `Adafruit Unified Sensor`, dependencia del DHT.
+- `LiquidCrystal I2C` 1.1.2 o compatible.
+
+Si aparece `DHT.h: No such file or directory`, falta instalar esas dos
+bibliotecas en el mismo sketchbook utilizado por Arduino IDE; reiniciar el IDE
+despues de instalarlas. No se sustituyen lecturas ambientales con valores falsos.
+
 ## Inicio seguro
 
 Mantener motores, rele y otras cargas desconectados. Por defecto las salidas

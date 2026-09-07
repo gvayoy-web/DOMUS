@@ -24,7 +24,7 @@ un driver dimensionado para esa carga; el GPIO no las alimenta directamente.
 | Relé adicional de cuatro canales | Evitable con el perfil 1 y cargas verificadas | Conserva los cinco controles lógicos; cambia la etapa eléctrica |
 | INMP441, MAX98357A, altavoz, WS2812 | Posponer | Jarvis y audio siguen pendientes; el núcleo no depende de ellos |
 | Lector microSD y tarjeta | Posponer | No hay registro persistente en tarjeta; diagnóstico por USB y memoria circular siguen disponibles |
-| Panel, batería, cargador y elevador | Posponer | Funciona con fuente regulada; pierde autonomía solar |
+| Panel, batería, cargador y elevador | Retirar del circuito | Panel y batería sólo estéticos; funciona con fuente regulada |
 | Set completo de jumpers | Evitable si ya hay conectores/cable y herramientas | Usar uniones aisladas y firmes, nunca cables retorcidos sueltos |
 | Sensor de nivel y paro físico | Conservar | Son protecciones del riego y del sistema |
 | Fuente, fusible y desacoplo | Conservar | No recortar la alimentación para ahorrar |
@@ -85,9 +85,8 @@ están disponibles y resultan aptos. Confirmar inventario antes de comprar.
 
 Comparación equivalente con cable y sin jumpers: L770 → L520, ahorro potencial
 **L250** por el relé de cuatro canales. El set completo puede añadir hasta L250.
-Posponer voz/SD evita por ahora L528 más INMP441; posponer solar evita la
-estimación de L1,355. Son funcionalidades opcionales pospuestas, no ahorro
-gratuito manteniendo autonomía solar y voz.
+Posponer voz/SD evita por ahora L528 más INMP441. Retirar solar funcional evita
+la estimación histórica de L1,355; no se promete autonomía.
 
 La página de [fuentes C&D](https://sps.cdtechnologia.net/2985-fuente-para-raspberry-pi3-pi4.html)
 mostró precio base L248 durante la consulta, pero incluye variantes: verificar

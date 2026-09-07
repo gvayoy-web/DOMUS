@@ -1,5 +1,9 @@
 # EXECUTE — paquete completo de PROJECT DOMUS
 
+> Este paquete es una entrega visual conservada. El estado de firmware,
+> alimentación y pruebas se consulta en `../../../../ESTADO_ACTUAL.md` y en la
+> bóveda Obsidian del repositorio.
+
 Este ZIP reúne los archivos aportados por el usuario y todos los entregables útiles creados durante este chat.
 
 ## Qué carpeta usar

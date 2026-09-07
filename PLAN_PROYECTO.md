@@ -17,9 +17,8 @@
 
 - Compilación reproducible del firmware doméstico en GitHub Actions para
   ESP32-S3 N16R8: Arduino-ESP32 3.3.10, flash de 16 MB y PSRAM OPI.
-- Binarios generados correctamente: 402,218 bytes de programa y 25,020 bytes
-  de memoria dinámica global con Jarvis y microSD desactivados hasta disponer
-  del hardware validado.
+- Los cinco perfiles principales y los tres sketches auxiliares compilan; los
+  tamaños vigentes están en `firmware/COMPILACION_VALIDADA.md`.
 - Cinco cargas lógicas, LCD, riego, ventilación y luces automáticas. La
   validación física de relés y sensores sigue pendiente.
 - Estado seguro de relés durante el arranque.
@@ -40,7 +39,8 @@
   críticos consecutivos, sin reinicio automático en bucle.
 - Límite de 12 comandos por segundo; `PARO` conserva prioridad absoluta.
 - Corte inmediato de salidas automáticas si falla su sensor crítico.
-- 20 pruebas de comportamiento y 18 contratos de firmware ejecutados en CI.
+- 50 pruebas locales PASS, campaña semirreal de 10,000 pasos y 40,027
+  invariantes, más 16 pruebas de IA PASS.
 
 ### Pendiente de hardware y modelos
 
@@ -73,7 +73,7 @@ española funcional y será sustituido, no activado.
 8. Guardar ambos modelos en flash y usar PSRAM para tensores y audio.
 9. Integrar el flujo half-duplex: despertar, escuchar, ejecutar, hablar y cooldown.
 10. Añadir WS2812B y estados visuales.
-11. Medir consumo e integrar la alimentación solar al final.
+11. Medir consumo y caída de la fuente común de 5 V. El panel y la batería son estética desconectada.
 
 El cierre verificable por software y la separación de tareas físicas están en
 `obsidian/proyect domus/13 - Plan de cierre de codigo.md`.
