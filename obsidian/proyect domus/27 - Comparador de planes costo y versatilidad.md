@@ -30,7 +30,7 @@ Verificación documental: `.venv-ia/Scripts/python.exe scripts/validate_project.
 
 Decisión anterior (retirada): construir B con relé individual + módulo de cuatro
 relés. La decisión vigente conserva la distribución desmontable y `planos/new`,
-pero usa un solo relé desnudo para la bomba; véase la nota 36.
+pero usa S8050 para la bomba y reserva el relé desnudo; véase la nota 36.
 Añadir C cuando el núcleo esté probado. Posponer una función no significa conservarla gratis:
 sin batería no hay autonomía; sin micrófono/modelo no hay reconocimiento.
 

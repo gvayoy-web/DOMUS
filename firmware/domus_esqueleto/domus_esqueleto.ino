@@ -1,6 +1,6 @@
 /* PROJECT DOMUS: controlador local modular ESP32-S3.
- * Inventario real: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR y un unico rele
- * desnudo de 5 V para la bomba mediante S8050. GPIO5-8 quedan bloqueados.
+ * Inventario real: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR y bomba de 3-6 V
+ * controlada mediante S8050. El rele queda reservado; GPIO5-8 bloqueados.
  */
 #include <Arduino.h>
 #include <DHT.h>
@@ -275,8 +275,8 @@ void setup() {
   paro=digitalRead(PIN_PARO)==LOW; apagarTodo(); cargarCalibracion(); inicializarPantalla();
   if (DHT_HABILITADO) dht.begin(); watchdogActivo=inicializarWatchdog();
   if (!watchdogActivo) entrarModoSeguro("watchdog");
-  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;RELE_BOMBA=%d;GPIO5_8=OFF;USE_DIAGNOSTICO",
-    PERFIL_PLACA,PERFIL_PRUEBA,HABILITAR_RELE_BOMBA);
+  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;DRIVER_BOMBA=%d;GPIO5_8=OFF;USE_DIAGNOSTICO",
+    PERFIL_PLACA,PERFIL_PRUEBA,HABILITAR_BOMBA);
 }
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset()!=ESP_OK) { watchdogActivo=false; entrarModoSeguro("watchdog_reset"); }

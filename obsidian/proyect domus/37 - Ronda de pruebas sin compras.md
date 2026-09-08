@@ -9,7 +9,7 @@ placa: ESP32-S3 N16R8
 # Ronda de pruebas sin compras
 
 Esta es la guia operativa para la primera ronda. Se usa
-`firmware/domus_esqueleto` con `HABILITAR_RELE_BOMBA=false`. El inventario real
+`firmware/domus_esqueleto` con `HABILITAR_BOMBA=false`. El inventario real
 tiene un rele desnudo de 5 V; GPIO5-8 no tienen rele.
 
 Versión para imprimir: [Paquete B01-B05 sin compras](../../output/pdf/DOMUS_Ronda_B01-B05_sin_compras.pdf).
@@ -106,7 +106,7 @@ solo contraste incorrecto. El firmware prueba direcciones `0x27` y `0x3F`.
 - Partition Scheme: `3M APP/9M FATFS`.
 - CPU: `240 MHz`.
 - Monitor serie: `115200`, fin de linea `Nueva linea` o `Ambos NL y CR`.
-- Mantener `HABILITAR_RELE_BOMBA=false`.
+- Mantener `HABILITAR_BOMBA=false`.
 
 Al arrancar debe aparecer una linea similar a:
 
@@ -179,7 +179,7 @@ mojar el sensor.
 
 Guardar el texto del monitor serie, fotos del cableado y esta tabla completada.
 Actualizar B01-B05 en [[33 - Base modular funcional y plan de banco]]. No poner
-`HABILITAR_RELE_BOMBA=true`; eso pertenece a B06 despues de montar y medir
+`HABILITAR_BOMBA=true`; eso pertenece a B06 despues de montar y medir
 S8050, resistencia, diodo y rele sin conectar todavia la bomba.
 
 ## Relaciones

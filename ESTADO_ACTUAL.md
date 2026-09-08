@@ -9,16 +9,16 @@ en la nota 18.
 ## Firmware recomendado para banco
 
 Usar `firmware/domus_esqueleto/domus_esqueleto.ino`. Integra el hardware
-confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton,
-PARO y un unico rele desnudo de 5 V para la bomba. Ese rele requiere S8050,
-resistencia de 1 kOhm y diodo 1N4007; no se conecta directamente al GPIO.
+confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton
+y PARO. La bomba de 3-6 V usa S8050, resistencia de 1 kOhm y diodo 1N4007;
+no se conecta directamente al GPIO. El rele azul queda reservado.
 GPIO5-8 no tienen etapa fisica y permanecen bloqueados.
 
 Compila correctamente para el ESP32-S3 N16R8 confirmado (16 MB flash + 8 MB
 PSRAM): 373,694 bytes de programa y 24,388
 bytes globales. Las salidas permanecen deshabilitadas
 por defecto porque todavia no se han verificado polaridades, fuente y etapas en
-el montaje real. La ronda B01-B05 se hace sin relés ni cargas y sin cambiar esa
+el montaje real. La ronda B01-B05 se hace sin motores ni cargas y sin cambiar esa
 protección; seguir las notas 33 y 37.
 
 ## Cierre de software local

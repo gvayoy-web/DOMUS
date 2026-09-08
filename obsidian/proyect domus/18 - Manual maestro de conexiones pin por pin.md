@@ -7,9 +7,9 @@ estado: listo_para_banco
 
 # Manual maestro de conexiones pin por pin
 
-Este manual usa el inventario real: un rele azul desnudo de 5 V para la bomba,
-controlado por S8050. GPIO5-8 quedan sin etapa y bloqueados. La propuesta de
-cuatro reles queda retirada.
+Este manual usa el inventario real: bomba de 3-6 V controlada directamente por
+S8050 y diodo 1N4007. El rele azul queda reservado. GPIO5-8 quedan sin etapa y
+bloqueados; la propuesta de cuatro reles queda retirada.
 
 > [!DANGER]
 > Este documento describe baja tensión DC. No llevar 120/230 V a la maqueta.
@@ -17,7 +17,7 @@ cuatro reles queda retirada.
 > batería y panel solar. Desenergizar antes de mover un cable.
 > Decisión vigente: conectar únicamente la fuente común regulada de 5 V. Las
 > rutas de batería/solar inferiores son históricas y no se montan. Usar el
-> perfil corregido de un unico rele de [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+> perfil corregido de bomba con S8050 de [[36 - Configuracion final 1 mas 4 reles y planos v4]].
 
 Este es el esquema maestro de PROJECT DOMUS. Reúne alimentación, protección,
 ESP32, sensores, botones, pantalla, relés, cargas, audio, microSD y la fase
@@ -303,39 +303,33 @@ usar divisor/adaptador antes del GPIO.
 No llevar 5 V a los botones: el firmware usa resistencias internas
 `INPUT_PULLUP`. Montar PARO separado, visible y accesible.
 
-## 7. Unico rele desnudo y bomba
+## 7. Bomba de 3-6 V mediante S8050
 
-### Driver de bobina
+### Driver directo del motor
 
 | Desde | Componente | Hacia |
 |---|---|---|
 | `GPIO4` | resistencia `1 kOhm` | base `B` del S8050 |
 | emisor `E` S8050 | cable | `GND` comun |
-| colector `C` S8050 | cable | pata `COIL B` del rele |
-| `5V_BUS` | cable | pata `COIL A` del rele |
-| `1N4007` catodo, lado con raya | paralelo a bobina | `COIL A / +5 V` |
-| `1N4007` anodo, sin raya | paralelo a bobina | `COIL B / colector` |
+| colector `C` S8050 | cable | negativo `-` de bomba |
+| `5V_BUS` | cable | positivo `+` de bomba |
+| `1N4007` catodo, lado con raya | paralelo al motor | bomba `+ / +5 V` |
+| `1N4007` anodo, sin raya | paralelo al motor | bomba `- / colector` |
 
-El cubo azul observado es un rele desnudo: no tiene `IN`, `VCC` y `GND`. No
-deducir E/B/C del S8050 ni COIL/COM/NO/NC por izquierda, derecha o pata central.
-Confirmar referencia o usar multimetro: la pareja de bobina presenta resistencia
-finita; COM-NC tiene continuidad sin energia; al energizar la bobina COM cambia a NO.
+No deducir E/B/C del S8050 por izquierda, derecha o pata central. Confirmar la
+referencia o usar probador. El cubo azul es un rele desnudo y queda fuera de
+este circuito.
 
-### Contactos de la bomba
+### Ruta de potencia de la bomba
 
 ```text
-5V_BUS con fusible ── COM
-                       NO ── positivo de la carga
-GND ─────────────────────── negativo de la carga
++5V_BUS ───────────── positivo de bomba
+negativo de bomba ─── colector C del S8050
+emisor E S8050 ────── GND comun
 ```
 
-Usar `NO`, no `NC`, para que todas las cargas queden apagadas al perder energía.
-
-| Carga actual | COM | NO | Protección adicional |
-|---|---|---|---|
-| bomba | `5V_BUS` con fusible | bomba `+`; bomba `−` a GND | segundo 1N4007: cátodo a bomba `+`, ánodo a bomba `−` |
-
-`NC` queda aislado. GPIO5-GPIO8 no se conectan a este rele ni a otra carga.
+Agregar 470-1000 uF entre 5 V y GND cerca del motor, respetando polaridad, y
+100 nF ceramico en paralelo. GPIO5-GPIO8 no se conectan a cargas.
 
 ## 8. INMP441, seis pines
 

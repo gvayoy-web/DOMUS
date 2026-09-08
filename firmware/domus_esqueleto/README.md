@@ -8,7 +8,7 @@ la matriz de pruebas de la nota 33. No se ha grabado ninguna placa.
 
 La ronda inicial B01-B05 no necesita conectar
 bomba, motor o luces. El perfil compilado se identifica como
-`ESP32-S3-N16R8 / BANCO_SIN_ACTUADORES`; `HABILITAR_RELE_BOMBA=false` debe
+`ESP32-S3-N16R8 / BANCO_SIN_ACTUADORES`; `HABILITAR_BOMBA=false` debe
 permanecer asi durante toda esa ronda.
 
 ## Dependencias Arduino
@@ -25,7 +25,7 @@ despues de instalarlas. No se sustituyen lecturas ambientales con valores falsos
 
 ## Inicio seguro
 
-Mantener motores, rele y otras cargas desconectados. Por defecto las salidas
+Mantener motores y otras cargas desconectados. Por defecto las salidas
 estan deshabilitadas y sus pines en entrada. Alta impedancia no asegura que un
 rele conectado este apagado: el driver necesita polarizacion externa adecuada.
 No conectar 5 V a GPIO. Usar la alimentacion y etapas verificadas de la nota 21.
@@ -36,21 +36,21 @@ interruptor (0 bloqueado, 1 habilitado), no reconocimiento de voz.
 
 | Funcion | GPIO | Etapa |
 |---|---:|---|
-| Bomba | 4 | GPIO4 -> 1 kOhm -> base S8050; transistor controla rele desnudo de 5 V |
+| Bomba | 4 | GPIO4 -> 1 kOhm -> base S8050; colector controla bomba de 3-6 V |
 | Sala/cuarto/ventilador/invernadero | 5/6/7/8 | Sin etapa fisica; bloqueados por software |
 | Suelo/nivel/luz | 1/2/3 | Senales analogicas <=3.3 V |
 | PIR | 9 | Senal compatible <=3.3 V |
 | PARO / MIC OFF / boton sala | 10/11/12 | Contacto a GND, pull-up interno |
 
 Configuracion en `domus_config.h`. Solo despues de verificar el driver se cambia
-exactamente `constexpr bool HABILITAR_RELE_BOMBA = false;` a `true`. Esto habilita
+exactamente `constexpr bool HABILITAR_BOMBA = false;` a `true`. Esto habilita
 GPIO4 y no habilita GPIO5-8. Para regresar al banco seguro, volverlo a `false` y
 cargar otra vez el sketch.
 
-El rele azul de cinco patas no es un modulo. No tiene entrada logica y su bobina
-no puede conectarse directamente a GPIO4. Usar un S8050, resistencia de 1 kOhm
-en base y 1N4007 en antiparalelo con la bobina. Confirmar E/B/C del transistor y
-bobina/COM/NO/NC del rele por referencia o multimetro; no deducir por posicion.
+La bomba no se conecta directamente a GPIO4 ni a 3V3. Usar un S8050, resistencia
+de 1 kOhm en base y 1N4007 en antiparalelo con el motor: raya al positivo y
+anodo al colector. Confirmar E/B/C del transistor por referencia o multimetro.
+El rele azul queda reservado y fuera del circuito actual.
 La bomba exige ademas una calibracion valida guardada en NVS. Se asume que nivel
 mayor significa mas agua; verificarlo antes de guardar el umbral.
 Los limites ADC detectan rieles, **no garantizan detectar un cable abierto**.

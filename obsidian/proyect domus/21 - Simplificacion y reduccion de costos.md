@@ -7,14 +7,14 @@ fecha: 2026-09-04
 
 > [!IMPORTANT]
 > Esta es la ruta económica vigente, corregida al inventario real. Solo existe
-> un relé desnudo: se reserva para la bomba y se maneja con un S8050. GPIO5-8
+> un relé desnudo, pero queda reservado. La bomba se maneja con S8050. GPIO5-8
 > no tienen etapa física y permanecen bloqueados.
 
 ## Decisión aplicada
 
 El programa conserva los cinco controles lógicos, pero el firmware de banco
 solo permite una etapa física: `GPIO4`. Esta también arranca bloqueada mediante
-`HABILITAR_RELE_BOMBA=false`; GPIO5-8 no se habilitan al cambiar esa línea.
+`HABILITAR_BOMBA=false`; GPIO5-8 no se habilitan al cambiar esa línea.
 
 La variante económica es para la maqueta con un LED individual por ambiente.
 Si se necesitan tiras o varias luces por salida, conservar los relés o diseñar

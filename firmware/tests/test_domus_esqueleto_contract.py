@@ -16,10 +16,10 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         cls.protocol = (BASE / "domus_protocol.h").read_text(encoding="utf-8")
 
     def test_outputs_remain_disabled_until_physical_validation(self):
-        self.assertRegex(self.config, r"HABILITAR_RELE_BOMBA\s*=\s*false")
+        self.assertRegex(self.config, r"HABILITAR_BOMBA\s*=\s*false")
         self.assertRegex(
             self.config,
-            r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_RELE_BOMBA,\s*false,\s*false,\s*false,\s*false",
+            r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_BOMBA,\s*false,\s*false,\s*false,\s*false",
         )
         self.assertIn('PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES"', self.config)
         self.assertIn("salida_sin_etapa_habilitada", self.sketch)

@@ -2,11 +2,11 @@
 #include <stdint.h>
 
 namespace Config {
-// CAMBIO MANUAL PARA LA RONDA CON EL RELE REAL:
+// CAMBIO MANUAL PARA LA RONDA CON LA BOMBA REAL:
 // 1) dejar false mientras solo se prueban placa y sensores;
 // 2) cambiar UNICAMENTE a true despues de cablear y medir el driver S8050,
-//    el diodo 1N4007 y el rele de bomba; GPIO5-8 siguen bloqueados.
-constexpr bool HABILITAR_RELE_BOMBA = false;
+//    el diodo 1N4007 y la bomba directa; GPIO5-8 siguen bloqueados.
+constexpr bool HABILITAR_BOMBA = false;
 constexpr const char PERFIL_PLACA[] = "ESP32-S3-N16R8";
 constexpr const char PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES";
 constexpr bool LCD_HABILITADO = true;
@@ -23,12 +23,12 @@ constexpr uint8_t PIN_SUELO = 1, PIN_NIVEL = 2, PIN_LUZ = 3;
 constexpr uint8_t PIN_PIR = 9, PIN_PARO = 10, PIN_MIC_OFF = 11, PIN_BOTON = 12;
 constexpr uint8_t PIN_DHT = 14, PIN_LCD_SDA = 21, PIN_LCD_SCL = 13;
 constexpr uint8_t PINES[] = {4, 5, 6, 7, 8};
-// Inventario real: solo GPIO4 tiene una etapa prevista, con S8050 + rele
-// desnudo de 5 V. GPIO5-8 no tienen rele y permanecen bloqueados por software.
+// Inventario real: solo GPIO4 tiene una etapa prevista, con S8050 + bomba
+// de 3-6 V. GPIO5-8 no tienen driver y permanecen bloqueados por software.
 constexpr bool SALIDA_FISICA_HABILITADA[] = {
-  HABILITAR_RELE_BOMBA, false, false, false, false
+  HABILITAR_BOMBA, false, false, false, false
 };
-// El driver S8050 enciende el rele cuando GPIO4 esta HIGH. Las otras
+// El driver S8050 enciende la bomba cuando GPIO4 esta HIGH. Las otras
 // polaridades quedan sin autoridad hasta diseñar y verificar sus etapas.
 constexpr bool ACTIVA_LOW[] = {false, false, false, false, false};
 constexpr uint8_t LCD_DIRECCIONES[] = {0x27, 0x3F};

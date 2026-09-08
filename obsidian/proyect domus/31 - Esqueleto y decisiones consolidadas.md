@@ -31,7 +31,7 @@ cinco salidas, PARO enclavado, rearme sin encender y límite de bomba de 10 s.
 ON repetido no alarga una ejecución. LCD, DHT, DFPlayer, voz y automatizaciones
 no están implementados en este ejemplo; sí se documentan pines reservados.
 
-Por defecto `HABILITAR_RELE_BOMBA=false` y `NIVEL_CALIBRADO=false`. Solo esa
+Por defecto `HABILITAR_BOMBA=false` y `NIVEL_CALIBRADO=false`. Solo esa
 constante puede pasar a `true` tras montar y medir el driver del relé; GPIO5-8
 siguen bloqueados en `SALIDA_FISICA_HABILITADA`.
 Las cargas deben permanecer desconectadas: pines en entrada no garantizan OFF

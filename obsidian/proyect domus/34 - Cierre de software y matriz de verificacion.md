@@ -52,7 +52,7 @@ real del relé/motor. Se reproduce con `python scripts/run_semireal_campaign.py`
   automatización afectada.
 - Timeout y bloqueo de bomba, vigilancia de heap/watchdog y modo seguro.
 - Protocolo serie acotado con ACK/NACK, recuperación y pruebas de contrato.
-- `HABILITAR_RELE_BOMBA=false` por defecto; GPIO5-8 estan bloqueados de forma
+- `HABILITAR_BOMBA=false` por defecto; GPIO5-8 estan bloqueados de forma
   independiente aunque se habilite la bomba.
 
 ## Frontera que exige hardware

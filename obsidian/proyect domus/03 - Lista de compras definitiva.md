@@ -12,8 +12,8 @@ actualizado: 2026-09-07
 > SPI y microSD NO son obligatorios para arrancar la ruta PicoTTS del plan 25.
 > DFPlayer sí requiere su almacenamiento de pistas. No comprar ambos motores
 > de audio por defecto. Las cifras siguientes no constituyen cotización actual.
-> Decisión vigente: usar el único relé desnudo disponible para la bomba mediante
-> S8050, resistencia de 1 kOhm y 1N4007. No comprar ahora el módulo de cuatro
+> Decisión vigente: usar S8050, resistencia de 1 kOhm y 1N4007 directamente
+> con la bomba de 3-6 V; el relé desnudo queda reservado. No comprar ahora el módulo de cuatro
 > canales; GPIO5-GPIO8 quedan como expansión futura y bloqueados por software.
 > Batería y solar son decoración, no compras eléctricas.
 
