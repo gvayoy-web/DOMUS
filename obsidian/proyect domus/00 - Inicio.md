@@ -20,6 +20,8 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
   simulación están integrados. Quedan calibración física y modelos de voz;
   véanse [[13 - Plan de cierre de codigo]] y
   [[14 - Protocolo anti-colapso IA y ESP32]].
+- **Ronda inmediata:** B01-B05 se ejecutan con el N16R8 y las piezas ya
+  compradas, sin relés ni cargas; usar [[37 - Ronda de pruebas sin compras]].
 
 ## Navegación
 
@@ -29,6 +31,7 @@ Implementacion vigente y secuencia de banco: [[33 - Base modular funcional y pla
 Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz de verificacion]].
 Preparacion del IDE y auditoria Markdown: [[35 - Preparacion Arduino IDE y revision documental]].
 Decisión física consolidada 1+4 y geometría v4: [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+Guía y hoja imprimible para la ronda sin compras: [[37 - Ronda de pruebas sin compras]].
 
 1. [[01 - Inventario confirmado]]
 2. [[02 - Matriz funciones y componentes]]
@@ -53,6 +56,7 @@ Decisión física consolidada 1+4 y geometría v4: [[36 - Configuracion final 1 
 21. [[34 - Cierre de software y matriz de verificacion]]
 22. [[35 - Preparacion Arduino IDE y revision documental]]
 23. [[36 - Configuracion final 1 mas 4 reles y planos v4]]
+24. [[37 - Ronda de pruebas sin compras]]
 
 ## Estado real del proyecto
 

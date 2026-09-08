@@ -13,11 +13,12 @@ confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton,
 PARO, un rele de bomba y un modulo de cuatro reles para sala, dormitorio,
 ventilador e invernadero.
 
-Compila correctamente para ESP32-S3 de 16 MB flash + 8 MB PSRAM (`N16R8`
-oficial; “N8R16” en la descripción comercial): 373,286 bytes de programa y 24,388
+Compila correctamente para el ESP32-S3 N16R8 confirmado (16 MB flash + 8 MB
+PSRAM): 373,578 bytes de programa y 24,388
 bytes globales. Las salidas permanecen deshabilitadas
 por defecto porque todavia no se han verificado polaridades, fuente y etapas en
-el montaje real. Seguir la nota 33 antes de cambiar esa proteccion.
+el montaje real. La ronda B01-B05 se hace sin relés ni cargas y sin cambiar esa
+protección; seguir las notas 33 y 37.
 
 ## Cierre de software local
 
@@ -39,7 +40,7 @@ nueva debe entrar primero en la base modular y tener una prueba o contrato.
 
 ## Pendiente exclusivamente físico
 
-1. Confirmar placa y GPIO 2, 9 y 13.
+1. Documentar la placa N16R8 confirmada y comprobar GPIO 2, 9 y 13.
 2. Probar sensores y guardar calibracion real.
 3. Validar que los cinco canales sean activos LOW, primero sin cargas y despues cada etapa individual.
 4. Ejecutar cinco arranques y PARO/rearme bajo carga.

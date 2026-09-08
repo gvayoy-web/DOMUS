@@ -52,3 +52,6 @@ CSV, después de medir espesor y componentes reales.
 Completar B01-B09 de [[33 - Base modular funcional y plan de banco]], registrar
 mediciones y después ejecutar [[19 - Plan de testeo despues de construccion]].
 La elección del perfil no certifica el módulo ni autoriza habilitar salidas.
+
+La ausencia actual del módulo de cuatro relés no bloquea B01-B05. Esa ronda se
+ejecuta con GPIO4-8 libres siguiendo [[37 - Ronda de pruebas sin compras]].

@@ -4,6 +4,8 @@
 namespace Config {
 // No habilitar antes de validar alimentacion, etapas y polaridades fisicas.
 constexpr bool SALIDAS_HABILITADAS = false;
+constexpr const char PERFIL_PLACA[] = "ESP32-S3-N16R8";
+constexpr const char PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES";
 constexpr bool LCD_HABILITADO = true;
 constexpr bool DHT_HABILITADO = true;
 constexpr uint8_t DHT_TIPO = 11; // Cambiar a 22 solo tras identificar el modulo.

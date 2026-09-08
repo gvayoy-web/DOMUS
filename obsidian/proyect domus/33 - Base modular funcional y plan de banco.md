@@ -14,6 +14,11 @@ La ruta recomendada para probar las piezas confirmadas es
 módulo de cuatro relés, todos activos LOW previstos. Esta nota sustituye la descripcion limitada de las
 notas 31 y 32, pero no declara validacion fisica.
 
+La ronda inmediata no necesita esos cinco canales: B01-B05 se realizan con
+`SALIDAS_HABILITADAS=false`, GPIO4-8 sin conectar y solo las piezas ya
+compradas. La hoja operativa es [[37 - Ronda de pruebas sin compras]]. B06-B10
+se difieren hasta disponer de la etapa correspondiente.
+
 ## Capacidades integradas
 
 - Sensores ADC de suelo, nivel y luz con promedio y deteccion de rieles.
@@ -25,7 +30,7 @@ notas 31 y 32, pero no declara validacion fisica.
 - PARO prioritario, timeout y bloqueo de bomba, watchdog, heap y modo seguro.
 - Protocolo por lineas, limite de ON, diagnostico y recuperacion sin encendido.
 
-Compilacion local N16R8/OPI con advertencias: PASS. Programa 373286 bytes;
+Compilacion local N16R8/OPI con advertencias: PASS. Programa 373578 bytes;
 globales 24388 bytes.
 Las salidas siguen en `false`; compilar no prueba electricidad.
 
@@ -33,7 +38,7 @@ Las salidas siguen en `false`; compilar no prueba electricidad.
 
 | ID | Prueba | Aceptacion | Estado |
 |---|---|---|---|
-| B01 | Inspeccion de placa y GPIO | 2, 9, 13 y alimentaciones identificados | PENDIENTE |
+| B01 | Inspeccion de placa y GPIO | N16R8 confirmado; 2, 9, 13 y alimentaciones identificados | PENDIENTE PARCIAL |
 | B02 | Arranque sin cargas | Cinco reinicios, ningun GPIO pulsa activo | PENDIENTE |
 | B03 | LCD y DHT | Direccion/modelo confirmados, 20 lecturas validas | PENDIENTE |
 | B04 | ADC y PIR | Lecturas responden al estimulo y no quedan en rieles | PENDIENTE |
@@ -50,6 +55,10 @@ Las salidas siguen en `false`; compilar no prueba electricidad.
 sin bomba/motor conectados. B06-B08 se hacen una carga a la vez y con fuente
 regulada. Si un resultado falla, volver a `false`, registrar medicion y corregir
 la etapa; no bajar protecciones para lograr una demostracion.
+
+Completar B01 y B02 no obliga a habilitar salidas. Para la ronda sin relés se
+mantiene `false` incluso si ambas pasan. El cambio solo pertenece al inicio de
+B06, con la entrada del módulo medida y sin cargas conectadas.
 
 ## Relacion con Jarvis
 

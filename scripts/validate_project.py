@@ -17,6 +17,7 @@ FIRMWARE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
 BENCH_CONFIG = ROOT / "firmware" / "domus_esqueleto" / "domus_config.h"
 MASTER_WIRING = VAULT / "18 - Manual maestro de conexiones pin por pin.md"
 CURRENT_DECISION = VAULT / "36 - Configuracion final 1 mas 4 reles y planos v4.md"
+CURRENT_BENCH_GUIDE = VAULT / "37 - Ronda de pruebas sin compras.md"
 CURRENT_BUILD_GUIDE = ROOT / "planos" / "new" / "GUIA_MONTAJE_ULTIMATE.md"
 VISUAL_SOURCE = ROOT / "visualizaciones" / "sistema-domus-fragment.html"
 VISUAL_STANDALONE = ROOT / "visualizaciones" / "sistema-domus.html"
@@ -57,7 +58,7 @@ def validate_vault() -> list[str]:
     markdown_files = list(VAULT.glob("*.md"))
     available = {path.stem.casefold() for path in markdown_files}
 
-    for number in range(37):
+    for number in range(38):
         prefix = f"{number:02d} - "
         if not any(path.name.startswith(prefix) for path in markdown_files):
             errors.append(f"Falta una nota de plan con prefijo {prefix!r}")
@@ -80,6 +81,7 @@ def validate_current_decisions() -> list[str]:
     decision = CURRENT_DECISION.read_text(encoding="utf-8")
     guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
     config = BENCH_CONFIG.read_text(encoding="utf-8")
+    bench_guide = CURRENT_BENCH_GUIDE.read_text(encoding="utf-8")
     required = {
         "Nota 36": (decision, "módulo de 4 relés"),
         "Geometría v4": (decision, "800 × 520 mm"),
@@ -88,6 +90,9 @@ def validate_current_decisions() -> list[str]:
             config,
             "constexpr bool ACTIVA_LOW[] = {true, true, true, true, true};",
         ),
+        "Perfil N16R8": (config, 'PERFIL_PLACA[] = "ESP32-S3-N16R8"'),
+        "Ronda sin compras": (bench_guide, "B01-B05"),
+        "Salidas bloqueadas en ronda": (bench_guide, "SALIDAS_HABILITADAS=false"),
     }
     for owner, (text, term) in required.items():
         if " ".join(term.split()).casefold() not in " ".join(text.split()).casefold():

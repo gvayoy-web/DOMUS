@@ -13,9 +13,7 @@ sigue siendo [[00 - Inicio]]; la evidencia de pruebas está en
 
 ## Placa y opciones
 
-La capacidad declarada es 16 MB flash + 8 MB PSRAM. En la nomenclatura oficial
-de Espressif corresponde a `N16R8`, aunque el propietario la describa como
-“N8R16” por mencionar primero RAM y después memoria.
+El modelo fue confirmado por Isaac como `N16R8`: 16 MB flash + 8 MB PSRAM.
 
 En Arduino IDE seleccionar:
 
@@ -51,6 +49,10 @@ un archivo `DHT.h` suelto ni eliminar el sensor del código.
 5. Completar calibración y la matriz de [[33 - Base modular funcional y plan de banco]].
 6. Verificar la fuente común de 5 V antes de habilitar una carga.
 
+Para la ronda inicial usar [[37 - Ronda de pruebas sin compras]]: B01-B05 se
+pueden completar sin comprar relés, fuente final, audio ni microSD. Alimentar
+por USB y dejar GPIO4-8 físicamente libres.
+
 ## Decisiones documentales vigentes
 
 - Controlador: ESP32-S3 con 16 MB flash y 8 MB PSRAM.
@@ -62,7 +64,7 @@ un archivo `DHT.h` suelto ni eliminar el sensor del código.
 
 ## Resultado de la revisión Markdown
 
-Se inventariaron 70 archivos `.md`, incluida esta nota. Las fuentes vigentes fueron alineadas con
+Se inventariaron 72 archivos `.md`, incluida la nueva guía de ronda. Las fuentes vigentes fueron alineadas con
 las decisiones anteriores. Los informes con conteos o diseños antiguos se
 conservan como snapshots históricos y remiten a las notas 34 y 35; no deben
 interpretarse como instrucciones actuales. El validador automático comprueba

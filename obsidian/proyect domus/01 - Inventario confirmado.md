@@ -16,7 +16,7 @@ actualizado: 2026-09-07
 
 | Componente | Cant. | Estado en DOMUS | Uso real |
 |---|---:|---|---|
-| ESP32-S3, 16 MB flash + 8 MB PSRAM | 1 | YA TIENES · núcleo | Código oficial esperado `N16R8`; “N8R16” es la descripción memoria/RAM usada por el propietario. Confirmar texto del blindaje. |
+| ESP32-S3, 16 MB flash + 8 MB PSRAM | 1 | YA TIENES · núcleo | Modelo confirmado por Isaac: `N16R8`. Falta documentar la placa física y verificar que GPIO2, GPIO9 y GPIO13 estén expuestos. |
 | Raspberry Pi Pico | 1 | YA TIENES · reserva | No hace falta para la arquitectura actual. |
 | ESP8266 | 1 | YA TIENES · reserva | No hace falta: el ESP32-S3 ya tiene Wi-Fi. |
 

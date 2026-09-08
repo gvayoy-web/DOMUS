@@ -17,7 +17,14 @@ class DomusEsqueletoContractTests(unittest.TestCase):
 
     def test_outputs_remain_disabled_until_physical_validation(self):
         self.assertRegex(self.config, r"SALIDAS_HABILITADAS\s*=\s*false")
+        self.assertIn('PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES"', self.config)
         self.assertIn("salidas_deshabilitadas", self.sketch)
+
+    def test_diagnostics_identify_board_and_sensor_validity(self):
+        self.assertIn('PERFIL_PLACA[] = "ESP32-S3-N16R8"', self.config)
+        self.assertIn("BANCO;PLACA=%s;PERFIL=%s", self.sketch)
+        for flag in ("VS=%d", "VN=%d", "VL=%d", "VA=%d"):
+            self.assertIn(flag, self.sketch)
 
     def test_confirmed_hardware_is_integrated(self):
         for token in ("LiquidCrystal_I2C", "DHT dht", "PIN_SUELO", "PIN_NIVEL", "PIN_LUZ", "PIN_PIR"):

@@ -92,8 +92,10 @@ void leerSensores() {
     sensores.ambienteValido=!isnan(t)&&!isnan(h)&&t>=-10&&t<=60&&h>=0&&h<=100;
     if (sensores.ambienteValido) { sensores.temperatura=t; sensores.humedadAire=h; }
   }
-  notificarFormato("SENSORES;SUELO=%d;NIVEL=%d;LUZ=%d;PIR=%d;TEMP=%.1f;HA=%.1f;CAL=%d",
-    sensores.suelo,sensores.nivel,sensores.luz,sensores.presencia,sensores.temperatura,sensores.humedadAire,calibracionGuardada);
+  notificarFormato("SENSORES;SUELO=%d;VS=%d;NIVEL=%d;VN=%d;LUZ=%d;VL=%d;PIR=%d;TEMP=%.1f;HA=%.1f;VA=%d;CAL=%d",
+    sensores.suelo,sensores.sueloValido,sensores.nivel,sensores.nivelValido,
+    sensores.luz,sensores.luzValida,sensores.presencia,sensores.temperatura,
+    sensores.humedadAire,sensores.ambienteValido,calibracionGuardada);
 }
 
 void aplicarDecision(Salida salida, DecisionAuto decision) {
@@ -211,6 +213,8 @@ void informarEstado(bool diagnostico) {
     static_cast<unsigned long>(mensajesOmitidos));
   if (diagnostico) notificarFormato("DIAGNOSTICO;HEAP=%lu;LCD=%d;DHT=%d;SALIDAS=%d;MOTIVO=%s",
     static_cast<unsigned long>(esp_get_free_heap_size()),lcdDisponible,sensores.ambienteValido,SALIDAS_HABILITADAS,motivoSeguro);
+  if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;GPIO_ADC=1,2,3;GPIO_PIR=9;GPIO_I2C=21,13",
+    PERFIL_PLACA,PERFIL_PRUEBA);
 }
 void procesarLinea(const char *texto) {
   if (procesarCalibracion(texto)) return;
@@ -261,7 +265,9 @@ void setup() {
   }
   paro=digitalRead(PIN_PARO)==LOW; apagarTodo(); cargarCalibracion(); inicializarPantalla();
   if (DHT_HABILITADO) dht.begin(); watchdogActivo=inicializarWatchdog();
-  if (!watchdogActivo) entrarModoSeguro("watchdog"); notificar("DOMUS_LISTO;USE_DIAGNOSTICO");
+  if (!watchdogActivo) entrarModoSeguro("watchdog");
+  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;SALIDAS=%d;USE_DIAGNOSTICO",
+    PERFIL_PLACA,PERFIL_PRUEBA,SALIDAS_HABILITADAS);
 }
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset()!=ESP_OK) { watchdogActivo=false; entrarModoSeguro("watchdog_reset"); }

@@ -9,9 +9,7 @@ Esta nota es la evidencia vigente del cierre ejecutable. Sustituye conteos y
 tamaños publicados en notas históricas; no convierte una compilación en una
 prueba eléctrica.
 
-Placa declarada como “N8R16”: se interpreta como 8 MB RAM y 16 MB de flash.
-El código oficial de Espressif para esa capacidad es `N16R8`; por eso la
-configuración permanece en 16 MB con PSRAM OPI.
+Placa confirmada por Isaac como `N16R8`: 16 MB flash y 8 MB PSRAM OPI.
 
 ## Resultado local
 
@@ -22,14 +20,14 @@ configuración permanece en 16 MB con PSRAM OPI.
 | Firmware principal N16R8 con microSD | 456,182 B | 25,228 B | PASS |
 | Firmware principal 4 MB sin PSRAM | 410,056 B | 24,616 B | PASS |
 | Firmware principal 8 MB QSPI | 412,942 B | 24,692 B | PASS |
-| `domus_esqueleto` N16R8 | 373,286 B | 24,388 B | PASS |
+| `domus_esqueleto` N16R8, ronda B01-B05 | 373,578 B | 24,388 B | PASS |
 | `domus_selftest` N16R8 | 417,913 B | 24,556 B | PASS |
 | `domus_anim` N16R8 | 382,598 B | 24,340 B | PASS |
 
 Herramientas: Arduino CLI 1.5.1, Arduino-ESP32 3.3.10 y advertencias completas.
 Las advertencias residuales pertenecen a LiquidCrystal I2C y al core ESP32.
 
-El validador consolidado reporta 50 PASS y 5 SKIP: los SKIP son las ejecuciones
+El validador consolidado reporta 59 PASS y 5 SKIP: los SKIP son las ejecuciones
 nativas C++ que requieren un compilador de escritorio y se ejecutan en CI.
 La suite de IA reporta 16 PASS. El workflow compila los cinco perfiles del
 principal y los tres sketches auxiliares para impedir regresiones.

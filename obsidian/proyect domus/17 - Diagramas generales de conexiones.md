@@ -141,7 +141,7 @@ flowchart LR
 
     LOW[Nivel bajo] --> BLOCK[Bloqueo]
     BAD[Sensor inválido] --> BLOCK
-    TIME[120 s máximos] --> BLOCK
+    TIME[10 s banco / 120 s firmware completo] --> BLOCK
     BLOCK --> RELAY
 ```
 
@@ -173,3 +173,4 @@ antigoteo y situar la electrónica al menos 25 cm por encima del agua.
 - [[16 - Plan de testeo antes de construccion]]
 - [[18 - Manual maestro de conexiones pin por pin]]
 - [[19 - Plan de testeo despues de construccion]]
+- [[37 - Ronda de pruebas sin compras]]

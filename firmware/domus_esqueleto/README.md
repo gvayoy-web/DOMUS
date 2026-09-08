@@ -6,6 +6,11 @@ persistente, propiedad manual, PARO, watchdog y modo seguro. Aun requiere
 validacion fisica supervisada y no sustituye al firmware principal hasta pasar
 la matriz de pruebas de la nota 33. No se ha grabado ninguna placa.
 
+La ronda inicial B01-B05 no necesita el modulo de cuatro reles ni conectar
+bomba, motor o luces. El perfil compilado se identifica como
+`ESP32-S3-N16R8 / BANCO_SIN_ACTUADORES`; `SALIDAS_HABILITADAS=false` debe
+permanecer asi durante toda esa ronda.
+
 ## Dependencias Arduino
 
 Instalar desde **Programa > Incluir libreria > Administrar bibliotecas**:
@@ -76,6 +81,11 @@ Se responde ACK/NACK. `ESTADO` informa salidas logicas, bloqueo y mensajes TX
 omitidos; no confirma electricamente que un rele haya conmutado. Si no cabe
 la respuesta, se omite sin esperar y se cuenta: ausencia de ACK no prueba que
 una orden no se ejecuto. No reintentar ON a ciegas; consultar ESTADO.
+
+Cada linea `SENSORES` incluye indicadores de validez: `VS` suelo, `VN` nivel,
+`VL` luz y `VA` ambiente. `1` significa lectura aceptada por el filtro basico;
+no significa que el sensor ya este calibrado. `DIAGNOSTICO` imprime además el
+perfil de placa y los GPIO usados en la ronda.
 
 Cada salida admite `NOMBRE AUTO`. Una orden manual toma propiedad y la
 automatizacion no la contradice hasta recibir AUTO, que primero apaga la salida.

@@ -3,9 +3,8 @@
 > Estado y ruta recomendada: [`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md). Para probar
 > las piezas confirmadas usar la base modular, no los PoC de audio o pantallas.
 
-Proyecto de feria basado en ESP32-S3 con 16 MB flash y 8 MB PSRAM: marcado
-oficial `N16R8` (descrito comercialmente por el propietario como “N8R16”, es
-decir, 8 MB RAM / 16 MB memoria). El firmware controla cinco cargas, sensores,
+Proyecto de feria basado en ESP32-S3 N16R8 confirmado: 16 MB flash y 8 MB
+PSRAM. El firmware controla cinco cargas, sensores,
 automatización local y la futura voz local de Jarvis. No hay aplicación móvil,
 BLE ni dependencia de internet para las funciones críticas. Los comandos de
 diagnóstico se aceptan localmente por USB Serial.
@@ -23,6 +22,7 @@ diagnóstico se aceptan localmente por USB Serial.
 - Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)
 - Preparación de Arduino IDE: [`obsidian/proyect domus/35 - Preparacion Arduino IDE y revision documental.md`](obsidian/proyect%20domus/35%20-%20Preparacion%20Arduino%20IDE%20y%20revision%20documental.md)
 - Pruebas antes de construir: [`obsidian/proyect domus/16 - Plan de testeo antes de construccion.md`](obsidian/proyect%20domus/16%20-%20Plan%20de%20testeo%20antes%20de%20construccion.md)
+- Ronda B01-B05 sin compras: [`obsidian/proyect domus/37 - Ronda de pruebas sin compras.md`](obsidian/proyect%20domus/37%20-%20Ronda%20de%20pruebas%20sin%20compras.md)
 - Diagramas generales: [`obsidian/proyect domus/17 - Diagramas generales de conexiones.md`](obsidian/proyect%20domus/17%20-%20Diagramas%20generales%20de%20conexiones.md)
 - Cableado pin por pin: [`obsidian/proyect domus/18 - Manual maestro de conexiones pin por pin.md`](obsidian/proyect%20domus/18%20-%20Manual%20maestro%20de%20conexiones%20pin%20por%20pin.md)
 - Pruebas después de construir: [`obsidian/proyect domus/19 - Plan de testeo despues de construccion.md`](obsidian/proyect%20domus/19%20-%20Plan%20de%20testeo%20despues%20de%20construccion.md)
