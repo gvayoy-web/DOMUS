@@ -81,6 +81,23 @@ flowchart TD
 Un LCD omitido se registra como `NO PROBADO`, no como fallo del firmware. No
 alimentar el backpack a 5 V si sus resistencias pull-up llevan SDA/SCL a 5 V.
 
+### LCD1602 con backpack I2C explicado
+
+El backpack ya convierte los 16 pines paralelos del LCD en cuatro terminales:
+
+| ESP32-S3 | Backpack | Función |
+|---|---|---|
+| GND | GND | referencia común |
+| 3V3, solo si funciona a 3.3 V | VCC | alimentación segura inicial |
+| GPIO21 | SDA | datos I2C |
+| GPIO13 | SCL | reloj I2C |
+
+Si el backpack necesita 5 V, colocar un adaptador bidireccional entre SDA/SCL:
+lado `LV` a 3.3 V y ESP32; lado `HV` a 5 V y backpack. Muchos backpacks llevan
+pull-ups a VCC, por lo que alimentarlo a 5 V puede llevar SDA y SCL a 5 V. El
+potenciómetro azul ajusta contraste; una pantalla iluminada sin letras puede ser
+solo contraste incorrecto. El firmware prueba direcciones `0x27` y `0x3F`.
+
 ## Preparacion del IDE
 
 - Placa: `ESP32S3 Dev Module`.
