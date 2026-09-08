@@ -14,7 +14,7 @@ PARO, un rele de bomba y un modulo de cuatro reles para sala, dormitorio,
 ventilador e invernadero.
 
 Compila correctamente para el ESP32-S3 N16R8 confirmado (16 MB flash + 8 MB
-PSRAM): 373,578 bytes de programa y 24,388
+PSRAM): 373,694 bytes de programa y 24,388
 bytes globales. Las salidas permanecen deshabilitadas
 por defecto porque todavia no se han verificado polaridades, fuente y etapas en
 el montaje real. La ronda B01-B05 se hace sin relés ni cargas y sin cambiar esa
@@ -53,3 +53,12 @@ microSD no forman parte del cierre de banco actual.
 
 Arduino IDE requiere `DHT sensor library`, `Adafruit Unified Sensor` y
 `LiquidCrystal I2C`. La instalación y diagnóstico están en la nota 35.
+
+## Primera carga física, 7 de septiembre de 2026
+
+La placa apareció como `USB-Enhanced-SERIAL CH343` en COM9. `esptool` confirmó
+ESP32-S3 revisión 0.2 y PSRAM embebida de 8 MB. `domus_esqueleto` fue escrito y
+verificado por hash. El diagnóstico real respondió
+`PLACA=ESP32-S3-N16R8`, `PERFIL=BANCO_SIN_ACTUADORES`, `SALIDAS=0`,
+`OUT=00000`, `PARO=0` y `SEGURO=0`. Sensores, LCD, relés y cargas estaban
+desconectados; sus lecturas no constituyen prueba de hardware.

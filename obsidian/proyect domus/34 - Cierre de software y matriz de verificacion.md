@@ -20,7 +20,7 @@ Placa confirmada por Isaac como `N16R8`: 16 MB flash y 8 MB PSRAM OPI.
 | Firmware principal N16R8 con microSD | 456,182 B | 25,228 B | PASS |
 | Firmware principal 4 MB sin PSRAM | 410,056 B | 24,616 B | PASS |
 | Firmware principal 8 MB QSPI | 412,942 B | 24,692 B | PASS |
-| `domus_esqueleto` N16R8, ronda B01-B05 | 373,578 B | 24,388 B | PASS |
+| `domus_esqueleto` N16R8, ronda B01-B05 | 373,694 B | 24,388 B | PASS + carga COM9 |
 | `domus_selftest` N16R8 | 417,913 B | 24,556 B | PASS |
 | `domus_anim` N16R8 | 382,598 B | 24,340 B | PASS |
 

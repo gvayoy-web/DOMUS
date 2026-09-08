@@ -133,3 +133,16 @@ actualizado: 2026-09-03
   sketchbook de Arduino IDE. Se documentaron bibliotecas y versiones.
 - Revisados 70 archivos Markdown; se actualizaron fuentes operativas y se
   preservaron reportes antiguos como evidencia histórica.
+
+## 2026-09-07 — primera carga real del esqueleto
+
+- Detectado ESP32-S3 mediante CH343 en COM9; `esptool` confirmó revisión 0.2 y
+  PSRAM embebida de 8 MB.
+- Compilado y cargado `domus_esqueleto` N16R8: 373,694 bytes de programa y
+  24,388 bytes globales; todos los bloques fueron verificados por hash.
+- Arranque real sin sensores ni módulos: LCD no detectado, DHT inválido y ADC
+  flotante, resultados esperados para pines desconectados.
+- `DIAGNOSTICO` confirmó `BANCO_SIN_ACTUADORES`, `SALIDAS=0`, `OUT=00000`,
+  `PARO=0` y `SEGURO=0`.
+- Corregido el orden del diagnóstico para que la primera línea sea
+  autocontenida aunque el búfer serie omita telemetría secundaria.

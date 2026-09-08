@@ -30,16 +30,22 @@ se difieren hasta disponer de la etapa correspondiente.
 - PARO prioritario, timeout y bloqueo de bomba, watchdog, heap y modo seguro.
 - Protocolo por lineas, limite de ON, diagnostico y recuperacion sin encendido.
 
-Compilacion local N16R8/OPI con advertencias: PASS. Programa 373578 bytes;
+Compilacion local N16R8/OPI con advertencias: PASS. Programa 373694 bytes;
 globales 24388 bytes.
 Las salidas siguen en `false`; compilar no prueba electricidad.
+
+Carga física inicial del 7 de septiembre: PASS en COM9 mediante CH343.
+`esptool` confirmó ESP32-S3 revisión 0.2 y PSRAM de 8 MB; el hash escrito fue
+verificado. El diagnóstico devolvió `SALIDAS=0`, `OUT=00000`, `PARO=0` y
+`SEGURO=0`. Esto aprueba carga y arranque individual, no los cinco reinicios de
+B02 ni ningún sensor desconectado.
 
 ## Secuencia obligatoria
 
 | ID | Prueba | Aceptacion | Estado |
 |---|---|---|---|
-| B01 | Inspeccion de placa y GPIO | N16R8 confirmado; 2, 9, 13 y alimentaciones identificados | PENDIENTE PARCIAL |
-| B02 | Arranque sin cargas | Cinco reinicios, ningun GPIO pulsa activo | PENDIENTE |
+| B01 | Inspeccion de placa y GPIO | N16R8 confirmado; 2, 9, 13 y alimentaciones identificados | PARCIAL: chip/PSRAM/USB confirmados |
+| B02 | Arranque sin cargas | Cinco reinicios, ningun GPIO pulsa activo | PARCIAL: 1 arranque y OUT=00000 |
 | B03 | LCD y DHT | Direccion/modelo confirmados, 20 lecturas validas | PENDIENTE |
 | B04 | ADC y PIR | Lecturas responden al estimulo y no quedan en rieles | PENDIENTE |
 | B05 | Calibracion | Valores reales guardados, reinicio conserva checksum | PENDIENTE |

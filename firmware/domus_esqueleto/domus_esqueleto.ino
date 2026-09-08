@@ -208,11 +208,16 @@ bool procesarCalibracion(const char *texto) {
 }
 
 void informarEstado(bool diagnostico) {
+  // La primera respuesta de DIAGNOSTICO debe ser autocontenida: las lineas
+  // posteriores pueden omitirse si el buffer USB serie esta ocupado.
+  if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;SALIDAS=%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
+    PERFIL_PLACA,PERFIL_PRUEBA,SALIDAS_HABILITADAS,
+    encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],paro,modoSeguro);
   notificarFormato("ESTADO;PARO=%d;SEGURO=%d;BLOQUEO_BOMBA=%d;OUT=%d%d%d%d%d;CAL=%d;TX_OMITIDOS=%lu",
     paro,modoSeguro,bloqueoBomba,encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],calibracionGuardada,
     static_cast<unsigned long>(mensajesOmitidos));
-  if (diagnostico) notificarFormato("DIAGNOSTICO;HEAP=%lu;LCD=%d;DHT=%d;SALIDAS=%d;MOTIVO=%s",
-    static_cast<unsigned long>(esp_get_free_heap_size()),lcdDisponible,sensores.ambienteValido,SALIDAS_HABILITADAS,motivoSeguro);
+  if (diagnostico) notificarFormato("SALUD;HEAP=%lu;LCD=%d;DHT=%d;MOTIVO=%s",
+    static_cast<unsigned long>(esp_get_free_heap_size()),lcdDisponible,sensores.ambienteValido,motivoSeguro);
   if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;GPIO_ADC=1,2,3;GPIO_PIR=9;GPIO_I2C=21,13",
     PERFIL_PLACA,PERFIL_PRUEBA);
 }

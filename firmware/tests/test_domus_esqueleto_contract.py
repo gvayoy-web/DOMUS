@@ -23,6 +23,11 @@ class DomusEsqueletoContractTests(unittest.TestCase):
     def test_diagnostics_identify_board_and_sensor_validity(self):
         self.assertIn('PERFIL_PLACA[] = "ESP32-S3-N16R8"', self.config)
         self.assertIn("BANCO;PLACA=%s;PERFIL=%s", self.sketch)
+        diagnostic = self.sketch.split("void informarEstado(bool diagnostico)", 1)[1].split(
+            "void procesarLinea", 1
+        )[0]
+        self.assertIn("DIAGNOSTICO;PLACA=%s;PERFIL=%s;SALIDAS=%d", diagnostic)
+        self.assertLess(diagnostic.index("DIAGNOSTICO;PLACA="), diagnostic.index("ESTADO;PARO="))
         for flag in ("VS=%d", "VN=%d", "VL=%d", "VA=%d"):
             self.assertIn(flag, self.sketch)
 
