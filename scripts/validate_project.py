@@ -83,16 +83,16 @@ def validate_current_decisions() -> list[str]:
     config = BENCH_CONFIG.read_text(encoding="utf-8")
     bench_guide = CURRENT_BENCH_GUIDE.read_text(encoding="utf-8")
     required = {
-        "Nota 36": (decision, "módulo de 4 relés"),
+        "Nota 36": (decision, "un solo relé azul"),
         "Geometría v4": (decision, "800 × 520 mm"),
         "Guía Ultimate": (guide, "Base total: **800 × 520 mm**"),
         "Firmware de banco": (
             config,
-            "constexpr bool ACTIVA_LOW[] = {true, true, true, true, true};",
+            "constexpr bool HABILITAR_RELE_BOMBA = false;",
         ),
         "Perfil N16R8": (config, 'PERFIL_PLACA[] = "ESP32-S3-N16R8"'),
         "Ronda sin compras": (bench_guide, "B01-B05"),
-        "Salidas bloqueadas en ronda": (bench_guide, "SALIDAS_HABILITADAS=false"),
+        "Salidas bloqueadas en ronda": (bench_guide, "HABILITAR_RELE_BOMBA=false"),
     }
     for owner, (text, term) in required.items():
         if " ".join(term.split()).casefold() not in " ".join(text.split()).casefold():

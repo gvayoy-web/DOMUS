@@ -11,10 +11,10 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
 ## Respuesta rápida
 
 - **Pantalla:** ya existe LCD1602 con interfaz I2C. No comprar OLED.
-- **Relés:** decisión vigente: reutilizar el relé individual para la minibomba y usar un módulo de cuatro canales para sala, dormitorio, ventilador e invernadero. Total: cinco cargas, perfil activo LOW sujeto a prueba física.
+- **Relés:** inventario real: un relé azul desnudo de 5 V para la minibomba. Requiere S8050 + 1 kOhm + 1N4007. GPIO5-8 no tienen relé y quedan bloqueados.
 - **microSD:** no obligatoria para el núcleo. DFPlayer necesita una tarjeta para sus pistas; lector SPI y otra tarjeta solo si se requiere almacenamiento independiente del ESP32.
 - **Voz Jarvis:** objetivo de comandos locales; falta micrófono y reconocimiento integrado/validado. Para respuestas grabadas reutilizar DFPlayer con altavoz y tarjeta; MAX98357A solo para la alternativa PicoTTS.
-- **Energía de feria:** falta una fuente real de 5 V/3 A y distribución segura. El módulo de alimentación de protoboard no debe alimentar bomba, cinco relés y audio.
+- **Energía de feria:** falta una fuente real de 5 V/3 A y distribución segura. El módulo de alimentación de protoboard no debe alimentar bomba, motor y audio simultáneamente.
 - **Batería y solar:** quedan como estética, eléctricamente desconectados. La casa funciona con una fuente común regulada de 5 V.
 - **Software:** el núcleo offline, las cinco cargas, sensores, seguridad y
   simulación están integrados. Quedan calibración física y modelos de voz;
@@ -30,7 +30,7 @@ Metas y criterios vigentes de la base modular: [[32 - Metas y madurez de la base
 Implementacion vigente y secuencia de banco: [[33 - Base modular funcional y plan de banco]].
 Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz de verificacion]].
 Preparacion del IDE y auditoria Markdown: [[35 - Preparacion Arduino IDE y revision documental]].
-Decisión física consolidada 1+4 y geometría v4: [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+Decisión física corregida a un relé real y geometría v4: [[36 - Configuracion final 1 mas 4 reles y planos v4]].
 Guía y hoja imprimible para la ronda sin compras: [[37 - Ronda de pruebas sin compras]].
 
 1. [[01 - Inventario confirmado]]

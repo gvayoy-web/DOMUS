@@ -10,12 +10,12 @@ fuente_estado: ../../ESTADO_ACTUAL.md
 > [[35 - Preparacion Arduino IDE y revision documental]].
 
 La ruta recomendada para probar las piezas confirmadas es
-`firmware/domus_esqueleto`. Usa el perfil elegido de un relé individual más un
-módulo de cuatro relés, todos activos LOW previstos. Esta nota sustituye la descripcion limitada de las
+`firmware/domus_esqueleto`. Usa un unico rele desnudo de 5 V para la bomba por
+medio de S8050; GPIO5-8 no tienen etapa fisica. Esta nota sustituye la descripcion limitada de las
 notas 31 y 32, pero no declara validacion fisica.
 
-La ronda inmediata no necesita esos cinco canales: B01-B05 se realizan con
-`SALIDAS_HABILITADAS=false`, GPIO4-8 sin conectar y solo las piezas ya
+La ronda inmediata B01-B05 se realiza con
+`HABILITAR_RELE_BOMBA=false`, GPIO4-8 sin actuadores y solo las piezas ya
 compradas. La hoja operativa es [[37 - Ronda de pruebas sin compras]]. B06-B10
 se difieren hasta disponer de la etapa correspondiente.
 
@@ -49,7 +49,7 @@ B02 ni ningún sensor desconectado.
 | B03 | LCD y DHT | Direccion/modelo confirmados, 20 lecturas validas | PENDIENTE |
 | B04 | ADC y PIR | Lecturas responden al estimulo y no quedan en rieles | PENDIENTE |
 | B05 | Calibracion | Valores reales guardados, reinicio conserva checksum | PENDIENTE |
-| B06 | Relés uno por uno, sin carga | Cinco canales ON/OFF/AUTO sin inversión ni pulsos | PENDIENTE |
+| B06 | Driver S8050 + relé, sin bomba | Solo GPIO4 conmuta; FIS=10000; sin pulso al arrancar | PENDIENTE |
 | B07 | Ventilador mediante relé | Corriente, temperatura y flyback aprobados | PENDIENTE |
 | B08 | Rele y bomba | Nivel bajo y 10 s cortan; rearme no enciende | PENDIENTE |
 | B09 | PARO y fallos | PARO durante cada carga; sensores retirados fallan seguro | PENDIENTE |
@@ -57,14 +57,14 @@ B02 ni ningún sensor desconectado.
 
 ## Regla de habilitacion
 
-`SALIDAS_HABILITADAS=true` se permite unicamente despues de B01 y B02, primero
-sin bomba/motor conectados. B06-B08 se hacen una carga a la vez y con fuente
+`HABILITAR_RELE_BOMBA=true` se permite unicamente despues de identificar patas,
+medir el driver y completar B06 sin bomba conectada. B07-B08 se hacen una carga a la vez y con fuente
 regulada. Si un resultado falla, volver a `false`, registrar medicion y corregir
 la etapa; no bajar protecciones para lograr una demostracion.
 
-Completar B01 y B02 no obliga a habilitar salidas. Para la ronda sin relés se
-mantiene `false` incluso si ambas pasan. El cambio solo pertenece al inicio de
-B06, con la entrada del módulo medida y sin cargas conectadas.
+Completar B01 y B02 no obliga a habilitar la bomba. El cambio exacto esta en
+`domus_config.h`: `constexpr bool HABILITAR_RELE_BOMBA = false;` pasa a `true`.
+GPIO5-8 continuan en `false` dentro de `SALIDA_FISICA_HABILITADA[]`.
 
 ## Relacion con Jarvis
 

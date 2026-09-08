@@ -7,10 +7,9 @@ estado: listo_para_banco
 
 # Manual maestro de conexiones pin por pin
 
-Este manual y el visualizador describen el perfil elegido de relés
-`DOMUS_SALIDAS_ECONOMICAS=0`: un relé individual para bomba y un módulo de
-cuatro canales para las demás cargas. La alternativa con LED y transistor de
-[[21 - Simplificacion y reduccion de costos]] es histórica y no se cablea.
+Este manual usa el inventario real: un rele azul desnudo de 5 V para la bomba,
+controlado por S8050. GPIO5-8 quedan sin etapa y bloqueados. La propuesta de
+cuatro reles queda retirada.
 
 > [!DANGER]
 > Este documento describe baja tensión DC. No llevar 120/230 V a la maqueta.
@@ -18,7 +17,7 @@ cuatro canales para las demás cargas. La alternativa con LED y transistor de
 > batería y panel solar. Desenergizar antes de mover un cable.
 > Decisión vigente: conectar únicamente la fuente común regulada de 5 V. Las
 > rutas de batería/solar inferiores son históricas y no se montan. Usar el
-> perfil 1+4 relés de [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+> perfil corregido de un unico rele de [[36 - Configuracion final 1 mas 4 reles y planos v4]].
 
 Este es el esquema maestro de PROJECT DOMUS. Reúne alimentación, protección,
 ESP32, sensores, botones, pantalla, relés, cargas, audio, microSD y la fase
@@ -64,7 +63,7 @@ flowchart TB
     BOOST2 -. OUT− .-> GND
 
     BUS5 --> ESP5[ESP32-S3 pin 5V/VIN]
-    BUS5 --> RELAY5[Relés VCC/JD-VCC]
+    BUS5 --> COIL[Bobina del rele 5 V]
     BUS5 --> LOAD5[Bomba, ventilador y luces 5 V]
     BUS5 --> LCD5[LCD1602 I2C]
     BUS5 --> AMP5[MAX98357A]
@@ -86,16 +85,11 @@ flowchart TB
     ESP5 <-->|GPIO21 SDA + GPIO13 SCL| LEVEL[I2C bidireccional]
     LEVEL <--> LCD5
 
-    ESP5 -->|GPIO4| R1[Relé bomba]
-    ESP5 -->|GPIO5| R2[Relé sala]
-    ESP5 -->|GPIO6| R3[Relé dormitorio]
-    ESP5 -->|GPIO7| R4[Relé ventilador]
-    ESP5 -->|GPIO8| R5[Relé invernadero]
+    ESP5 -->|GPIO4 por 1 kOhm| Q1[S8050]
+    Q1 --> COIL
+    COIL --> R1[Contacto NO del rele]
     R1 --> LOAD5
-    R2 --> LOAD5
-    R3 --> LOAD5
-    R4 --> LOAD5
-    R5 --> LOAD5
+    ESP5 -.->|GPIO5 a GPIO8| OFF[Sin etapa fisica; bloqueados]
 
     ESP5 -->|GPIO17 SCK + GPIO15 WS| MIC3
     MIC3 -->|SD a GPIO16| ESP5
@@ -175,11 +169,11 @@ esquina sin comparar la serigrafía con el pinout del fabricante.
 | `GPIO1` | AO humedad de suelo | activo; calibrar |
 | `GPIO2` | AO nivel de agua | activo provisional; calibrar |
 | `GPIO3` | nodo del divisor LDR | activo |
-| `GPIO4` | IN relé bomba | activo |
-| `GPIO5` | IN1 módulo 4 relés, luz sala | activo LOW previsto |
-| `GPIO6` | IN2 módulo 4 relés, luz dormitorio | activo LOW previsto |
-| `GPIO7` | IN3 módulo 4 relés, ventilador | activo LOW previsto |
-| `GPIO8` | IN4 módulo 4 relés, luz invernadero | activo LOW previsto |
+| `GPIO4` | resistencia 1 kOhm -> base S8050 -> rele bomba | bloqueado hasta B06 |
+| `GPIO5` | sin etapa, luz sala futura | bloqueado |
+| `GPIO6` | sin etapa, luz dormitorio futura | bloqueado |
+| `GPIO7` | sin etapa, ventilador futuro | bloqueado |
+| `GPIO8` | sin etapa, luz invernadero futura | bloqueado |
 | `GPIO9` | OUT PIR | activo provisional |
 | `GPIO10` | botón PARO a GND | activo, `INPUT_PULLUP` |
 | `GPIO11` | switch MIC OFF a GND | activo, `INPUT_PULLUP` |
@@ -309,26 +303,25 @@ usar divisor/adaptador antes del GPIO.
 No llevar 5 V a los botones: el firmware usa resistencias internas
 `INPUT_PULLUP`. Montar PARO separado, visible y accesible.
 
-## 7. Relés y las cinco cargas
+## 7. Unico rele desnudo y bomba
 
-### Entradas lógicas
+### Driver de bobina
 
-| Módulo | Pin | Conexión |
+| Desde | Componente | Hacia |
 |---|---|---|
-| relé 1 canal | `VCC` | `5V_BUS` |
-| relé 1 canal | `GND` | `GND` |
-| relé 1 canal | `IN` | `GPIO4` bomba |
-| módulo 4 relés | `VCC` / `GND` | `5V_BUS` / `GND` según serigrafía |
-| módulo 4 relés | `IN1` | `GPIO5`, luz sala |
-| módulo 4 relés | `IN2` | `GPIO6`, luz dormitorio |
-| módulo 4 relés | `IN3` | `GPIO7`, ventilador |
-| módulo 4 relés | `IN4` | `GPIO8`, luz invernadero |
+| `GPIO4` | resistencia `1 kOhm` | base `B` del S8050 |
+| emisor `E` S8050 | cable | `GND` comun |
+| colector `C` S8050 | cable | pata `COIL B` del rele |
+| `5V_BUS` | cable | pata `COIL A` del rele |
+| `1N4007` catodo, lado con raya | paralelo a bobina | `COIL A / +5 V` |
+| `1N4007` anodo, sin raya | paralelo a bobina | `COIL B / colector` |
 
-Si el módulo tiene `JD-VCC`, retirar o conservar el puente solo según el esquema
-impreso del módulo. Verificar con una carga de prueba que HIGH significa apagado;
-el firmware actual está diseñado para relés activos en LOW.
+El cubo azul observado es un rele desnudo: no tiene `IN`, `VCC` y `GND`. No
+deducir E/B/C del S8050 ni COIL/COM/NO/NC por izquierda, derecha o pata central.
+Confirmar referencia o usar multimetro: la pareja de bobina presenta resistencia
+finita; COM-NC tiene continuidad sin energia; al energizar la bobina COM cambia a NO.
 
-### Contactos de cada canal
+### Contactos de la bomba
 
 ```text
 5V_BUS con fusible ── COM
@@ -338,13 +331,11 @@ GND ─────────────────────── negati
 
 Usar `NO`, no `NC`, para que todas las cargas queden apagadas al perder energía.
 
-| Canal | COM | NO | Protección adicional |
+| Carga actual | COM | NO | Protección adicional |
 |---|---|---|---|
-| bomba | `5V_BUS` | bomba `+`; bomba `−` a GND | 1N4007: cátodo a `+`, ánodo a `−` |
-| luz sala | `5V_BUS` | luz `+`; luz `−` a GND | resistor si es LED suelto |
-| luz dormitorio | `5V_BUS` | luz `+`; luz `−` a GND | resistor si es LED suelto |
-| ventilador | `5V_BUS` | motor `+`; motor `−` a GND | 1N4007: cátodo a `+`, ánodo a `−` |
-| luz invernadero | `5V_BUS` | luz `+`; luz `−` a GND | resistor si es LED suelto |
+| bomba | `5V_BUS` con fusible | bomba `+`; bomba `−` a GND | segundo 1N4007: cátodo a bomba `+`, ánodo a bomba `−` |
+
+`NC` queda aislado. GPIO5-GPIO8 no se conectan a este rele ni a otra carga.
 
 ## 8. INMP441, seis pines
 

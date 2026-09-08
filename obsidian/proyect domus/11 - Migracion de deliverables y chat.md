@@ -128,7 +128,7 @@ Estas son las decisiones que deben sobrevivir a cualquier conversación nueva:
 
 Copiar este resumen inicial:
 
-> Estoy trabajando en PROJECT DOMUS. Usa como fuente de verdad las notas 00 y 36. El diseño físico vigente es `planos/new`, 800 × 520 mm. La salida elegida usa un relé individual más un módulo de cuatro relés. El sistema es local en ESP32-S3, sin Kotlin, app, BLE, MQTT ni nube. Distingue siempre entre “ya tengo”, “falta comprar”, “pendiente de medir” y “descartado”.
+> Estoy trabajando en PROJECT DOMUS. Usa como fuente de verdad las notas 00 y 36. El diseño físico vigente es `planos/new`, 800 × 520 mm. La salida física actual usa un único relé desnudo para la bomba mediante S8050; GPIO5-8 quedan bloqueados. El sistema es local en ESP32-S3, sin Kotlin, app, BLE, MQTT ni nube. Distingue siempre entre “ya tengo”, “falta comprar”, “pendiente de medir” y “descartado”.
 
 Antes de proponer una compra o cambiar el plano, comprobar esta bóveda y el inventario confirmado. Si una idea contradice estas decisiones, marcarla como propuesta y no como cambio aprobado.
 
@@ -136,5 +136,5 @@ Antes de proponer una compra o cambiar el plano, comprobar esta bóveda y el inv
 
 Usar `planos/new` v4 para fabricar, pero cerrar el mapa de GPIO y medir
 espesores/componentes físicos antes de cortar o cablear. Comprar primero fuente
-5 V, módulo de cuatro relés, fusible y cableado. microSD, Jarvis y solar quedan
+5 V, etapa S8050 del único relé, fusible y cableado. microSD, Jarvis y solar quedan
 detrás de esa prueba.

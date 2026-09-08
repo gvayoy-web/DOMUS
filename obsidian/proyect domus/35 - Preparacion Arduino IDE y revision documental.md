@@ -56,7 +56,7 @@ por USB y dejar GPIO4-8 físicamente libres.
 ## Decisiones documentales vigentes
 
 - Controlador: ESP32-S3 con 16 MB flash y 8 MB PSRAM.
-- Salidas elegidas: relé individual de bomba y módulo de cuatro relés para las otras cargas.
+- Salidas físicas actuales: un relé desnudo para la bomba mediante S8050; GPIO5-8 sin etapa y bloqueados.
 - Alimentación: una fuente común regulada de 5 V; 3 A o más hasta medir consumo.
 - Batería y solar: estética, terminales aislados y sin conexión al circuito.
 - Jarvis: fase separada; no bloquea el núcleo doméstico.

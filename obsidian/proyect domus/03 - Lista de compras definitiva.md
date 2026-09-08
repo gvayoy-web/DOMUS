@@ -12,22 +12,23 @@ actualizado: 2026-09-07
 > SPI y microSD NO son obligatorios para arrancar la ruta PicoTTS del plan 25.
 > DFPlayer sí requiere su almacenamiento de pistas. No comprar ambos motores
 > de audio por defecto. Las cifras siguientes no constituyen cotización actual.
-> Decisión vigente: perfil 1+4 relés. Reutilizar el relé individual para bomba
-> y comprar o confirmar un módulo de cuatro canales para las otras cargas.
+> Decisión vigente: usar el único relé desnudo disponible para la bomba mediante
+> S8050, resistencia de 1 kOhm y 1N4007. No comprar ahora el módulo de cuatro
+> canales; GPIO5-GPIO8 quedan como expansión futura y bloqueados por software.
 > Batería y solar son decoración, no compras eléctricas.
 
 Los precios son referencias web consultadas el 1 de septiembre de 2026. No incluyen envío a Choluteca y deben reconfirmarse antes de pagar.
 
 ## A. Comprar primero — casa funcional sin Jarvis ni solar
 
-**Perfil elegido:** véanse [[29 - Plan B DOMUS ampliable y reutilizable]] y
+**Perfil actual:** véanse [[29 - Plan B DOMUS ampliable y reutilizable]] y
 [[36 - Configuracion final 1 mas 4 reles y planos v4]]. La tabla siguiente es
-la ruta activa. La alternativa con LED/S8050 de la nota 21 queda histórica.
+la ruta activa. La ampliación de cuatro relés queda diferida.
 
 | Compra | Cant. | Precio visto | Subtotal | Motivo |
 |---|---:|---:|---:|---|
 | Fuente 5 V/3 A USB-C con interruptor | 1 | C&D L350 | L350 | Alimentación estable de feria. |
-| Relé 4 canales, 5 V/10 A, entrada 3.3 V/5 V | 1 | C&D L250 | L250 | Completa las cinco cargas junto al relé que ya tienes. |
+| Relé 4 canales, 5 V/10 A, entrada 3.3 V/5 V | 0 ahora | C&D L250 | L0 | Expansión futura; no es necesario para la ronda actual. |
 | Portafusible aéreo 5×20 mm | 1 | C&D L15 | L15 | Protección de la entrada de 5 V. |
 | Fusible cerámico 3 A, 5×20 mm | 3 | C&D L15 | L45 | Uno instalado y dos repuestos. |
 | Capacitores 1000 µF/25 V, paquete de 5 | 1 | C&D L35 | L35 | Uno en barra principal y otros cerca de audio/actuadores. |
@@ -35,8 +36,8 @@ la ruta activa. La alternativa con LED/S8050 de la nota 21 queda histórica.
 | Cable 22 AWG | 1 lote | C&D desde L35 | L35+ | Alimentación; no pasar bomba/relés por jumpers finos largos. |
 | Jumpers H/H | 1 faja | Confirmar variante; set completo C&D L250 | hasta L250 | Tus módulos y el ESP32 tienen pines macho. Comprar solo H/H si la tienda separa variantes. |
 
-**Subtotal mínimo confirmado:** L735 sin cable nuevo ni H/H.  
-**Subtotal conservador:** hasta L1,020 incluyendo cable desde L35 y el set completo de jumpers.
+**Subtotal mínimo de esta lista sin el relé diferido:** L485 sin cable nuevo ni H/H.
+**Subtotal conservador:** hasta L770 incluyendo cable desde L35 y el set completo de jumpers.
 
 > [!WARNING]
 > La fuente USB-C alimenta bien el ESP32, pero hace falta derivar los 5 V hacia una barra de distribución. No obligar a que toda la corriente de bomba, relés y audio atraviese el regulador de 3.3 V ni pistas pequeñas del ESP32.

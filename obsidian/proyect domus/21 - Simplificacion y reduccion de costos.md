@@ -5,18 +5,16 @@ fecha: 2026-09-04
 
 # Simplificación y reducción de costos
 
-> [!WARNING]
-> Alternativa histórica no elegida. Isaac eligió el perfil 1+4 relés de
-> [[36 - Configuracion final 1 mas 4 reles y planos v4]]. No cablear las etapas
-> LED/S8050 de esta nota con el firmware vigente de cinco salidas activas LOW.
+> [!IMPORTANT]
+> Esta es la ruta económica vigente, corregida al inventario real. Solo existe
+> un relé desnudo: se reserva para la bomba y se maneja con un S8050. GPIO5-8
+> no tienen etapa física y permanecen bloqueados.
 
 ## Decisión aplicada
 
-El programa conserva riego, tres luces, ventilación, sensores, pantalla,
-botones, paro y control USB. Se añadió el perfil `DOMUS_SALIDAS_ECONOMICAS=1`.
-El valor predeterminado sigue siendo `0` (cinco salidas de relé activas LOW),
-compatible con el manual y visualizador existentes. **No cargar el perfil 1
-sobre el cableado del perfil 0.** Desenergizar y cambiar las etapas primero.
+El programa conserva los cinco controles lógicos, pero el firmware de banco
+solo permite una etapa física: `GPIO4`. Esta también arranca bloqueada mediante
+`HABILITAR_RELE_BOMBA=false`; GPIO5-8 no se habilitan al cambiar esa línea.
 
 La variante económica es para la maqueta con un LED individual por ambiente.
 Si se necesitan tiras o varias luces por salida, conservar los relés o diseñar
@@ -44,7 +42,7 @@ La siguiente tabla **reemplaza únicamente las cinco etapas de salida**.
 
 | Salida | Conexión |
 |---|---|
-| Bomba GPIO4 | GPIO4 → IN del relé existente compatible con 3.3 V y activo LOW; VCC → 5V_BUS; GND → GND. COM → 5V_BUS, NO → bomba +, bomba − → GND. NC aislado. Diodo sobre motor: cátodo/banda a +, ánodo a − |
+| Bomba GPIO4 | GPIO4 → 1 kΩ → base S8050; emisor → GND; colector → una pata de bobina; otra pata de bobina → 5V_BUS. 1N4007 sobre bobina: raya a +5 V y ánodo a colector. COM → 5V_BUS, NO → bomba +, bomba − → GND. NC aislado. |
 | Sala GPIO5 | GPIO5 → resistencia 1 kΩ → ánodo LED; cátodo → GND |
 | Cuarto GPIO6 | GPIO6 → resistencia 1 kΩ → ánodo LED; cátodo → GND |
 | Invernadero GPIO8 | GPIO8 → resistencia 1 kΩ → ánodo LED; cátodo → GND |
@@ -64,9 +62,10 @@ flowchart LR
     F[Fuente 5 V] --> P[Fusible e interruptor]
     P --> B[5V_BUS]
     B --> E[ESP32 pin 5V]
-    B --> R[Relé bomba VCC y COM]
+    B --> R[Bobina y COM del rele]
     R -->|NO| M[Bomba +]
-    G4[GPIO4] -->|IN activo LOW| R
+    G4[GPIO4] -->|1 kOhm| Q[S8050]
+    Q --> R
     B --> V[Ventilador +]
     V -->|Motor −| C[S8050 colector]
     G7[GPIO7] --> RB[1 kΩ a base]

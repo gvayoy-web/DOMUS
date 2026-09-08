@@ -20,7 +20,8 @@ Placa confirmada por Isaac como `N16R8`: 16 MB flash y 8 MB PSRAM OPI.
 | Firmware principal N16R8 con microSD | 456,182 B | 25,228 B | PASS |
 | Firmware principal 4 MB sin PSRAM | 410,056 B | 24,616 B | PASS |
 | Firmware principal 8 MB QSPI | 412,942 B | 24,692 B | PASS |
-| `domus_esqueleto` N16R8, ronda B01-B05 | 373,694 B | 24,388 B | PASS + carga COM9 |
+| `domus_esqueleto` N16R8, relé bloqueado | 374,190 B | 24,388 B | PASS; `false` final |
+| `domus_esqueleto` N16R8, solo GPIO4 habilitado | 374,194 B | 24,388 B | PASS compilación; no cargado |
 | `domus_selftest` N16R8 | 417,913 B | 24,556 B | PASS |
 | `domus_anim` N16R8 | 382,598 B | 24,340 B | PASS |
 
@@ -51,8 +52,8 @@ real del relé/motor. Se reproduce con `python scripts/run_semireal_campaign.py`
   automatización afectada.
 - Timeout y bloqueo de bomba, vigilancia de heap/watchdog y modo seguro.
 - Protocolo serie acotado con ACK/NACK, recuperación y pruebas de contrato.
-- `SALIDAS_HABILITADAS=false` por defecto para que una carga no se active antes
-  de comprobar el montaje.
+- `HABILITAR_RELE_BOMBA=false` por defecto; GPIO5-8 estan bloqueados de forma
+  independiente aunque se habilite la bomba.
 
 ## Frontera que exige hardware
 

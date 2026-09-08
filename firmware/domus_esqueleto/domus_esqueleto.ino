@@ -1,6 +1,6 @@
 /* PROJECT DOMUS: controlador local modular ESP32-S3.
- * Perfil elegido: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR, un rele de bomba
- * y un modulo de cuatro reles para las otras cargas. Voz, red y solar quedan fuera.
+ * Inventario real: LCD1602/I2C, DHT, suelo, nivel, LDR, PIR y un unico rele
+ * desnudo de 5 V para la bomba mediante S8050. GPIO5-8 quedan bloqueados.
  */
 #include <Arduino.h>
 #include <DHT.h>
@@ -42,7 +42,7 @@ void notificarFormato(const char *formato, ...) {
 }
 
 void escribirSalida(Salida salida, bool activar) {
-  if (SALIDAS_HABILITADAS)
+  if (SALIDA_FISICA_HABILITADA[salida])
     digitalWrite(PINES[salida], (activar != ACTIVA_LOW[salida]) ? HIGH : LOW);
   encendida[salida] = activar;
 }
@@ -59,7 +59,7 @@ bool pedirSalida(Salida salida, bool activar, Propietario origen) {
   motivoRechazo = "ninguno";
   if (salida >= TOTAL) { motivoRechazo = "salida_invalida"; return false; }
   if (!activar) { escribirSalida(salida, false); propietario[salida] = origen; return true; }
-  if (!SALIDAS_HABILITADAS) { motivoRechazo = "salidas_deshabilitadas"; return false; }
+  if (!SALIDA_FISICA_HABILITADA[salida]) { motivoRechazo = "salida_sin_etapa_habilitada"; return false; }
   if (paro || digitalRead(PIN_PARO) == LOW) { motivoRechazo = "paro"; return false; }
   if (modoSeguro) { motivoRechazo = "modo_seguro"; return false; }
   if (salida == BOMBA) {
@@ -210,8 +210,10 @@ bool procesarCalibracion(const char *texto) {
 void informarEstado(bool diagnostico) {
   // La primera respuesta de DIAGNOSTICO debe ser autocontenida: las lineas
   // posteriores pueden omitirse si el buffer USB serie esta ocupado.
-  if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;SALIDAS=%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
-    PERFIL_PLACA,PERFIL_PRUEBA,SALIDAS_HABILITADAS,
+  if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;FIS=%d%d%d%d%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
+    PERFIL_PLACA,PERFIL_PRUEBA,
+    SALIDA_FISICA_HABILITADA[0],SALIDA_FISICA_HABILITADA[1],SALIDA_FISICA_HABILITADA[2],
+    SALIDA_FISICA_HABILITADA[3],SALIDA_FISICA_HABILITADA[4],
     encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],paro,modoSeguro);
   notificarFormato("ESTADO;PARO=%d;SEGURO=%d;BLOQUEO_BOMBA=%d;OUT=%d%d%d%d%d;CAL=%d;TX_OMITIDOS=%lu",
     paro,modoSeguro,bloqueoBomba,encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],calibracionGuardada,
@@ -266,13 +268,15 @@ void setup() {
   pinMode(PIN_PARO,INPUT_PULLUP); pinMode(PIN_MIC_OFF,INPUT_PULLUP); pinMode(PIN_BOTON,INPUT_PULLUP); pinMode(PIN_PIR,INPUT);
   analogReadResolution(12); analogSetAttenuation(ADC_11db);
   for (uint8_t i=0; i<TOTAL; ++i) {
-    digitalWrite(PINES[i],ACTIVA_LOW[i]?HIGH:LOW); pinMode(PINES[i],SALIDAS_HABILITADAS?OUTPUT:INPUT); propietario[i]=Propietario::AUTO;
+    digitalWrite(PINES[i],ACTIVA_LOW[i]?HIGH:LOW);
+    pinMode(PINES[i],SALIDA_FISICA_HABILITADA[i]?OUTPUT:INPUT);
+    propietario[i]=Propietario::AUTO;
   }
   paro=digitalRead(PIN_PARO)==LOW; apagarTodo(); cargarCalibracion(); inicializarPantalla();
   if (DHT_HABILITADO) dht.begin(); watchdogActivo=inicializarWatchdog();
   if (!watchdogActivo) entrarModoSeguro("watchdog");
-  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;SALIDAS=%d;USE_DIAGNOSTICO",
-    PERFIL_PLACA,PERFIL_PRUEBA,SALIDAS_HABILITADAS);
+  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;RELE_BOMBA=%d;GPIO5_8=OFF;USE_DIAGNOSTICO",
+    PERFIL_PLACA,PERFIL_PRUEBA,HABILITAR_RELE_BOMBA);
 }
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset()!=ESP_OK) { watchdogActivo=false; entrarModoSeguro("watchdog_reset"); }

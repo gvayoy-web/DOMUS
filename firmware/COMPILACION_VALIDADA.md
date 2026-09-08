@@ -16,7 +16,8 @@ Arduino-ESP32 3.3.10 y Arduino CLI 1.5.1, todas con `--warnings all`:
 | Principal N16R8 + microSD | 456,182 | 25,228 | PASS |
 | Principal 4 MB sin PSRAM | 410,056 | 24,616 | PASS |
 | Principal 8 MB QSPI | 412,942 | 24,692 | PASS |
-| Base modular N16R8 (ronda B01-B05) | 373,694 | 24,388 | PASS + carga COM9 |
+| Base modular N16R8, relé bloqueado (`false`) | 374,190 | 24,388 | PASS 07-09-2026 |
+| Base modular N16R8, solo GPIO4 habilitado (`true`) | 374,194 | 24,388 | PASS de compilación; no cargado |
 | Autotest N16R8 | 417,913 | 24,556 | PASS |
 | Animaciones N16R8 | 382,598 | 24,340 | PASS |
 

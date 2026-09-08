@@ -16,9 +16,19 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         cls.protocol = (BASE / "domus_protocol.h").read_text(encoding="utf-8")
 
     def test_outputs_remain_disabled_until_physical_validation(self):
-        self.assertRegex(self.config, r"SALIDAS_HABILITADAS\s*=\s*false")
+        self.assertRegex(self.config, r"HABILITAR_RELE_BOMBA\s*=\s*false")
+        self.assertRegex(
+            self.config,
+            r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_RELE_BOMBA,\s*false,\s*false,\s*false,\s*false",
+        )
         self.assertIn('PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES"', self.config)
-        self.assertIn("salidas_deshabilitadas", self.sketch)
+        self.assertIn("salida_sin_etapa_habilitada", self.sketch)
+
+    def test_only_pump_can_be_physically_enabled(self):
+        self.assertIn("SALIDA_FISICA_HABILITADA[salida]", self.sketch)
+        self.assertIn("SALIDA_FISICA_HABILITADA[i]?OUTPUT:INPUT", self.sketch)
+        self.assertIn("GPIO5-8 no tienen etapa fisica", self.config)
+        self.assertIn("ACTIVA_LOW[] = {false, false, false, false, false}", self.config)
 
     def test_diagnostics_identify_board_and_sensor_validity(self):
         self.assertIn('PERFIL_PLACA[] = "ESP32-S3-N16R8"', self.config)
@@ -26,7 +36,7 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         diagnostic = self.sketch.split("void informarEstado(bool diagnostico)", 1)[1].split(
             "void procesarLinea", 1
         )[0]
-        self.assertIn("DIAGNOSTICO;PLACA=%s;PERFIL=%s;SALIDAS=%d", diagnostic)
+        self.assertIn("DIAGNOSTICO;PLACA=%s;PERFIL=%s;FIS=%d%d%d%d%d", diagnostic)
         self.assertLess(diagnostic.index("DIAGNOSTICO;PLACA="), diagnostic.index("ESTADO;PARO="))
         for flag in ("VS=%d", "VN=%d", "VL=%d", "VA=%d"):
             self.assertIn(flag, self.sketch)

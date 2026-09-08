@@ -2,32 +2,31 @@
 proyecto: PROJECT DOMUS
 tipo: decision-vigente
 actualizado: 2026-09-07
-estado: elegido_pendiente_banco
+estado: corregido_inventario_real
 ---
 
-# Configuración final: 1 + 4 relés y planos v4
+# Configuración corregida: un único relé y planos v4
 
-Esta nota fija la configuración física elegida por Isaac y tiene prioridad
-sobre propuestas económicas anteriores.
+El nombre histórico del archivo conserva “1 mas 4”, pero esa configuración fue
+retirada al confirmar el inventario real. Hay un solo relé azul desnudo de 5 V.
 
 ## Salidas elegidas
 
-| GPIO | Etapa | Carga | Polaridad prevista |
+| GPIO | Etapa disponible | Carga | Estado físico |
 |---:|---|---|---|
-| 4 | Relé individual existente | Bomba | Activo LOW |
-| 5 | Módulo de 4 relés, canal 1 | Luz sala | Activo LOW |
-| 6 | Módulo de 4 relés, canal 2 | Luz dormitorio | Activo LOW |
-| 7 | Módulo de 4 relés, canal 3 | Ventilador | Activo LOW |
-| 8 | Módulo de 4 relés, canal 4 | Luz invernadero | Activo LOW |
+| 4 | S8050 + 1 kOhm + relé 5 V + 1N4007 | Bomba | Disponible; bloqueado hasta B06 |
+| 5 | Ninguna | Luz sala | Bloqueado; LED futuro |
+| 6 | Ninguna | Luz dormitorio | Bloqueado; LED futuro |
+| 7 | Ninguna | Ventilador | Bloqueado; driver futuro |
+| 8 | Ninguna | Luz invernadero | Bloqueado; LED futuro |
 
-El módulo debe aceptar control de 3.3 V. Bobinas y cargas se alimentan desde la
-barra de 5 V, nunca desde GPIO. Usar contactos NO para que las cargas queden
-apagadas al perder energía. Bomba y ventilador conservan diodo flyback según
-su conexión y módulo físico.
+El relé desnudo no se conecta al GPIO. GPIO4 controla la base del S8050 mediante
+1 kOhm; el transistor conmuta la bobina de 5 V y el 1N4007 absorbe el retorno.
+La bomba usa COM y NO para permanecer apagada cuando la bobina no tiene energía.
 
-`SALIDAS_HABILITADAS=false` permanece hasta confirmar nivel activo, arranque
-sin pulsos, tensión de bus y una carga por vez. No mezclar este mazo con el
-perfil LED/S8050 de [[21 - Simplificacion y reduccion de costos]].
+La línea `constexpr bool HABILITAR_RELE_BOMBA = false;` permanece en `false`
+hasta confirmar patas, driver, 5 V y arranque sin pulsos. Después se cambia solo
+a `true`; GPIO5-8 continúan bloqueados por `SALIDA_FISICA_HABILITADA[]`.
 
 ## Geometría elegida
 
@@ -51,7 +50,7 @@ CSV, después de medir espesor y componentes reales.
 
 Completar B01-B09 de [[33 - Base modular funcional y plan de banco]], registrar
 mediciones y después ejecutar [[19 - Plan de testeo despues de construccion]].
-La elección del perfil no certifica el módulo ni autoriza habilitar salidas.
+La elección del perfil no certifica el relé ni autoriza habilitar la bomba.
 
-La ausencia actual del módulo de cuatro relés no bloquea B01-B05. Esa ronda se
-ejecuta con GPIO4-8 libres siguiendo [[37 - Ronda de pruebas sin compras]].
+B01-B05 se ejecutan con GPIO4-8 libres siguiendo
+[[37 - Ronda de pruebas sin compras]]. B06 prueba solo GPIO4 y el relé sin bomba.

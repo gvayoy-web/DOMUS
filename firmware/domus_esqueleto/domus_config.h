@@ -2,8 +2,11 @@
 #include <stdint.h>
 
 namespace Config {
-// No habilitar antes de validar alimentacion, etapas y polaridades fisicas.
-constexpr bool SALIDAS_HABILITADAS = false;
+// CAMBIO MANUAL PARA LA RONDA CON EL RELE REAL:
+// 1) dejar false mientras solo se prueban placa y sensores;
+// 2) cambiar UNICAMENTE a true despues de cablear y medir el driver S8050,
+//    el diodo 1N4007 y el rele de bomba; GPIO5-8 siguen bloqueados.
+constexpr bool HABILITAR_RELE_BOMBA = false;
 constexpr const char PERFIL_PLACA[] = "ESP32-S3-N16R8";
 constexpr const char PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES";
 constexpr bool LCD_HABILITADO = true;
@@ -20,10 +23,14 @@ constexpr uint8_t PIN_SUELO = 1, PIN_NIVEL = 2, PIN_LUZ = 3;
 constexpr uint8_t PIN_PIR = 9, PIN_PARO = 10, PIN_MIC_OFF = 11, PIN_BOTON = 12;
 constexpr uint8_t PIN_DHT = 14, PIN_LCD_SDA = 21, PIN_LCD_SCL = 13;
 constexpr uint8_t PINES[] = {4, 5, 6, 7, 8};
-// Perfil elegido: rele individual para bomba + modulo de cuatro reles para
-// sala, cuarto, ventilador e invernadero. Confirmar el nivel activo del modulo
-// fisico antes de habilitar salidas; el hardware previsto es activo en LOW.
-constexpr bool ACTIVA_LOW[] = {true, true, true, true, true};
+// Inventario real: solo GPIO4 tiene una etapa prevista, con S8050 + rele
+// desnudo de 5 V. GPIO5-8 no tienen rele y permanecen bloqueados por software.
+constexpr bool SALIDA_FISICA_HABILITADA[] = {
+  HABILITAR_RELE_BOMBA, false, false, false, false
+};
+// El driver S8050 enciende el rele cuando GPIO4 esta HIGH. Las otras
+// polaridades quedan sin autoridad hasta diseñar y verificar sus etapas.
+constexpr bool ACTIVA_LOW[] = {false, false, false, false, false};
 constexpr uint8_t LCD_DIRECCIONES[] = {0x27, 0x3F};
 // Reservas de voz: microfono15/16/17 y DFPlayer18/19.
 constexpr uint8_t RESERVADOS[] = {1,2,3,4,5,6,7,8,9,10,11,12,14,21,13,15,16,17,18,19};
@@ -37,4 +44,8 @@ static_assert(pinesUnicos(), "GPIO duplicado");
 static_assert(BOMBA_MAX_MS > 0 && BOMBA_MAX_MS <= 120000, "Tiempo bomba invalido");
 static_assert(DHT_TIPO == 11 || DHT_TIPO == 22, "DHT_TIPO debe ser 11 o 22");
 static_assert(sizeof(PINES) == sizeof(ACTIVA_LOW), "Tabla de salidas inconsistente");
+static_assert(sizeof(PINES) == sizeof(SALIDA_FISICA_HABILITADA), "Mascara fisica inconsistente");
+static_assert(!SALIDA_FISICA_HABILITADA[1] && !SALIDA_FISICA_HABILITADA[2] &&
+              !SALIDA_FISICA_HABILITADA[3] && !SALIDA_FISICA_HABILITADA[4],
+              "GPIO5-8 no tienen etapa fisica en el inventario actual");
 }

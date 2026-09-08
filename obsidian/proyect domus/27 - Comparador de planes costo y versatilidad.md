@@ -28,8 +28,9 @@ Verificación documental: `.venv-ia/Scripts/python.exe scripts/validate_project.
 | Dificultad de montaje | Baja, driver del motor condicionado | Media | Alta |
 | Documento | [[28 - Plan A DOMUS minimo desembolso]] | [[29 - Plan B DOMUS ampliable y reutilizable]] | [[30 - Plan C Jarvis offline por etapas]] |
 
-Decisión tomada: construir B con relé individual + módulo de cuatro relés y la
-distribución desmontable de [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+Decisión anterior (retirada): construir B con relé individual + módulo de cuatro
+relés. La decisión vigente conserva la distribución desmontable y `planos/new`,
+pero usa un solo relé desnudo para la bomba; véase la nota 36.
 Añadir C cuando el núcleo esté probado. Posponer una función no significa conservarla gratis:
 sin batería no hay autonomía; sin micrófono/modelo no hay reconocimiento.
 
