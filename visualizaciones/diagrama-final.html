@@ -33,6 +33,13 @@ table.wires td:first-child{font-family:var(--mono);font-weight:800;color:var(--s
 .pass{background:#e2efe7;border-left:4px solid var(--ok);padding:10px 14px;font-size:.92rem;margin-top:10px}
 .warn{background:#fdf0d3;border-left:4px solid var(--warn);padding:10px 14px;font-size:.92rem;margin-top:10px}
 .pins{font-family:var(--mono);font-weight:700}
+.diagram{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--ink);padding:20px;margin:18px 0}
+.diagram h2{margin:0 0 4px;font-size:1.35rem}
+.diagram p.hint{margin:4px 0 12px;color:var(--soft);font-size:.92rem}
+.diagram svg{width:100%;height:auto;display:block;background:#fffdf6;border:1px solid var(--line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.85rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:26px;height:4px;display:inline-block}
 footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-top:1px solid var(--line)}
 @media(max-width:640px){table.wires{font-size:.85rem}.step{padding:14px}}
 @media print{nav.tabs{display:none}.page{display:block!important;break-before:page}.page:first-of-type{break-before:auto}body{background:#fff}.step{box-shadow:none}}
@@ -50,6 +57,10 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 
 <!-- ==================== PÁGINA 1: ESQUELETO ==================== -->
 <section class="page active" id="page-esq">
+<div class="diagram"><h2>Mapa visual del esqueleto: todo a 3V3 + USB</h2>
+<p class="hint">El ESP32 al centro. Naranja = 3V3, gris = GND, azul = señal, verde = carga LED. Cada cable lleva su GPIO. Lee el paso numerado de cada módulo debajo.</p>
+<svg id="svgEsq" role="img" aria-label="Diagrama de cableado del esqueleto"></svg>
+<div class="legend"><span><i style="background:#b07a10"></i>3V3</span><span><i style="background:#777"></i>GND</span><span><i style="background:#0b7380"></i>señal GPIO</span><span><i style="background:#14734d"></i>carga LED</span></div></div>
 <div class="step"><h2><span class="n">0</span>El cerebro: ESP32-S3 N16R8 <span class="tag have">YA TIENES</span></h2>
 <h3>CÓMO RECONOCERLO</h3><div class="rec">Placa azul/negra con chip plateado, conector USB y letras blancas al lado de cada pin que dicen <span class="pins">GPIO1, GPIO2…</span> Usa SIEMPRE ese número GPIO, no otro. Aparece en la PC como <span class="pins">USB-Enhanced-SERIAL CH343 (COM9)</span>.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>USB de la placa</td><td>Cable USB a la PC (banco y programación)</td></tr></table>
@@ -133,6 +144,10 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 <!-- ==================== PÁGINA 2: FINAL ==================== -->
 </section>
 <section class="page" id="page-fin">
+<div class="diagram"><h2>Mapa visual final: potencia 5 V + motores + audio</h2>
+<p class="hint">Arriba la cadena de energía (rojo = 5 V, gris = GND). Verde = motores, morado = audio DF (punteado = exclusivo con MAX). Cada cable lleva su nombre de pata.</p>
+<svg id="svgFin" role="img" aria-label="Diagrama de cableado final"></svg>
+<div class="legend"><span><i style="background:#c74338"></i>5 V</span><span><i style="background:#777"></i>GND</span><span><i style="background:#0b7380"></i>señal GPIO</span><span><i style="background:#14734d"></i>motores</span><span><i style="background:repeating-linear-gradient(90deg,#0b7380 0 8px,transparent 8px 13px)"></i>DF o MAX (exclusivo)</span></div></div>
 <div class="step final"><h2><span class="n">16</span>Seguridad 120 V: la regla de oro <span class="tag stop">LEER PRIMERO</span></h2>
 <div class="rec">De la <b>extensión de pared</b> salen SOLO dos cosas: el <b>cargador USB</b> del ESP32 y la <b>fuente cerrada 5 V/5 A</b>. El 120 V nunca toca la maqueta, la protoboard ni la baquelita. Orden de la cadena: <span class="pins">fuente → portafusible 4 A → switch 5 A → bus +5 V / GND</span>.</div></div>
 
@@ -195,6 +210,86 @@ tabs.forEach(b=>b.onclick=()=>{
 tabs.forEach(o=>o.setAttribute('aria-selected',String(o===b)));
 document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+b.dataset.page));
 window.scrollTo({top:0,behavior:'smooth'});});
+</script>
+<script>
+const C3V="#b07a10",CGND="#777",CSIG="#0b7380",CLOD="#14734d",C5V="#c74338",CMOT="#14734d";
+function drawSVG(id,W,H,nodes,wires){
+const NS="http://www.w3.org/2000/svg",svg=document.getElementById(id);
+svg.setAttribute("viewBox","0 0 "+W+" "+H);
+const el=(t,a)=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+nodes.forEach(n=>{
+const g=el("g",{});
+g.appendChild(el("rect",{x:n.x,y:n.y,width:n.w,height:n.h,rx:10,fill:n.fill||"#ffffff",stroke:n.stroke||"#1c2a30","stroke-width":2}));
+const t=el("text",{x:n.x+n.w/2,y:n.y+26,"text-anchor":"middle",fill:"#1c2a30","font-size":15,"font-weight":800});t.textContent=n.t;g.appendChild(t);
+(n.s||[]).forEach((s,i)=>{const st=el("text",{x:n.x+n.w/2,y:n.y+48+i*20,"text-anchor":"middle",fill:"#3d4a4f","font-size":12.5,"font-family":"monospace"});st.textContent=s;g.appendChild(st);});
+svg.appendChild(g);});
+wires.forEach(w=>{
+const p=el("polyline",{points:w.p.join(" "),fill:"none",stroke:w.c,"stroke-width":w.w||3,"stroke-linejoin":"round"});
+if(w.dash)p.setAttribute("stroke-dasharray","8 6");svg.appendChild(p);
+if(w.l){const t=el("text",{x:w.lx,y:w.ly,"text-anchor":"middle",fill:"#1c2a30","font-size":13,"font-weight":800,"font-family":"monospace",style:"paint-order:stroke;stroke:#fffdf6;stroke-width:5px"});t.textContent=w.l;svg.appendChild(t);}});}
+/* ---------- ESQUELETO ---------- */
+const N=(x,y,w,h,t,s)=>({x,y,w,h,t,s});
+drawSVG("svgEsq",1040,690,
+[N(440,90,170,552,"ESP32-S3 N16R8",["USB → PC","","","","","","","","","","","","","","","","","","","","","","PARO>IR>AUTO"]),
+N(30,90,230,84,"SUELO",["AO → GPIO1","VCC 3V3 · GND"]),
+N(30,188,230,84,"NIVEL",["S → GPIO2","+ 3V3 · − GND"]),
+N(30,286,230,84,"LDR",["nodo → GPIO3","3V3-LDR-10k-GND"]),
+N(30,384,230,84,"PIR",["OUT → GPIO9","VCC·GND (OUT≤3V3)"]),
+N(30,482,230,84,"DHT11",["DATA → GPIO14","VCC·GND · 10k"]),
+N(30,580,230,84,"LCD1602",["SDA→21 SCL→13","VCC 3V3 · GND"]),
+N(780,90,230,84,"IR HX1838",["S → GPIO12","+ 3V3 · − GND"]),
+N(780,188,230,84,"BOTONES",["10 PARO · 11 MUTE","16 SALA → GND"]),
+N(780,286,230,84,"BUZZER 5V",["GPIO15 → 1k → B","+5V · E → GND"]),
+N(780,384,230,84,"LED 5 · 6",["G5 sala · G6 dorm","330Ω · cátodo GND"]),
+N(780,482,230,84,"CULTIVO",["G8 → 1k → B S8050","+5V·330×3 · E GND"]),
+{x:780,y:580,w:230,h:84,t:"CH = páginas",s:["botón = letras"," + animación"],fill:"#eef4f2"}],
+[{p:["30,30","1010,30"],c:C3V,w:5,l:"3V3",lx:72,ly:23},
+{p:["30,56","1010,56"],c:CGND,w:5,l:"GND",lx:72,ly:49},
+{p:["140,56","140,90"],c:C3V},{p:["150,56","150,90"],c:CGND},
+{p:["890,56","890,90"],c:C3V},{p:["900,56","900,90"],c:CGND},
+{p:["500,56","500,90"],c:C3V},{p:["520,56","520,90"],c:CGND},
+{p:["260,132","440,132"],c:CSIG,l:"G1",lx:350,ly:126},
+{p:["260,230","440,230"],c:CSIG,l:"G2",lx:350,ly:224},
+{p:["260,328","440,328"],c:CSIG,l:"G3",lx:350,ly:322},
+{p:["260,426","440,426"],c:CSIG,l:"G9",lx:350,ly:420},
+{p:["260,524","440,524"],c:CSIG,l:"G14",lx:350,ly:518},
+{p:["260,614","440,614"],c:CSIG,l:"21",lx:350,ly:608},
+{p:["260,630","440,630"],c:CSIG,l:"13",lx:350,ly:644},
+{p:["610,132","780,132"],c:CSIG,l:"G12",lx:695,ly:126},
+{p:["610,222","780,222"],c:CSIG},{p:["610,230","780,230"],c:CSIG},{p:["610,238","780,238"],c:CSIG,l:"10·11·16",lx:695,ly:214},
+{p:["610,328","780,328"],c:CSIG,l:"G15",lx:695,ly:322},
+{p:["610,418","780,418"],c:CLOD,l:"G5",lx:695,ly:412},
+{p:["610,434","780,434"],c:CLOD,l:"G6",lx:695,ly:448},
+{p:["610,524","780,524"],c:CLOD,l:"G8",lx:695,ly:518}]);
+/* ---------- FINAL ---------- */
+drawSVG("svgFin",1050,580,
+[N(30,40,150,72,"EXT 120V",["solo USB+fuente"]),
+N(210,40,150,72,"FUENTE 5V/5A",["cerrada · 5.5×2.1"]),
+N(390,40,150,72,"FUSIBLE+SWITCH",["T4A lento","switch 5A DC"]),
+N(570,40,440,72,"BUS +5V · GND",["estrella · borneras 5.08"]),
+N(30,200,190,150,"ESP32-S3",["VIN←BUS · GND","G4 G7 · G16·17·18","USB→PC"]),
+N(250,200,200,150,"DRV8833",["VM←BUS · GND","AIN1←G4 · AIN2←GND","BIN1←G7 · BIN2←GND","nSLEEP←3V3"]),
+N(500,200,210,150,"MOTORES",["BOMBA entre AOUT1·2","VENT entre BOUT1·2","bomba en agua"]),
+N(750,180,260,120,"MAX98357A",["VIN←BUS · GND","B←16 L←17 D←18","SPK± → parlante"]),
+N(750,320,260,110,"DFPLAYER",["VCC←BUS · GND","TX←17 RX←18","0001.mp3 · excl MAX"]),
+N(30,460,220,100,"CAPS 1000µF",["VM-GND junto DRV","VIN-GND junto MAX","franja→GND"]),
+N(280,460,240,100,"BAQUELITA",["100×220 · borneras","potencia ≠ señal"]),
+N(550,460,220,100,"ORDEN FINAL",["1 DRV frío sin motor","2 un motor · 3 audio","4 todo junto 1 h"])],
+[{p:["180,76","210,76"],c:C5V,w:4},{p:["360,76","390,76"],c:C5V,w:4},{p:["540,76","570,76"],c:C5V,w:4},
+{p:["640,112","640,165","115,165","115,200"],c:C5V,w:4,l:"+5V",lx:400,ly:159},
+{p:["710,112","710,185","350,185","350,200"],c:C5V,w:4,l:"VM",lx:540,ly:179},
+{p:["880,112","880,180"],c:C5V,w:4,l:"VIN",lx:890,ly:150},
+{p:["1010,76","1028,76","1028,375","1010,375"],c:C5V,w:4,l:"VCC",lx:1028,ly:225},
+{p:["600,112","600,150","135,150","135,200"],c:CGND,w:3,l:"GND",lx:360,ly:144},
+{p:["670,112","670,175","370,175","370,200"],c:CGND,w:3},
+{p:["900,112","900,180"],c:CGND,w:3},
+{p:["190,350","190,425","750,425"],c:CGND,w:3,l:"GND",lx:470,ly:419},
+{p:["220,250","250,250"],c:CSIG,l:"G4",lx:235,ly:244},
+{p:["220,290","250,290"],c:CSIG,l:"G7",lx:235,ly:284},
+{p:["450,250","500,250"],c:CMOT,l:"AOUT1·2",lx:475,ly:244},
+{p:["450,310","500,310"],c:CMOT,l:"BOUT1·2",lx:475,ly:304},
+{p:["200,350","200,395","740,395","740,310","750,310"],c:CSIG,l:"G16·17·18",lx:420,ly:389},
+{p:["210,350","210,410","750,410"],c:CSIG,dash:1,l:"G17·18 (o MAX)",lx:620,ly:404}]);
 </script>
 </body>
 </html>
