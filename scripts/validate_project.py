@@ -149,10 +149,10 @@ def validate_visualization() -> list[str]:
             continue
         text = path.read_text(encoding="utf-8")
         for term in (
-            "PROJECT DOMUS — sistema completo",
+            "PROJECT DOMUS — sistema completo v2",
             "GPIO21 SDA · 13 SCL",
-            "GPIO4–8 · 5 V",
-            "TP4056 + 1S",
+            "AIN1=4 · BIN1=7",
+            "Fusible 4 A",
             "Ningún GPIO admite 5 V",
         ):
             if term not in text:

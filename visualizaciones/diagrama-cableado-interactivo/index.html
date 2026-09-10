@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>PROJECT DOMUS · Plano de montaje</title>
+<style>
+:root{--bg:#071b29;--panel:#0d2a3b;--panel2:#12364a;--paper:#f4f0e5;--ink:#132630;--soft:#a8c0c7;--line:#ffffff20;--five:#ef5b50;--gnd:#7d8b91;--three:#f0a43b;--sig:#10c8d7;--audio:#a785ff;--load:#4ecb83;--warn:#ffbd55;--danger:#ff665f;--ok:#64d89c;--mono:"Cascadia Mono","SFMono-Regular",Consolas,monospace;--sans:Bahnschrift,"Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 85% -10%,#16445b 0,transparent 35%),var(--bg);color:#eff8f7;font-family:var(--sans);line-height:1.45}button{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--warn);outline-offset:3px}.skip{position:absolute;left:-9999px}.skip:focus{left:12px;top:12px;z-index:99;background:#fff;color:#000;padding:10px}
+.mast{position:relative;overflow:hidden;padding:28px clamp(18px,5vw,72px) 24px;border-bottom:1px solid var(--line)}.mast:after{content:"DOMUS";position:absolute;right:-12px;bottom:-46px;font-size:clamp(6rem,18vw,17rem);font-weight:950;letter-spacing:-.08em;color:#ffffff05;pointer-events:none}.crumb{margin:0 0 9px;color:var(--sig);font-size:.7rem;font-weight:900;letter-spacing:.18em}.mast h1{max-width:980px;margin:0;font-size:clamp(2.25rem,6vw,5.8rem);line-height:.88;letter-spacing:-.06em}.mast h1 em{color:var(--warn);font-style:normal}.intro{max-width:760px;margin:16px 0 20px;color:#b7cbd1}.stamp-row,.legend{display:flex;gap:8px;flex-wrap:wrap}.stamp{padding:7px 10px;border:1px solid #ffffff27;background:#ffffff0b;font-size:.68rem;font-weight:850;letter-spacing:.05em}.stamp strong{color:var(--ok)}.legend{margin-top:17px}.legend span{display:flex;align-items:center;gap:6px;color:#b8cbd0;font-size:.66rem}.legend i{width:20px;border-top:3px solid var(--c)}
+.viewnav{position:sticky;top:0;z-index:30;background:#071b29f2;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.viewtabs{display:flex;gap:7px;max-width:1540px;margin:auto;padding:11px clamp(12px,4vw,50px);overflow-x:auto}.viewtab{flex:0 0 auto;padding:10px 14px;border:1px solid #ffffff24;background:transparent;color:#b6cbd1;cursor:pointer;font-size:.78rem;font-weight:850}.viewtab:hover{border-color:#ffffff66;color:#fff}.viewtab[aria-selected="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+main{max-width:1540px;margin:auto;padding:clamp(20px,4vw,54px)}.view{display:none}.view.active{display:block;animation:reveal .35s ease both}@keyframes reveal{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+.viewhead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:20px;margin-bottom:22px}.kicker{margin:0 0 6px;color:var(--sig);font-size:.68rem;font-weight:900;letter-spacing:.16em}.viewhead h2{margin:0;font-size:clamp(1.8rem,4.5vw,4rem);line-height:1;letter-spacing:-.045em}.viewhead p{max-width:750px;margin:10px 0 0;color:var(--soft)}.count{font:800 .72rem var(--mono);border:1px solid #ffffff25;padding:8px 10px;color:#cfdee1}
+.stateband{display:grid;grid-template-columns:repeat(4,1fr);margin:0 0 24px;border:1px solid var(--line)}.state{padding:13px;border-right:1px solid var(--line)}.state:last-child{border:0}.state b{display:block;font-size:.68rem;letter-spacing:.1em}.state span{font-size:.72rem;color:#9eb5bc}.state.connect b{color:var(--ok)}.state.test b{color:var(--warn)}.state.buy b{color:#bfa6ff}.state.stop b{color:#ff7b70}
+.benchmap{display:grid;grid-template-columns:minmax(220px,1fr) minmax(240px,330px) minmax(220px,1fr);grid-template-areas:"sensors core controls" "loads core separate";gap:14px;margin-bottom:30px}.mapzone{position:relative;background:#0b2637;border:1px solid var(--line);padding:18px;min-width:0}.mapzone h3{display:flex;justify-content:space-between;gap:10px;margin:0 0 12px;font-size:.77rem;letter-spacing:.11em}.mapzone h3 span{color:#829da5;font:700 .62rem var(--mono)}.mapzone.sensors{grid-area:sensors}.mapzone.controls{grid-area:controls}.mapzone.loads{grid-area:loads}.mapzone.separate{grid-area:separate;border-style:dashed}.core{grid-area:core;display:grid;place-items:center;min-height:390px;background:linear-gradient(160deg,#113a4d,#091f2e);border:1px solid #31d3de66;position:relative;overflow:hidden}.core:before{content:"GPIO";position:absolute;font:950 7rem var(--mono);color:#ffffff05;transform:rotate(-90deg)}.esp{position:relative;width:168px;height:282px;background:#16475a;border:5px solid #0a2533;box-shadow:0 16px 0 #061822}.esp:before,.esp:after{content:"";position:absolute;top:16px;bottom:16px;width:10px;background:repeating-linear-gradient(var(--warn) 0 5px,transparent 5px 12px)}.esp:before{left:-14px}.esp:after{right:-14px}.esp-label{position:absolute;inset:56px 20px;display:grid;place-items:center;text-align:center;border:1px solid #ffffff24;font:900 1rem var(--mono);color:#e5fbfc}.usb{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:52px;height:22px;background:#aab4b5;border:4px solid #53646a}.core small{position:absolute;bottom:20px;color:#96b4bc;font:700 .65rem var(--mono)}
+.route-list{display:grid;gap:7px}.route{display:grid;grid-template-columns:78px 1fr;align-items:center;gap:10px;padding:10px;background:#ffffff08;border-left:4px solid var(--c,var(--sig));font-size:.8rem;line-height:1.45}.route code{color:var(--c,var(--sig));font:800 .74rem var(--mono)}.route strong{display:block}.route small{display:block;color:#8fa9b1;font-size:.74rem}.route.off{border-style:dashed;opacity:.72}.route.no{border-color:var(--danger);background:#ff665f0d}
+.group{margin:32px 0}.grouptitle{display:flex;align-items:center;gap:12px;margin:0 0 13px}.grouptitle h3{margin:0;font-size:1.2rem}.grouptitle:after{content:"";height:1px;background:var(--line);flex:1}.status-tag{font:850 .62rem var(--mono);padding:5px 7px;border:1px solid currentColor}.status-tag.connect{color:var(--ok)}.status-tag.test{color:var(--warn)}.status-tag.buy{color:#bfa6ff}.status-tag.stop{color:#ff756c}
+.cards{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.mcard{grid-column:span 4;background:var(--paper);color:var(--ink);border-top:5px solid var(--c,var(--sig));padding:17px;min-width:0;box-shadow:0 12px 25px #00101b42}.mcard:nth-child(4n+2){transform:translateY(7px)}.mcard.wide{grid-column:span 6}.mcard.full{grid-column:1/-1}.mcard.future{background:#e7e5de;border-style:dashed;box-shadow:none}.mcard.blocked{background:#321f21;color:#fff;border-color:var(--danger)}.mhead{display:flex;justify-content:space-between;align-items:start;gap:12px}.mhead h4{margin:0;font-size:1.08rem}.mstate{white-space:nowrap;font:850 .58rem var(--mono);padding:4px 6px;background:#132630;color:#fff}.mcard.future .mstate{background:#765b9f}.mcard.blocked .mstate{background:var(--danger)}.miniart{height:72px;margin:13px 0;background:#dce4df;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}.miniart .part{padding:10px 8px;background:#1e7183;color:white;border:3px solid #104655;font:800 .65rem var(--mono);text-align:center}.miniart .part.round{border-radius:50%;width:48px;height:48px;display:grid;place-items:center}.miniart .part.dashed{background:#c9cdca;color:#556369;border-style:dashed;border-color:#79858a}.miniart .bar{width:40px;border-top:4px solid var(--c,var(--sig))}.mcard dl{margin:0;display:grid;grid-template-columns:78px 1fr;gap:7px 10px;font-size:.8rem}.mcard dt{color:#3d4a4f;font:800 .68rem var(--mono)}.mcard dd{margin:0;line-height:1.5}.mcard .pass{margin:12px 0 0;padding:10px;border-left:3px solid var(--ok);background:#dfe9e1;font-size:.78rem;line-height:1.5}.mcard.blocked .pass{background:#ffffff0b;border-color:var(--danger)}.pins{font-family:var(--mono);font-weight:800;color:#0a5f6b;font-size:.78rem}
+.powerflow{display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));align-items:center;gap:8px;margin:22px 0;padding:24px;background:#0b2637;border:1px solid var(--line);overflow:auto}.pnode{min-width:105px;padding:16px 10px;text-align:center;border:2px solid #ffffff35;background:#ffffff08;font-size:.72rem}.pnode.pending{border-style:dashed;border-color:#bfa6ff;color:#e5d9ff}.arrow{color:var(--five);font-size:1.5rem;text-align:center}.powernote{padding:15px;border-left:5px solid var(--warn);background:#402f16;color:#ffe0ac;font-size:.78rem}
+.drvdiagram{display:grid;grid-template-columns:1fr minmax(230px,320px) 1fr;gap:14px;align-items:stretch;margin:22px 0}.sidebox,.driverbox{padding:18px;border:1px solid var(--line);background:#0b2637}.driverbox{border:2px dashed #bfa6ff;background:#261f35}.driverbox h3,.sidebox h3{margin:0 0 12px}.driverpin{display:flex;justify-content:space-between;gap:12px;padding:7px;border-bottom:1px solid #ffffff18;font-size:.72rem}.driverpin code{font-family:var(--mono);color:#d6c7ff}.motor{margin-top:11px;padding:12px;background:#153c38;border-left:5px solid var(--load);font-size:.72rem}
+.fullmap{display:grid;grid-template-columns:1fr minmax(220px,290px) 1fr;gap:14px;align-items:start}.zonecol{display:grid;gap:12px}.zonecard{background:#0b2637;border:1px solid var(--line);padding:16px}.zonecard h3{margin:0 0 12px;font-size:.82rem;letter-spacing:.1em;color:var(--c,var(--sig))}.zonecard .route{margin-top:6px}.mapcore{position:sticky;top:88px;padding:22px;background:var(--paper);color:var(--ink);border-top:6px solid var(--sig);text-align:center}.mapcore h3{margin:0;font:950 1.35rem var(--mono)}.mapcore p{font-size:.74rem;color:#5c6b70}.bus{margin-top:12px;padding:10px;text-align:left;background:#dae4df;font:700 .68rem var(--mono)}.bus b{color:#0c7a85}
+.tablebox{margin-top:30px;background:var(--paper);color:var(--ink);border:1px solid #d3d8d3}.tablehead{display:flex;justify-content:space-between;align-items:end;gap:14px;padding:18px;border-bottom:1px solid #ced5d2}.tablehead h3{margin:0}.tablehead p{margin:3px 0 0;color:#66747a;font-size:.72rem}.scroll{overflow:auto}table{width:100%;min-width:760px;border-collapse:collapse}th,td{padding:11px 14px;border-bottom:1px solid #d5dbd8;text-align:left;font-size:.8rem;line-height:1.5}th{background:#dfe5e1;color:#3d4a4f;font-size:.68rem;letter-spacing:.09em}td:first-child{font:850 .74rem var(--mono)}.ready{color:#14734d;font-weight:850}.pending{color:#7254a3;font-weight:850}.separate-txt{color:#996613;font-weight:850}.blocked-txt{color:#ad3029;font-weight:850}
+.wiresteps{counter-reset:wire;display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.wirestep{counter-increment:wire;position:relative;padding:12px 12px 12px 48px;background:#ffffff08;border-left:3px solid var(--c,var(--sig));font-size:.72rem}.wirestep:before{content:counter(wire);position:absolute;left:10px;top:10px;width:25px;height:25px;background:var(--c,var(--sig));color:#06212c;display:grid;place-items:center;font:950 .68rem var(--mono)}
+.remote-layout{display:grid;grid-template-columns:minmax(240px,360px) 1fr;gap:24px;align-items:start}.remote-shell{padding:22px 20px 30px;background:#e8e4d9;border:7px solid #aeb1aa;border-radius:30px;color:var(--ink);box-shadow:0 16px 0 #687176}.remote-title{text-align:center;margin:0 0 14px;font:950 .8rem var(--mono)}.remote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.rkey{min-height:50px;border:2px solid #26383f;background:#202c31;color:white;border-radius:9px;cursor:pointer;font:850 .71rem var(--mono);box-shadow:0 4px 0 #090e10}.rkey:hover{transform:translateY(-1px)}.rkey:active,.rkey.active{transform:translateY(3px);box-shadow:0 1px 0 #090e10;background:#0b8896;border-color:#55e7ee}.rkey.fn{background:#46565d}.rkey.danger{background:#9f3933}.irpanel{display:grid;gap:12px}.signalpath{display:grid;grid-template-columns:repeat(7,minmax(70px,1fr));align-items:center;gap:5px;padding:17px;background:#0b2637;border:1px solid var(--line);overflow:auto}.snode{min-width:80px;padding:12px 8px;border:1px solid #ffffff27;text-align:center;font-size:.66rem}.snode.hot{border-color:var(--sig);background:#0d4756;box-shadow:0 0 18px #10c8d733}.spath{height:3px;background:var(--sig);min-width:24px}.actionbox{background:var(--paper);color:var(--ink);padding:22px;border-left:7px solid var(--sig)}.actionbox .pressed{font:900 .7rem var(--mono);color:#0d7f89}.actionbox h3{margin:4px 0;font-size:1.7rem}.jarvis{margin-top:14px;padding:13px;background:#122934;color:#e5ffff;font:750 .8rem var(--mono)}.learning{padding:17px;border:1px dashed var(--warn);background:#3a2d18}.learning h3{margin:0 0 7px;color:#ffd590}.learning p{font-size:.75rem;color:#e3d3b5}.learnbtn{border:1px solid var(--warn);background:var(--warn);color:#362409;padding:9px 12px;cursor:pointer;font-weight:900}.learnstatus{margin-left:9px;font:750 .68rem var(--mono)}
+.warnwall{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px}.alert{padding:17px;border-left:6px solid var(--warn);background:#3d2d16;color:#ffe0ac}.alert.danger{border-color:var(--danger);background:#391d20;color:#ffd1ce}.alert h3{margin:0 0 6px;font-size:.93rem}.alert p{margin:0;font-size:.73rem}.sequence{display:grid;gap:9px;counter-reset:test}.testrow{counter-increment:test;display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;background:#0b2637;border:1px solid var(--line)}.testrow:before{content:counter(test);width:30px;height:30px;display:grid;place-items:center;background:#143c50;color:var(--sig);font:900 .7rem var(--mono)}.testrow h4{margin:0 0 3px;font-size:.78rem}.testrow p{margin:0;color:#96afb6;font-size:.69rem}.check{display:flex;align-items:center;gap:6px;color:#a8bec4;font:750 .66rem var(--mono)}.check input{width:18px;height:18px;accent-color:var(--ok)}
+.footer{padding:24px clamp(18px,5vw,72px);border-top:1px solid var(--line);color:#90aab2;font-size:.68rem}.footer strong{color:#d9e8e9}
+@media(max-width:1000px){.benchmap{grid-template-columns:1fr 1fr;grid-template-areas:"core core" "sensors controls" "loads separate"}.core{min-height:320px}.cards .mcard{grid-column:span 6}.fullmap{grid-template-columns:1fr 1fr}.mapcore{grid-column:1/-1;grid-row:1;position:relative;top:auto}.drvdiagram{grid-template-columns:1fr 1fr}.driverbox{grid-column:1/-1;grid-row:1}.remote-layout{grid-template-columns:320px 1fr}.signalpath{grid-template-columns:repeat(7,90px)}}
+@media(max-width:680px){main{padding:22px 14px}.viewhead{grid-template-columns:1fr}.count{justify-self:start}.stateband{grid-template-columns:1fr 1fr}.state:nth-child(2){border-right:0}.state:nth-child(-n+2){border-bottom:1px solid var(--line)}.benchmap{display:flex;flex-direction:column}.core{order:-1;min-height:330px}.cards .mcard,.mcard.wide{grid-column:1/-1}.mcard:nth-child(4n+2){transform:none}.powerflow{grid-template-columns:130px 30px 130px 30px 130px 30px 130px}.drvdiagram,.fullmap,.remote-layout,.warnwall{grid-template-columns:1fr}.sidebox,.driverbox{grid-column:auto;grid-row:auto}.mapcore{grid-column:auto;grid-row:auto}.remote-shell{max-width:360px;margin:auto}.wiresteps{grid-template-columns:1fr}.testrow{grid-template-columns:32px 1fr}.testrow .check{grid-column:2}.viewtab{padding:9px 10px}.mast{padding-top:22px}}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{background:#fff;color:#000}.viewnav,.viewhead .count,.learnbtn{display:none}.mast{padding:10px 0;color:#000}.mast:after{display:none}.intro,.viewhead p,.route small{color:#222}.view{display:block!important;break-before:page}.view:first-of-type{break-before:auto}main{max-width:none;padding:10px}.benchmap,.fullmap,.drvdiagram,.remote-layout{display:block}.mapzone,.core,.zonecard,.mapcore,.sidebox,.driverbox,.actionbox,.learning,.testrow{break-inside:avoid;margin:8px 0;color:#000;background:#fff;border:1px solid #555}.route{color:#000;background:#fff;border-top:1px solid #777;border-right:1px solid #777;border-bottom:1px solid #777}.route code{color:#000}.cards{display:block}.mcard{margin:8px 0;break-inside:avoid;box-shadow:none;transform:none!important;border-left:1px solid #555;border-right:1px solid #555;border-bottom:1px solid #555}.mstate,.status-tag{border:1px solid #222!important;color:#000!important;background:#fff!important}.remote-shell{max-width:330px}.footer{color:#222}}
+</style>
+<style>
+@media(max-width:680px){.signalpath{grid-template-columns:1fr;width:100%;overflow:visible}.signalpath .snode{width:100%;min-width:0}.signalpath .spath{width:3px;height:22px;min-width:0;justify-self:center}}
+@media print{.remote-shell,.signalpath,.snode,.actionbox,.learning,.jarvis,.rkey{background:#fff!important;color:#000!important;border-color:#444!important}.signalpath .spath{background:#000!important}.rkey{box-shadow:none!important}.learning code,.pressed{color:#000!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="mast">
+  <p class="crumb">PROJECT DOMUS / PLANO ELÉCTRICO VIGENTE / ESP32-S3 N16R8</p>
+  <h1>Conecta con orden.<br><em>Prueba sin adivinar.</em></h1>
+  <p class="intro">Guía de banco para montar la maqueta actual, distinguir las compras pendientes y explicar por qué cada cable existe. La seguridad física siempre tiene prioridad sobre una orden remota.</p>
+  <div class="stamp-row"><span class="stamp"><strong>●</strong> LCD I2C confirmado a 3.3 V</span><span class="stamp"><strong>●</strong> Jarvis por control IR</span><span class="stamp">DRV8833 / fuente / audio: PENDIENTES</span></div>
+  <div class="legend" aria-label="Código de color"><span><i style="--c:var(--five)"></i>5 V</span><span><i style="--c:var(--gnd)"></i>GND</span><span><i style="--c:var(--three)"></i>3.3 V</span><span><i style="--c:var(--sig)"></i>señal</span><span><i style="--c:var(--audio)"></i>audio</span><span><i style="--c:var(--load)"></i>carga</span></div>
+</header>
+<nav class="viewnav" aria-label="Vistas del plano"><div class="viewtabs" id="viewTabs" role="tablist"></div></nav>
+<main id="contenido">
+  <section class="view active" id="today" role="tabpanel">
+    <div class="viewhead"><div><p class="kicker">VISTA 01 · BANCO SEGURO</p><h2>Montaje con lo que tengo</h2><p>Conecta lógica y sensores a 3.3 V. Las cargas se prueban aparte hasta que existan la fuente final y el DRV8833.</p></div><span class="count">YA CONECTAR ≠ ENERGIZAR TODO</span></div>
+    <div class="stateband"><div class="state connect"><b>YA CONECTAR</b><span>lógica validable ahora</span></div><div class="state test"><b>PROBAR APARTE</b><span>sin integrarlo al núcleo</span></div><div class="state buy"><b>COMPRA PENDIENTE</b><span>no está disponible</span></div><div class="state stop"><b>NO USAR</b><span>ruta peligrosa u obsoleta</span></div></div>
+    <div class="benchmap">
+      <article class="mapzone sensors"><h3>SENSORES <span>3V3 + SEÑAL</span></h3><div class="route-list">
+        <div class="route" style="--c:var(--sig)"><code>GPIO1</code><span><strong>Suelo AO</strong><small>DO queda libre</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO2</code><span><strong>Nivel S/OUT</strong><small>calibrar vacío/mínimo/lleno</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO3</code><span><strong>Nodo LDR</strong><small>divisor con 10 kΩ a GND</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO9</code><span><strong>PIR OUT</strong><small>solo si mide ≤3.3 V</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO14</code><span><strong>DHT11 DATA</strong><small>pull-up 10 kΩ a 3V3</small></span></div>
+      </div></article>
+      <article class="core"><div class="esp"><div class="esp-label">ESP32-S3<br>N16R8<br><small>GPIO POR NOMBRE</small></div><div class="usb"></div></div><small>USB-C · UNA SOLA RUTA POSITIVA</small></article>
+      <article class="mapzone controls"><h3>INTERFAZ <span>PRIORIDAD LOCAL</span></h3><div class="route-list">
+        <div class="route" style="--c:var(--sig)"><code>GPIO12</code><span><strong>HX1838 OUT</strong><small>control CAR MP3 · 38 kHz</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO10</code><span><strong>Paro → GND</strong><small>INPUT_PULLUP · manda sobre IR</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO11</code><span><strong>Silencio Jarvis → GND</strong><small>INPUT_PULLUP</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO16</code><span><strong>Botón sala → GND</strong><small>el 12 lo ocupa el IR · 3 s = aprender</small></span></div><div class="route" style="--c:var(--sig)"><code>GPIO15</code><span><strong>Buzzer activo → S8050</strong><small>núcleo · HIGH = suena</small></span></div><div class="route" style="--c:var(--sig)"><code>21 / 13</code><span><strong>LCD SDA / SCL</strong><small>unidad I2C de cuatro cables · 3V3</small></span></div>
+      </div></article>
+      <article class="mapzone loads"><h3>SALIDAS DISPONIBLES <span>ARMAR SIN MOTORES</span></h3><div class="route-list">
+        <div class="route" style="--c:var(--load)"><code>GPIO5</code><span><strong>LED sala</strong><small>resistencia / etapa verificada</small></span></div><div class="route" style="--c:var(--load)"><code>GPIO6</code><span><strong>LED dormitorio</strong><small>resistencia / etapa verificada</small></span></div><div class="route" style="--c:var(--load)"><code>GPIO8</code><span><strong>S8050 + 3 LED cultivo</strong><small>1 kΩ base · 10 kΩ pull-down</small></span></div><div class="route off" style="--c:var(--warn)"><code>GPIO4/7</code><span><strong>DRV8833 pendiente</strong><small>bomba/vent bloqueadas en banco</small></span></div>
+      </div></article>
+      <article class="mapzone separate"><h3>PROBAR APARTE <span>FUERA DEL NÚCLEO</span></h3><div class="route-list">
+        <div class="route off" style="--c:var(--warn)"><code>RELÉ</code><span><strong>Identificación / clic</strong><small>1N4007 sobre bobina; no bomba final</small></span></div><div class="route off" style="--c:var(--warn)"><code>TP4056</code><span><strong>Bomba aislada ya probada</strong><small>adaptador temporal, no ruta final</small></span></div><div class="route off" style="--c:var(--warn)"><code>GPIO15</code><span><strong>Buzzer activo</strong><small>driver sujeto a corriente medida</small></span></div>
+      </div></article>
+    </div>
+    <div id="todayGroups"></div>
+  </section>
+
+  <section class="view" id="final" role="tabpanel">
+    <div class="viewhead"><div><p class="kicker">VISTA 02 · ARQUITECTURA OBJETIVO</p><h2>Final después de comprar</h2><p>La compra habilita una distribución de potencia real, dos motores por puente H y frases de Jarvis desde flash. Nada punteado está hoy disponible.</p></div><span class="count">SIN RELÉS EN LA VERSIÓN FINAL</span></div>
+    <div class="powerflow" aria-label="Cadena de alimentación final">
+      <div class="pnode pending">FUENTE CERRADA<br><b>5 V / 5 A</b></div><div class="arrow">→</div><div class="pnode pending">FUSIBLE LENTO<br><b>4 A</b></div><div class="arrow">→</div><div class="pnode pending">SWITCH DC<br><b>APTO 5 A</b></div><div class="arrow">→</div><div class="pnode">BUS <b>+5 V</b><br>+ BUS GND</div>
+    </div>
+    <p class="powernote"><strong>Condensadores:</strong> 1000 µF cerca de DRV8833 y MAX98357A, franja negativa a GND; 100 nF local. No sustituyen fusible, fuente suficiente ni cableado correcto.</p>
+    <div class="drvdiagram">
+      <article class="sidebox"><h3>Desde ESP32</h3><div class="driverpin"><code>GPIO4</code><span>→ AIN1 · bomba</span></div><div class="driverpin"><code>GND</code><span>→ AIN2</span></div><div class="driverpin"><code>GPIO7</code><span>→ BIN1 · ventilador</span></div><div class="driverpin"><code>GND</code><span>→ BIN2</span></div><div class="driverpin"><code>3V3</code><span>→ nSLEEP</span></div></article>
+      <article class="driverbox"><span class="status-tag buy">COMPRA PENDIENTE</span><h3>DRV8833</h3><div class="driverpin"><code>VM</code><span>BUS +5 V</span></div><div class="driverpin"><code>GND</code><span>BUS GND</span></div><div class="motor">AOUT1 — BOMBA — AOUT2</div><div class="motor">BOUT1 — VENTILADOR — BOUT2</div></article>
+      <article class="sidebox"><h3>Reglas del puente H</h3><div class="route no"><code>NO</code><span><strong>Bomba entre VM y salida</strong><small>debe ir entre AOUT1/AOUT2</small></span></div><div class="route no"><code>NO</code><span><strong>1N4007 sobre AOUT/BOUT</strong><small>solo si datasheet del módulo lo exige</small></span></div><div class="route" style="--c:var(--load)"><code>PASS</code><span><strong>Intercambiar cables</strong><small>si un motor gira al revés</small></span></div></article>
+    </div>
+    <div id="finalCards" class="cards"></div>
+  </section>
+
+  <section class="view" id="map" role="tabpanel">
+    <div class="viewhead"><div><p class="kicker">VISTA 03 · LECTURA DE SISTEMA</p><h2>Mapa completo</h2><p>Las zonas rodean al ESP32 sin cruzar líneas. Cada rama conserva el código de color del plano.</p></div><span class="count">GPIO19/20 RESERVADOS USB</span></div>
+    <div class="fullmap">
+      <div class="zonecol">
+        <article class="zonecard" style="--c:var(--three)"><h3>SENSORES · 3.3 V</h3><div id="sensorRoutes"></div></article>
+        <article class="zonecard" style="--c:var(--sig)"><h3>CONTROL · SEÑAL</h3><div id="controlRoutes"></div></article>
+      </div>
+      <article class="mapcore"><h3>ESP32-S3<br>N16R8</h3><p>Arranque con todas las salidas apagadas. El paro físico domina cualquier orden remota.</p><div class="bus"><b>3V3</b> → sensores, LCD, HX1838<br><b>GND</b> → referencia común<br><b>USB-C</b> → banco / programación</div></article>
+      <div class="zonecol">
+        <article class="zonecard" style="--c:var(--load)"><h3>CARGAS · FINAL</h3><div id="loadRoutes"></div></article>
+        <article class="zonecard" style="--c:var(--audio)"><h3>JARVIS · RESPUESTA</h3><div id="audioRoutes"></div></article>
+      </div>
+    </div>
+    <section class="tablebox"><div class="tablehead"><div><h3>Tabla maestra de pines</h3><p>La columna estado evita confundir el banco con la arquitectura posterior.</p></div><span class="status-tag connect">FUENTE DE VERDAD</span></div><div class="scroll"><table><thead><tr><th>GPIO</th><th>Función vigente</th><th>Conexión</th><th>Estado físico</th><th>Arranque</th></tr></thead><tbody id="pinRows"></tbody></table></div></section>
+    <section class="group"><div class="grouptitle"><h3>Lista de cableado numerada</h3><span class="status-tag connect">ORDEN LÓGICO</span></div><div class="wiresteps" id="wireSteps"></div></section>
+  </section>
+
+  <section class="view" id="remote" role="tabpanel">
+    <div class="viewhead"><div><p class="kicker">VISTA 04 · JARVIS SIN MICRÓFONO</p><h2>Control CAR MP3</h2><p>Toca una tecla para ver la ruta, la salida afectada y la frase. Los códigos HEX reales se registran en la mesa: aquí no se inventan.</p></div><span class="count">HX1838 · 38 kHz · GPIO12</span></div>
+    <div class="remote-layout">
+      <article class="remote-shell"><p class="remote-title">CAR MP3 · 21 TECLAS</p><div class="remote-grid" id="remoteGrid"></div></article>
+      <div class="irpanel">
+        <div class="signalpath" aria-label="Ruta de una orden IR"><div class="snode hot">CONTROL<br>IR</div><div class="spath"></div><div class="snode hot">HX1838<br>OUT</div><div class="spath"></div><div class="snode hot">GPIO12<br>ESP32</div><div class="spath"></div><div class="snode hot" id="outputNode">POLÍTICA<br>SEGURA</div></div>
+        <article class="actionbox" aria-live="polite"><span class="pressed" id="pressedKey">TECLA 0</span><h3 id="actionTitle">Todo apagado</h3><p id="actionDetail">Ruta: mando → HX1838 → GPIO12 → OUT=00000. No anula bloqueos ni paro físico.</p><div class="jarvis" id="jarvisPhrase">JARVIS: “Todas las cargas han sido apagadas.”</div></article>
+        <article class="learning"><h3>Aprendizaje · firmware v2 ya incluido</h3><p>En el monitor serie (115200): <code>IR LEER</code>, pulsa las 21 teclas una por una, <code>IR LISTA</code> para ver la tabla. Si alguna sale <code>?</code>: <code>IR GRABAR n</code> y pulsa esa tecla. Atajo físico: botón GPIO16 3 s. Este botón solo repasa el procedimiento.</p><button class="learnbtn" id="learnBtn" type="button">VER PASOS DE REGISTRO</button><span class="learnstatus" id="learnStatus" aria-live="polite">IR LEER → 21 TECLAS → IR LISTA</span></article>
+      </div>
+    </div>
+    <section class="tablebox"><div class="tablehead"><div><h3>Asignación funcional del mando</h3><p>Las acciones son intención; el firmware debe volver a validar nivel, timeout y estado de paro.</p></div></div><div class="scroll"><table><thead><tr><th>Tecla</th><th>Acción</th><th>Salida / estado</th><th>Frase</th></tr></thead><tbody id="remoteRows"></tbody></table></div></section>
+  </section>
+
+  <section class="view" id="tests" role="tabpanel">
+    <div class="viewhead"><div><p class="kicker">VISTA 05 · ENERGIZACIÓN ESCALONADA</p><h2>Pruebas y límites</h2><p>Marca PASS solo después de medir. Si un paso falla, corta energía y no avances al siguiente.</p></div><span class="count">PARO FÍSICO &gt; IR &gt; AUTOMATIZACIÓN</span></div>
+    <div class="warnwall"><article class="alert danger"><h3>Nunca desde el 5V del ESP32</h3><p>No alimentes bomba, ventilador ni audio de potencia desde ese pin. No conectes agua cerca de la electrónica energizada.</p></article><article class="alert"><h3>Banco actual ≠ potencia final</h3><p>MB102 es ligero. TP4056 solo fue adaptador temporal para bomba aislada. La fuente cerrada 5 V/5 A aún falta.</p></article><article class="alert"><h3>Relé fuera del núcleo</h3><p>Solo prueba separada: bobina confirmada 5 V, S8050 identificado y 1N4007 con raya/cátodo a +5 V, ánodo al lado conmutado.</p></article><article class="alert"><h3>Buzzer activo ya es núcleo</h3><p>TMB12A05 con segundo S8050 en GPIO15. El pasivo queda como banco opcional; no montar ambos en GPIO15.</p></article></div>
+    <div class="sequence" id="testSequence"></div>
+  </section>
+</main>
+<footer class="footer"><strong>PROJECT DOMUS · plano de montaje.</strong> Basado en el inventario confirmado y el manual maestro; ante una contradicción con una nota anterior, manda la arquitectura vigente mostrada aquí.</footer>
+<script>
+const views=[
+  ['today','Montaje con lo que tengo'],
+  ['final','Final después de comprar'],
+  ['map','Mapa completo'],
+  ['remote','Control Jarvis'],
+  ['tests','Pruebas']
+];
+const moduleGroups=[
+{title:'YA CONECTAR',kind:'connect',cards:[
+ {title:'LCD1602 + backpack',state:'YA TIENES · CONFIRMADO',color:'var(--three)',art:['LCD','I2C'],pins:'GND→GND · VCC→3V3 · SDA→GPIO21 · SCL→GPIO13',why:'Pantalla oficial; el conjunto ya funciona a 3.3 V.',pass:'Escáner encuentra 0x27 o 0x3F y el texto permanece estable.'},
+ {title:'DHT11 desnudo',state:'YA TIENES',color:'var(--three)',art:['DHT11','4 PATAS'],pins:'VCC→3V3 · DATA→GPIO14 · NC libre · GND→GND · 10 kΩ DATA↔3V3',why:'Temperatura y humedad ambiental.',pass:'Lecturas plausibles cada ≥2.2 s; desconexión no activa cargas.'},
+ {title:'Suelo + comparador',state:'YA TIENES',color:'var(--sig)',art:['SONDA','LM393'],pins:'Sonda→2P · VCC→3V3 · GND→GND · AO→GPIO1 · DO libre',why:'AO permite calibrar seco y húmedo; DO no se usa.',pass:'ADC cambia y se registran ambos extremos.'},
+ {title:'Nivel de agua',state:'YA TIENES',color:'var(--sig)',art:['TIRA','S/OUT'],pins:'VCC→3V3 · GND→GND · S/OUT→GPIO2',why:'Bloquea riego si falta agua.',pass:'Vacío, mínimo y lleno quedan registrados; placa seca.'},
+ {title:'LDR + 10 kΩ',state:'YA TIENES',color:'var(--sig)',art:['LDR','10 kΩ'],pins:'3V3→LDR→NODO→10 kΩ→GND · NODO→GPIO3',why:'Mide luz natural sin umbral copiado.',pass:'ADC cambia al tapar; registrar si sube o baja.'},
+ {title:'PIR',state:'YA TIENES · MEDIR',color:'var(--sig)',art:['PIR','OUT'],pins:'VCC según módulo · GND→GND · OUT→GPIO9 solo si ≤3.3 V',why:'Detecta movimiento, no distancia.',pass:'Tras calentamiento, OUT medido y eventos estables.'},
+  {title:'HX1838 + mando',state:'YA TIENES · NÚCLEO',color:'var(--sig)',art:['IR','38 kHz'],pins:'VCC→3V3 · GND→GND · OUT→GPIO12 · leer S/+/- del módulo',why:'Jarvis recibe órdenes fiables sin micrófono.',pass:'IR LEER + 21 teclas + IR LISTA; fijar con IR GRABAR n.'},
+  {title:'Paro, silencio y botón',state:'YA TIENES',color:'var(--sig)',art:['STOP','BTN'],pins:'GPIO10→botón→GND · GPIO11→botón→GND · GPIO16→botón→GND · INPUT_PULLUP',why:'STOP domina todo; botón 16 alterna sala (3 s = aprender IR).',pass:'Suelto=HIGH, pulsado=LOW; rebote controlado.'},
+  {title:'Buzzer activo TMB12A05',state:'YA TIENES · NÚCLEO',color:'var(--three)',art:['ACTIVO','5 V'],pins:'GPIO15→S8050→buzzer 5 V · HIGH = suena · no directo a GPIO',why:'Alarma de nivel/timeout y voz sin DFPlayer.',pass:'E/B/C del S8050 identificado; suena con VOZ de prueba.'},
+ {title:'Luces de habitaciones',state:'YA TIENES',color:'var(--load)',art:['SALA','DORM.'],pins:'GPIO5→resistencia/etapa→LED sala · GPIO6→resistencia/etapa→LED dormitorio',why:'Simulan iluminación doméstica.',pass:'Cada salida arranca apagada y no excede corriente verificada.'},
+ {title:'Luz suplementaria',state:'YA TIENES · ARMAR',color:'var(--load)',art:['2× AZUL','1× ROJO'],pins:'+5V→330 Ω individual→ánodo LED; cátodos→C S8050 · GPIO8→1 kΩ→B · B→10 kΩ→GND · E→GND',why:'Representa cultivo; no es UV y no funciona 24/7.',pass:'Tres resistencias individuales; S8050 E/B/C identificado.'}
+]},
+ {title:'PROBAR APARTE',kind:'test',cards:[
+  {title:'Relé desnudo 5 V',state:'FUERA DEL NÚCLEO',color:'var(--warn)',art:['BOBINA','COM/NO'],pins:'GPIO de banco→1 kΩ→S8050 · D1 1N4007 sobre bobina · raya/cátodo a +5 V',why:'Solo identificación y demostración; no controla motores finales.',pass:'Bobina y COM/NO/NC identificados por carcasa y continuidad.'},
+  {title:'Buzzer pasivo',state:'BANCO OPCIONAL',color:'var(--warn)',art:['PASIVO','TONO'],pins:'Resistencia/driver según corriente medida; GPIO aún sin asignar. No montar junto al activo en GPIO15.',why:'Tonos de diagnóstico simples.',pass:'Consumo seguro y sin caída del rail lógico.'},
+ {title:'TP4056 + bomba aislada',state:'TEMPORAL YA PROBADO',color:'var(--warn)',art:['TP4056','BOMBA'],pins:'Solo repetir como prueba aislada conocida; nunca ruta final de la casa.',why:'Sirvió para validar que la bomba gira.',pass:'Pulso corto con bomba en agua; módulo no se calienta.'}
+]},
+{title:'NO USAR',kind:'stop',cards:[
+ {title:'TA6586',state:'NO EXISTE',color:'var(--danger)',art:['TA6586','AUSENTE'],pins:'No diseñar conexiones para esta pieza.',why:'No está en el kit modificado.',pass:'No aparece en el montaje ni en la lista de disponibles.'},
+ {title:'Relés adicionales',state:'COMPRA CANCELADA',color:'var(--danger)',art:['4 RELÉS','CANCELADOS'],pins:'GPIO5–8 no van a módulos de relé.',why:'Las cargas DC usarán LED/driver apropiado y DRV8833.',pass:'Ningún relé figura en la arquitectura final.'},
+ {title:'Bomba desde ESP32/MB102',state:'PROHIBIDO',color:'var(--danger)',art:['5V ESP','× BOMBA'],pins:'No conectar bomba/motor al pin 5V del ESP32 ni asumir 3 A del MB102.',why:'Picos de arranque causan caída, daño o reinicios.',pass:'Cables de motor permanecen fuera del rail lógico.'}
+]}];
+const finalCards=[
+ {title:'Fuente + protección',state:'COMPRA PENDIENTE',color:'var(--five)',art:['5 V / 5 A','FUSIBLE 4 A'],pins:'Fuente cerrada→fusible lento→switch DC→bus 5 V; jack centro positivo medido.',why:'Entrega potencia con corte y distribución clara.',pass:'5.0 V sin carga y bajo carga; polaridad confirmada.'},
+ {title:'DRV8833 doble',state:'COMPRA PENDIENTE',color:'var(--load)',art:['CANAL A','CANAL B'],pins:'GPIO4/AIN1 bomba · AIN2/GND · GPIO7/BIN1 ventilador · BIN2/GND · nSLEEP/3V3.',why:'Controla ambos motores sin relés.',pass:'No calienta sin motor; cada canal probado por separado.'},
+  {title:'MAX98357A + parlante',state:'COMPRA PENDIENTE',color:'var(--audio)',art:['I2S AMP','4 Ω / 3 W'],pins:'VIN→5V · GND→GND · BCLK→GPIO16 · LRC→GPIO17 · DIN→GPIO18 · exclusivo con DFPlayer · parlante entre SPK+/SPK−.',why:'Reproduce frases españolas almacenadas en flash.',pass:'Tono limpio; ningún terminal de parlante va a GND.'},
+  {title:'DFPlayer (ya tienes)',state:'OPCIONAL · ARMANDO',color:'var(--audio)',art:['MP3','SD'],pins:'ESP_TX→1 k→DF_RX(17) · DF_TX→ESP_RX(18) · 9600 · microSD con 0001.mp3… · exclusivo con MAX.',why:'Voz con pistas grabadas sin esperar al MAX.',pass:'Suena la pista pedida; sin DF todo cae a buzzer + LCD.'},
+ {title:'INMP441',state:'OPCIONAL · NO COMPRAR AHORA',color:'var(--audio)',art:['MIC','OPCIONAL'],pins:'Sin asignación; requiere rediseño si se retoma. GPIO15 queda para buzzer y GPIO16–18 para MAX98357A.',why:'Jarvis IR no necesita micrófono y la feria no depende de reconocimiento de voz.',pass:'Permanece fuera del alcance actual y sin pinout publicado.'},
+ {title:'Montaje permanente',state:'COMPRA PENDIENTE',color:'var(--gnd)',art:['BAQUELITA','BORNERAS'],pins:'Baquelita 100×220 · borneras · cableado separado para motores/audio y sensores.',why:'Aleja conexiones de agua y reduce falsos contactos.',pass:'Ramales de carga regresan al distribuidor, no por sensores.'},
+ {title:'Desacoplo',state:'COMPRA PENDIENTE',color:'var(--three)',art:['1000 µF','100 nF'],pins:'1000 µF/25 V cerca de DRV8833 y amplificador; 100 nF local.',why:'Reduce picos y ruido, sin ocultar una fuente insuficiente.',pass:'Franja negativa a GND; sin calentamiento ni abombamiento.'}
+];
+const pinRows=[
+ ['1','Humedad de suelo','AO del comparador','YA TIENES','entrada ADC'],
+ ['2','Nivel de agua','S/OUT analógico','YA TIENES · verificar exposición','entrada ADC'],
+ ['3','Luz ambiente','nodo LDR / 10 kΩ','YA TIENES','entrada ADC'],
+ ['4','Bomba final','AIN1 del DRV8833','COMPRA PENDIENTE','LOW / apagada'],
+ ['5','Luz sala','resistencia o etapa adecuada','YA TIENES · armar','apagada'],
+ ['6','Luz dormitorio','resistencia o etapa adecuada','YA TIENES · armar','apagada'],
+ ['7','Ventilador final','BIN1 del DRV8833','COMPRA PENDIENTE','LOW / apagado'],
+ ['8','Luces cultivo','1 kΩ → base S8050','YA TIENES · armar','LOW / apagadas'],
+ ['9','Presencia','PIR OUT ≤3.3 V','YA TIENES · verificar exposición','entrada'],
+ ['10','Paro físico','botón a GND','YA TIENES','INPUT_PULLUP'],
+ ['11','Silencio Jarvis','botón a GND','YA TIENES','INPUT_PULLUP'],
+ ['12','Control Jarvis','OUT HX1838 38 kHz','YA TIENES','entrada IR'],
+ ['13','LCD I2C','SCL','YA TIENES · verificar exposición','I2C'],
+ ['14','DHT11','DATA + pull-up 10 kΩ','YA TIENES','entrada'],
+  ['15','Buzzer activo','GPIO15 → S8050 → buzzer 5 V','YA TIENES · núcleo','apagado'],
+  ['16','Botón sala','botón a GND · 3 s = aprender IR','YA TIENES','INPUT_PULLUP'],
+  ['17','DFPlayer TX / MAX LRC','Serial1 9600 o I2S futuro · exclusivos','OPCIONAL / COMPRA','serie / I2S'],
+  ['18','DFPlayer RX / MAX DIN','Serial1 9600 o I2S futuro · exclusivos','OPCIONAL / COMPRA','serie / I2S'],
+ ['21','LCD I2C','SDA','YA TIENES','I2C'],
+ ['19 / 20','USB nativo','reservados','NO USAR','reservado']
+];
+const remoteActions=[
+  ['CH−','Modo manual','Estado MANUAL','“Modo manual activado.”','fn'],
+  ['CH','Página LCD','CH cambia 1/4','“(sin frase: cambia de página)”','fn'],
+  ['CH+','Modo automático','Estado AUTO','“Modo automático activado.”','fn'],
+  ['PREV','Luz sala (= 1)','GPIO5','“He encendido la luz de la sala.”','fn'],
+  ['NEXT','Dormitorio (= 2)','GPIO6','“He encendido la luz del dormitorio.”','fn'],
+  ['PLAY','Pausar / continuar voz','Jarvis','“Voz pausada.” / “Voz reanudada.”','fn'],
+  ['VOL−','Bajar volumen','Jarvis VOL (repeat vale)','“Volumen N.”','fn'],
+  ['VOL+','Subir volumen','Jarvis VOL (repeat vale)','“Volumen N.”','fn'],
+  ['EQ','Diagnóstico general','Serial + LCD','“Diagnóstico completado. El sistema funciona correctamente.”','fn'],
+  ['0','Apagado general','OUT=00000','“Todas las cargas han sido apagadas.”','danger'],
+  ['100+','Silenciar Jarvis','Estado MUTE','“Jarvis silenciado.” / “Sonido activado.”','fn'],
+  ['200+','Rearme manual','Bloqueo + paro libre','“Sistema rearmado.”','danger'],
+  ['1','Sala','GPIO5','“He encendido la luz de la sala.”',''],
+  ['2','Dormitorio','GPIO6','“He encendido la luz del dormitorio.”',''],
+  ['3','Cultivo','GPIO8 S8050','“Iluminación suplementaria de cultivo activada.”',''],
+  ['4','Ventilación','GPIO7 / DRV8833','“He encendido la ventilación.”',''],
+  ['5','Solicitar riego','GPIO4 / DRV8833','“El suelo está seco… Iniciando riego.” / “No puedo regar: poca agua.”',''],
+  ['6','Temperatura','DHT11 + LCD','“Temperatura consultada. El valor aparece en pantalla.”',''],
+  ['7','Humedad aire','DHT11 + LCD','“Humedad consultada. El valor aparece en pantalla.”',''],
+  ['8','Suelo y nivel','ADC + LCD','“Suelo y nivel en pantalla.”',''],
+  ['9','Estado completo','Serial + LCD','“Estado completo en pantalla y puerto serial.”','']
+];
+const tests=[
+ ['Inspección sin corriente','Revisa polaridad, E/B/C real, cables sueltos y continuidad +5 V↔GND sin corto.'],
+ ['USB + firmware de banco','ESP32 inicia sin actuadores; todas las salidas permanecen apagadas.'],
+ ['LCD de cuatro cables','GND, 3V3, SDA21, SCL13; escáner detecta 0x27 o 0x3F.'],
+ ['Sensores uno por uno','DHT, LDR, suelo, nivel y PIR entregan datos plausibles; registra calibraciones.'],
+  ['HX1838 y mando','VCC 3V3, GND, OUT12; IR LEER + 21 teclas + IR LISTA; fijar con IR GRABAR n.'],
+  ['Paro físico','GPIO10 LOW apaga todo y domina IR y automatización; 200+ solo rearma con paro libre.'],
+  ['Botón y buzzer','GPIO16 alterna sala (3 s = aprender); GPIO15 vía S8050 suena con cada frase Jarvis.'],
+ ['Luces de banco','GPIO5/6 y etapa GPIO8 arrancan apagadas; cada LED tiene resistencia adecuada.'],
+ ['Fuente final sola','Tras comprar: verificar centro positivo, 5.0 V, fusible 4 A y switch.'],
+ ['DRV8833 sin motores','VM/GND/nSLEEP y entradas correctas; el módulo no se calienta.'],
+ ['Bomba dentro de agua','Pulso corto; nunca en seco. Confirmar timeout y bloqueo por nivel.'],
+ ['Ventilador separado','Probar canal B, sentido de giro, arranque y temperatura.'],
+ ['Dos motores juntos','Vigilar caída de 5 V, reinicios, ruido y calentamiento.'],
+ ['Audio por separado','MAX98357A reproduce tono/frase; parlante solo entre SPK+ y SPK−.'],
+ ['Integración vigilada 1 h','Cortar ante olor, humo, cable caliente, reinicios, agua o tensión anormal.']
+];
+const wiring=[
+ ['var(--gnd)','Une los GND de ESP32, sensores, HX1838 y etapas de control.'],
+ ['var(--three)','Desde 3V3 alimenta LCD, DHT11, suelo, nivel, LDR y HX1838.'],
+ ['var(--sig)','Conecta LCD SDA→GPIO21 y SCL→GPIO13; solo cuatro cables externos.'],
+ ['var(--sig)','Conecta suelo AO→GPIO1, nivel S/OUT→GPIO2 y nodo LDR→GPIO3.'],
+ ['var(--sig)','Conecta PIR OUT→GPIO9 solo después de medir ≤3.3 V.'],
+ ['var(--sig)','Conecta DHT DATA→GPIO14 y 10 kΩ entre DATA y 3V3.'],
+  ['var(--sig)','Conecta STOP→GPIO10/GND, MUTE→GPIO11/GND y BTN sala→GPIO16/GND con INPUT_PULLUP.'],
+  ['var(--sig)','Conecta HX1838 OUT→GPIO12 (leer S/+/-) y registra las 21 teclas con IR LEER.'],
+  ['var(--three)','Conecta GPIO15→S8050→buzzer activo 5 V; HIGH = suena.'],
+ ['var(--load)','Monta LED sala GPIO5 y dormitorio GPIO6 con corriente limitada.'],
+ ['var(--load)','Monta GPIO8→1 kΩ→S8050, pull-down 10 kΩ y tres LED con 330 Ω individual.'],
+ ['var(--warn)','Prueba relé, buzzers y bomba temporal únicamente en bancos separados.'],
+ ['#bfa6ff','Después de comprar, monta fuente→fusible→switch→bus antes del DRV8833/audio.']
+];
+const routes={
+ sensor:[['GPIO1','Suelo AO'],['GPIO2','Nivel S/OUT'],['GPIO3','Nodo LDR'],['GPIO9','PIR OUT'],['GPIO14','DHT DATA'],['GPIO21/13','LCD SDA/SCL']],
+  control:[['GPIO12','HX1838 IR'],['GPIO10','Paro físico'],['GPIO11','Silencio Jarvis'],['GPIO16','Botón sala'],['GPIO15','Buzzer S8050']],
+  load:[['GPIO4','DRV8833 AIN1 · pendiente'],['GPIO5','LED sala'],['GPIO6','LED dormitorio'],['GPIO7','DRV8833 BIN1 · pendiente'],['GPIO8','S8050 cultivo']],
+  audio:[['GPIO15','Buzzer núcleo'],['GPIO17/18','DFPlayer opcional'],['16/17/18','MAX futuro exclusivo'],['FLASH','Frases en español']]
+};
+const tabRoot=document.querySelector('#viewTabs');
+let activeView='today';
+function renderTabs(){
+ tabRoot.innerHTML=views.map((v,i)=>`<button class="viewtab" role="tab" aria-selected="${v[0]===activeView}" aria-controls="${v[0]}" data-view="${v[0]}" tabindex="${v[0]===activeView?0:-1}">${v[1]}</button>`).join('');
+ tabRoot.querySelectorAll('button').forEach((b,i)=>{
+  b.onclick=()=>showView(b.dataset.view,true);
+  b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='Home'||e.key==='End'){e.preventDefault();let n=e.key==='Home'?0:e.key==='End'?views.length-1:(i+(e.key==='ArrowRight'?1:-1)+views.length)%views.length;showView(views[n][0],false);tabRoot.querySelectorAll('button')[n].focus()}};
+ });
+}
+function showView(id,scroll){
+ activeView=id;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));renderTabs();if(scroll)document.querySelector('main').scrollIntoView({behavior:'smooth'});
+}
+function artHTML(parts,color){
+ return `<div class="miniart" style="--c:${color}"><span class="part">${parts[0]}</span><i class="bar"></i><span class="part ${parts[1].includes('AUSENTE')||parts[1].includes('CANCEL')?'dashed':''}">${parts[1]}</span></div>`;
+}
+function cardHTML(c,kind='connect'){
+ return `<article class="mcard ${kind==='buy'?'future':''} ${kind==='stop'?'blocked':''}" style="--c:${c.color}"><div class="mhead"><h4>${c.title}</h4><span class="mstate">${c.state}</span></div>${artHTML(c.art,c.color)}<dl><dt>CONEXIÓN</dt><dd class="pins">${c.pins}</dd><dt>RAZÓN</dt><dd>${c.why}</dd></dl><p class="pass"><b>PASS:</b> ${c.pass}</p></article>`;
+}
+document.querySelector('#todayGroups').innerHTML=moduleGroups.map(g=>`<section class="group"><div class="grouptitle"><h3>${g.title}</h3><span class="status-tag ${g.kind}">${g.cards.length} MÓDULOS</span></div><div class="cards">${g.cards.map(c=>cardHTML(c,g.kind)).join('')}</div></section>`).join('');
+document.querySelector('#finalCards').innerHTML=finalCards.map(c=>cardHTML(c,'buy')).join('');
+function routeHTML(arr,color,markPending=false){return arr.map(r=>`<div class="route ${markPending&&r[1].includes('pendiente')?'off':''}" style="--c:${color}"><code>${r[0]}</code><span><strong>${r[1]}</strong></span></div>`).join('')}
+document.querySelector('#sensorRoutes').innerHTML=routeHTML(routes.sensor,'var(--three)');
+document.querySelector('#controlRoutes').innerHTML=routeHTML(routes.control,'var(--sig)');
+document.querySelector('#loadRoutes').innerHTML=routeHTML(routes.load,'var(--load)',true);
+document.querySelector('#audioRoutes').innerHTML=routeHTML(routes.audio,'var(--audio)',true);
+document.querySelector('#pinRows').innerHTML=pinRows.map(r=>{let cls=r[3].includes('PENDIENTE')?'pending':r[3].includes('NO USAR')?'blocked-txt':r[3].includes('YA TIENES')?'ready':'separate-txt';return `<tr><td>GPIO${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="${cls}">${r[3]}</td><td>${r[4]}</td></tr>`}).join('');
+document.querySelector('#wireSteps').innerHTML=wiring.map(w=>`<div class="wirestep" style="--c:${w[0]}">${w[1]}</div>`).join('');
+document.querySelector('#remoteGrid').innerHTML=remoteActions.map((a,i)=>`<button type="button" class="rkey ${a[4]} ${i===9?'active':''}" data-key="${a[0]}" aria-pressed="${i===9}">${a[0]}</button>`).join('');
+document.querySelector('#remoteRows').innerHTML=remoteActions.map(a=>`<tr><td>${a[0]}</td><td>${a[1]}</td><td>${a[2]}</td><td>${a[3]}</td></tr>`).join('');
+function selectRemote(key){
+ const a=remoteActions.find(x=>x[0]===key);if(!a)return;
+ document.querySelectorAll('.rkey').forEach(b=>{const on=b.dataset.key===key;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+ document.querySelector('#pressedKey').textContent='TECLA '+a[0];document.querySelector('#actionTitle').textContent=a[1];document.querySelector('#actionDetail').textContent='Ruta: mando → HX1838 → GPIO12 → '+a[2]+'. El firmware vuelve a comprobar seguridad antes de actuar.';document.querySelector('#jarvisPhrase').textContent='JARVIS: '+a[3];document.querySelector('#outputNode').innerHTML=a[2].toUpperCase().replace(' / ','<br>');
+}
+document.querySelectorAll('.rkey').forEach(b=>b.onclick=()=>selectRemote(b.dataset.key));
+document.querySelector('#learnBtn').onclick=()=>{document.querySelector('#learnStatus').textContent='1) IR LEER · 2) PULSA 21 TECLAS · 3) IR LISTA · 4) IR GRABAR n SI FALTA';document.querySelector('#learnBtn').textContent='PASOS MOSTRADOS · HAZLO EN EL MONITOR SERIE'};
+document.querySelector('#testSequence').innerHTML=tests.map((t,i)=>`<article class="testrow"><div><h4>${t[0]}</h4><p>${t[1]}</p></div><label class="check"><input type="checkbox" aria-label="Marcar PASS: ${t[0]}"> PASS</label></article>`).join('');
+renderTabs();
+</script>
+</body>
+</html>
