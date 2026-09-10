@@ -35,9 +35,11 @@ class PantallaBonita {
 
   // Llamar cada loop. Si hay feedback activo lo muestra con animación,
   // si no la página correspondiente. `jarvisScroll` es la frase larga actual.
+  // `cal` = calibración guardada: sin ella jamás se presentan % de sensores.
   void actualizar(const Sensores& s, const bool* enc, bool modoAuto,
                   uint8_t volumen, bool vozOff, bool mute, bool paro,
-                  bool seguro, const char* jarvisScroll, uint16_t ultimoIR) {
+                  bool seguro, const char* jarvisScroll, uint16_t ultimoIR,
+                  bool cal) {
     if (!lcd_) return;
     const uint32_t ahora = millis();
     if (ahora < feedbackHasta_) { dibujarFeedback(ahora); return; }
@@ -60,10 +62,16 @@ class PantallaBonita {
                  enc[1] ? 'S' : '-', enc[2] ? 'C' : '-', enc[4] ? 'I' : '-',
                  enc[3] ? 'V' : '-', enc[0] ? 'R' : '-');
         break;
-      case 1: // Sensores: suelo / nivel / luz + PIR
-        if (s.sueloValido) snprintf(f0, 17, "\x00S:%3d%% \x03N:%4d", s.sueloPct, s.nivel);
-        else snprintf(f0, 17, "\x00S:---  \x03N:%4d", s.nivel);
-        snprintf(f1, 17, "\x01L:%3d%% PIR:%c %c", s.luzPct, s.presencia ? '*' : '-', sp);
+      case 1: // Sensores: suelo / nivel / luz + PIR (nunca % sin calibrar)
+        if (!cal) {
+          snprintf(f0, 17, "CAL PENDIENTE   ");
+          snprintf(f1, 17, "PARO y CAL serie");
+        } else {
+          if (s.sueloValido) snprintf(f0, 17, "\x00S:%3d%% \x03N:%4d", s.sueloPct, s.nivel);
+          else snprintf(f0, 17, "\x00S:---  \x03N:%4d", s.nivel);
+          if (s.luzValida) snprintf(f1, 17, "\x01L:%3d%% PIR:%c %c", s.luzPct, s.presencia ? '*' : '-', sp);
+          else snprintf(f1, 17, "\x01L:---  PIR:%c %c", s.presencia ? '*' : '-', sp);
+        }
         break;
       case 2: // Salidas 5 cargas bien dibujadas
         snprintf(f0, 17, "R%c S%c C%c V%c I%c",

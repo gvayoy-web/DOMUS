@@ -16,7 +16,7 @@ diagnóstico se aceptan localmente por USB Serial.
 - Voz local: [`firmware/JARVIS_LOCAL.md`](firmware/JARVIS_LOCAL.md)
 - Plan completo: [`PLAN_PROYECTO.md`](PLAN_PROYECTO.md)
 - Entrega consolidada: [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md)
-- Guía para exposición: [`EXPOSICION_PROYECTO.txt`](EXPOSICION_PROYECTO.txt)
+- Diagramas de cableado: [`visualizaciones/diagrama-final.html`](visualizaciones/diagrama-final.html) y [`visualizaciones/diagrama-cableado-interactivo/index.html`](visualizaciones/diagrama-cableado-interactivo/index.html)
 - Prueba de micrófono: [`firmware/inmp441_poc`](firmware/inmp441_poc)
 - Prueba de voz española: [`firmware/picotts_poc`](firmware/picotts_poc)
 - Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)

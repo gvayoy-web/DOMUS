@@ -192,7 +192,8 @@ void inicializarPantalla() {
 void actualizarPantalla() {
   if (!lcdDisponible) return;
   pantalla.actualizar(sensores, encendida, modoAuto, voz.volumen(),
-    voz.pausa(), voz.mute(), paro, modoSeguro, voz.ultimaFrase(), ultimoIR);
+    voz.pausa(), voz.mute(), paro, modoSeguro, voz.ultimaFrase(), ultimoIR,
+    calibracionGuardada);
 }
 
 void cargarCalibracion() {
@@ -238,19 +239,25 @@ bool procesarCalibracion(const char *texto) {
 }
 
 void informarEstado(bool diagnostico) {
+  // Ráfagas por UART 115200 (FIFO 128 B vía CH343): pausar tras cada línea
+  // para no perderlas. ~10 ms por línea; solo en diagnósticos puntuales.
   if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;DRV=%d;DF=%d;FIS=%d%d%d%d%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
     PERFIL_PLACA,PERFIL_PRUEBA,USAR_DRV8833,DFPLAYER_HABILITADO,
     SALIDA_FISICA_HABILITADA[0],SALIDA_FISICA_HABILITADA[1],SALIDA_FISICA_HABILITADA[2],
     SALIDA_FISICA_HABILITADA[3],SALIDA_FISICA_HABILITADA[4],
     encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],paro,modoSeguro);
+    Serial.flush();
   notificarFormato("ESTADO;PARO=%d;SEGURO=%d;BLOQUEO_BOMBA=%d;MODO=%s;VOL=%u;MUTE=%d;PAUSA=%d;OUT=%d%d%d%d%d;CAL=%d;TX_OMITIDOS=%lu",
     paro,modoSeguro,bloqueoBomba,modoAuto?"AUTO":"MANUAL",voz.volumen(),voz.mute(),voz.pausa(),
     encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],calibracionGuardada,
     static_cast<unsigned long>(mensajesOmitidos));
+  Serial.flush();
   if (diagnostico) notificarFormato("SALUD;HEAP=%lu;LCD=%d;DHT=%d;IR=%04X;MOTIVO=%s",
     static_cast<unsigned long>(esp_get_free_heap_size()),lcdDisponible,sensores.ambienteValido,ultimoIR,motivoSeguro);
+  if (diagnostico) Serial.flush();
   if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;ADC=1,2,3;PIR=9;IR=12;BTN=16;I2C=21,13;DF=18,17",
     PERFIL_PLACA,PERFIL_PRUEBA);
+  if (diagnostico) Serial.flush();
 }
 
 // Alterna una salida por IR/botón con feedback bonito + Jarvis.
@@ -479,8 +486,10 @@ void procesarLinea(const char *texto) {
     notificarFormato("ACK;IR;APRENDER=%d", ir.modoAprender());
   }
   else if (comando.tipo==TipoComando::IR_LISTA) {
-    for (uint8_t i = 0; i < 21; ++i)
+    for (uint8_t i = 0; i < 21; ++i) {
       notificarFormato("IR;TECLA=%s;CMD=0x%02X", IRDOMUS::GestorIR::nombre(i), ir.codigoDe(i));
+      Serial.flush(); // ráfaga 21 líneas por UART 115200: no saturar FIFO.
+    }
   }
   else if (comando.tipo==TipoComando::IR_BORRAR) { ir.borrar(); notificar("ACK;IR;DEFECTO"); }
   else if (comando.tipo==TipoComando::AUTO) { escribirSalida(comando.salida,false); propietario[comando.salida]=Propietario::AUTO; notificar("ACK;AUTO;SALIDA_OFF"); }

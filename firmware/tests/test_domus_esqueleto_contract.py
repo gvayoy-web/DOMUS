@@ -16,18 +16,21 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         cls.protocol = (BASE / "domus_protocol.h").read_text(encoding="utf-8")
 
     def test_outputs_remain_disabled_until_physical_validation(self):
+        # Motores (bomba/vent) bloqueados hasta DRV medido; LED ya validados.
         self.assertRegex(self.config, r"HABILITAR_BOMBA\s*=\s*false")
+        self.assertRegex(self.config, r"USAR_DRV8833\s*=\s*false")
+        self.assertRegex(self.config, r"DFPLAYER_HABILITADO\s*=\s*false")
         self.assertRegex(
             self.config,
-            r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_BOMBA,\s*false,\s*false,\s*false,\s*false",
+            r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_BOMBA\s*&&\s*USAR_DRV8833",
         )
-        self.assertIn('PERFIL_PRUEBA[] = "BANCO_SIN_ACTUADORES"', self.config)
+        self.assertIn('PERFIL_PRUEBA[] = "BANCO_IR_LCD"', self.config)
         self.assertIn("salida_sin_etapa_habilitada", self.sketch)
 
-    def test_only_pump_can_be_physically_enabled(self):
+    def test_only_drv_build_can_enable_motors(self):
         self.assertIn("SALIDA_FISICA_HABILITADA[salida]", self.sketch)
         self.assertIn("SALIDA_FISICA_HABILITADA[i]?OUTPUT:INPUT", self.sketch)
-        self.assertIn("GPIO5-8 no tienen etapa fisica", self.config)
+        self.assertIn("HABILITAR_BOMBA && USAR_DRV8833", self.config)
         self.assertIn("ACTIVA_LOW[] = {false, false, false, false, false}", self.config)
 
     def test_diagnostics_identify_board_and_sensor_validity(self):
@@ -36,7 +39,7 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         diagnostic = self.sketch.split("void informarEstado(bool diagnostico)", 1)[1].split(
             "void procesarLinea", 1
         )[0]
-        self.assertIn("DIAGNOSTICO;PLACA=%s;PERFIL=%s;FIS=%d%d%d%d%d", diagnostic)
+        self.assertIn("DIAGNOSTICO;PLACA=%s;PERFIL=%s;DRV=", diagnostic)
         self.assertLess(diagnostic.index("DIAGNOSTICO;PLACA="), diagnostic.index("ESTADO;PARO="))
         for flag in ("VS=%d", "VN=%d", "VL=%d", "VA=%d"):
             self.assertIn(flag, self.sketch)
@@ -67,11 +70,34 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         self.assertNotIn("true)", recovery)
 
     def test_lcd_does_not_present_invalid_adc_as_a_percentage(self):
-        display = self.sketch.split("void actualizarPantalla()", 1)[1].split(
-            "void cargarCalibracion()", 1
+        lcd = (BASE / "domus_lcd.h").read_text(encoding="utf-8")
+        self.assertIn("CAL PENDIENTE", lcd)
+        self.assertIn("DHT SIN DATOS", lcd)
+        self.assertIn("sueloValido", lcd)
+        self.assertIn("luzValida", lcd)
+        self.assertIn("S:---", lcd)
+
+    def test_diagnostic_bursts_are_paced_for_uart_fifo(self):
+        body = self.sketch.split("void informarEstado(bool diagnostico)", 1)[1].split(
+            "void alternarIR", 1
         )[0]
-        self.assertIn("sensores.sueloValido && sensores.luzValida", display)
-        self.assertIn('"ERR"', display)
+        # Cada línea de la ráfaga DIAGNOSTICO/ESTADO/SALUD/BANCO cede el UART.
+        self.assertGreaterEqual(body.count("Serial.flush();"), 4)
+        lista = self.sketch.split("TipoComando::IR_LISTA", 1)[1].split(
+            "TipoComando::IR_BORRAR", 1
+        )[0]
+        self.assertIn("Serial.flush();", lista)
+
+    def test_ir_remote_cannot_bypass_physical_safety(self):
+        ir = (BASE / "domus_ir.h").read_text(encoding="utf-8")
+        self.assertIn("IRDATA_FLAGS_IS_REPEAT", ir)
+        self.assertIn("T_NINGUNA", ir)
+        self.assertIn("TECLA NUEVA", self.sketch)
+        safety_first = self.sketch.index("revisarSeguridad();")
+        self.assertLess(safety_first, self.sketch.index("revisarIR();"))
+        self.assertLess(safety_first, self.sketch.index("revisarAutomatizacion();"))
+        self.assertIn("PIN_PARO", self.sketch.split("void revisarSeguridad()", 1)[1].split(
+            "void revisarSalud()", 1)[0])
 
 
 if __name__ == "__main__":
