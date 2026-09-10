@@ -67,34 +67,36 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 <div class="pass"><b>PASS:</b> cargas el firmware y el monitor serie (115200) dice <span class="pins">DOMUS_LISTO;PLACA=ESP32-S3-N16R8</span>.</div></div>
 
 <div class="step"><h2><span class="n">1</span>La protoboard: tu mesa de pruebas <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLA</h3><div class="rec">Tabla blanca con muchos huequitos. Las <b>líneas rojas y azules</b> de los bordes son los rieles de corriente: todo lo conectado a la misma línea roja comparte 5 V/3V3 y todo lo de la azul comparte GND. OJO: si la línea tiene un <b>corte a la mitad</b>, el riel está partido en dos y debes puentearlo. Los huecos del centro van en columnas de 5 unidos por dentro.</div>
-<h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>3V3 del ESP32</td><td>Riel rojo (línea +)</td></tr><tr><td>GND del ESP32</td><td>Riel azul (línea −)</td></tr></table>
-<div class="pass"><b>PASS:</b> multímetro entre rieles: 3.3 V. Entre cualquier punto del mismo riel: 0 Ω (continuidad).</div></div>
+<h3>CÓMO RECONOCERLA</h3><div class="rec">Tabla blanca con muchos huequitos, partida por un <b>surco central</b>: los 5 huecos de cada columna de un mismo lado del surco están unidos por dentro (misma columna = mismo cable). Los bordes con <b>líneas rojas y azules</b> son los rieles de corriente de toda la fila. OJO: si la línea roja/azul tiene un <b>corte a la mitad del dibujo</b>, el riel está partido en dos y debes puentearlo con un cable U.</div>
+<h3>CÓDIGO DE COLORES (úsalo en TODO el proyecto)</h3><table class="wires"><tr><th>Cable</th><th>Lleva</th></tr><tr><td>Rojo</td><td>+5 V</td></tr><tr><td>Naranja</td><td>+3V3</td></tr><tr><td>Negro (o marrón)</td><td>GND</td></tr><tr><td>Amarillo</td><td>Señal digital (botones, IR, DHT, PIR)</td></tr><tr><td>Verde o azul</td><td>Señal analógica (suelo, nivel, LDR)</td></tr><tr><td>Blanco</td><td>Repuesto / audio</td></tr></table>
+<h3>CONEXIÓN EXACTA (3 rieles: marca el de 5 V con cinta)</h3><table class="wires"><tr><th>De (pin ESP32)</th><th>Cable</th><th>A</th></tr><tr><td>3V3</td><td>Naranja</td><td>Riel marcado 3V3</td></tr><tr><td>GND</td><td>Negro</td><td>Riel azul GND</td></tr><tr><td>VIN (o 5V / VUSB según tu placa: es el USB pasado)</td><td>Rojo</td><td>Riel marcado 5V (para buzzer y cultivo)</td></tr></table>
+<div class="warn"><b>OJO:</b> el USB da máximo ~500 mA: alcanza para LED, buzzer y sensores, pero NUNCA para bomba ni motores (esos van a la fuente final). Todo lo que vaya al mismo riel comparte corriente: si algo calienta o el ESP se reinicia, desconecta y revisa.</div>
+<div class="pass"><b>PASS:</b> multímetro: riel naranja = 3.3 V, riel rojo = 5 V, riel negro = 0 V contra cualquiera. Continuidad a lo largo de cada riel.</div></div>
 
 <div class="step"><h2><span class="n">2</span>Pantalla LCD1602 con backpack I2C <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLA</h3><div class="rec">Pantalla verde/azul de 16×2 caracteres. Detrás trae soldada una plaquita azul (el backpack) con <b>solo 4 patas: GND · VCC · SDA · SCL</b> y un <b>cuadrito azul con cruz</b> (potenciómetro de contraste). Si la pantalla enciende pero solo se ven cuadritos, gira ese cuadrito despacio con destornillador hasta ver letras.</div>
+<h3>CÓMO RECONOCERLA</h3><div class="rec">Pantalla verde/azul de 16×2 caracteres. Detrás trae soldada una plaquita azul (el backpack) con <b>solo 4 patas</b> impresas <span class="pins">GND · VCC · SDA · SCL</span> (típico en ese orden: verifica las letras) y un <b>cuadrito azul con cruz</b> (potenciómetro de contraste). Si la pantalla enciende pero solo se ven cuadritos, gira ese cuadrito despacio con destornillador hasta ver letras.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata LCD</th><th>A</th></tr><tr><td>GND</td><td>GND (riel azul)</td></tr><tr><td>VCC</td><td>3V3 (riel rojo) · NUNCA 5 V</td></tr><tr><td>SDA</td><td>GPIO21</td></tr><tr><td>SCL</td><td>GPIO13</td></tr></table>
 <div class="pass"><b>PASS:</b> al arrancar dice <span class="pins">PROJECT DOMUS</span> con barra de progreso. CH cambia entre 4 páginas.</div></div>
 
 <div class="step"><h2><span class="n">3</span>Botones: PARO, silencio y sala <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLOS</h3><div class="rec">Botoncitos cuadrados o redondos de 4 patas: <b>las 2 patas de cada lado ya vienen unidas por dentro</b>, así que conecta siempre <b>esquinas opuestas en diagonal</b> (o verifica con el multímetro en continuidad: pita solo al pulsar).</div>
-<h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Botón</th><th>De</th><th>A</th></tr><tr><td>PARO (rojo ideal)</td><td>GPIO10</td><td>GND (al pulsar une a tierra)</td></tr><tr><td>Silencio Jarvis</td><td>GPIO11</td><td>GND</td></tr><tr><td>Sala</td><td>GPIO16</td><td>GND</td></tr></table>
+<h3>CÓMO RECONOCERLOS</h3><div class="rec">Botoncitos de 4 patas (tienes cuadrados y redondos): <b>las 2 patas de cada lado ya vienen unidas por dentro</b>, por eso se conectan <b>esquinas opuestas en diagonal</b> (así el botón sí abre y cierra). Si dudas: multímetro en continuidad, pita solo al pulsar. Reparte colores: <b>rojo = PARO</b>, otro color = silencio y sala, para no confundirlos a ciegas.</div>
+<h3>CONEXIÓN EXACTA (cable amarillo del GPIO al botón, negro del botón a GND)</h3><table class="wires"><tr><th>Botón</th><th>De</th><th>A</th></tr><tr><td>PARO (rojo ideal)</td><td>GPIO10</td><td>GND (al pulsar une a tierra)</td></tr><tr><td>Silencio Jarvis</td><td>GPIO11</td><td>GND</td></tr><tr><td>Sala</td><td>GPIO16</td><td>GND</td></tr></table>
 <div class="warn"><b>OJO:</b> el botón de sala se movió a GPIO16 porque el 12 lo ocupa el infrarrojo. PARO manda sobre todo: IR, automatización y rearme.</div>
 <div class="pass"><b>PASS:</b> sueltos leen HIGH, pulsados LOW. PARO apaga todo; sala alterna el LED con letras + animación en LCD.</div></div>
 
 <div class="step"><h2><span class="n">4</span>Receptor infrarrojo HX1838 + control CAR MP3 <span class="tag have">YA TIENES · NÚCLEO JARVIS</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita pequeña con un foquito negro: míralo <b>de frente por su lado plano</b> (la bolita redonda mira al control). En la plaquita hay <b>3 letras impresas: S · + · −</b>. NO asumas el orden por posición: <b>lee las letras</b>. El control es el gris de 21 teclas (CH−, CH, CH+, 0–9, VOL, EQ…).</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita pequeña con un foquito negro: el foquito tiene un <b>lado plano al frente</b> (la pancita redonda mira al control, a máximo ~5 m y apuntando directo). En la plaquita hay <b>3 letras impresas: S · + · −</b>. NO asumas el orden por posición: <b>lee las letras</b> (en la plaquita más común van S · + · −, pero manda lo impreso en la tuya). El control gris de 21 teclas usa pila de botón <b>CR2025</b>: si no responde nada, cambia la pila primero.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata (letra)</th><th>A</th></tr><tr><td>S (señal/OUT)</td><td>GPIO12</td></tr><tr><td>+ (la del medio normalmente)</td><td>3V3</td></tr><tr><td>−</td><td>GND</td></tr></table>
 <h3>APRENDER TU CONTROL (los códigos varían por lote)</h3><div class="rec">Monitor serie: escribe <span class="pins">IR LEER</span> → pulsa las 21 teclas una por una → escribe <span class="pins">IR LISTA</span>. Si alguna sale <span class="pins">?</span>: <span class="pins">IR GRABAR n</span> y pulsa esa tecla. Atajo: botón sala 3 segundos.</div>
 <div class="pass"><b>PASS:</b> cada tecla imprime <span class="pins">IR;CMD=0x…;TECLA=…</span> y ejecuta su acción (1 = sala, 5 = riego, EQ = diagnóstico…).</div></div>
 
 <div class="step"><h2><span class="n">5</span>Buzzer activo: la voz de respaldo <span class="tag have">YA TIENES · NÚCLEO</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Cilindro negro con <b>signo + impreso arriba</b> (pata larga = +) y texto <span class="pins">TMB12A05 5V</span>: es el ACTIVO (suena con solo darle corriente). El PASIVO no trae marca y necesita tonos: no montes los dos en GPIO15. Como es de 5 V, <b>no va directo al GPIO</b>: lo maneja un transistor S8050.</div>
-<h3>CONEXIÓN EXACTA (driver con S8050)</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>Buzzer + (pata larga)</td><td>+5 V del USB/bus (NO del pin 3V3)</td></tr><tr><td>Buzzer −</td><td>C del S8050 (colector)</td></tr><tr><td>E del S8050 (emisor)</td><td>GND</td></tr><tr><td>GPIO15</td><td>Resistencia 1 kΩ → B del S8050 (base)</td></tr></table>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Cilindro negro con <b>signo + impreso arriba</b> (pata larga = +) y texto <span class="pins">TMB12A05 5V</span>: es el ACTIVO (suena con solo darle corriente). El PASIVO no trae marca y necesita tonos: no montes los dos en GPIO15. Como es de 5 V, <b>no va directo al GPIO</b>: lo maneja un transistor S8050 (paso 6). El S8050 ocupa <b>3 columnas distintas</b> de la protoboard, una pata por columna.</div>
+<h3>CONEXIÓN EXACTA (driver con S8050; cable rojo = 5 V, negro = GND)</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>Riel rojo 5 V</td><td>Buzzer + (pata larga)</td></tr><tr><td>Buzzer −</td><td>C del S8050 (colector)</td></tr><tr><td>E del S8050 (emisor)</td><td>Riel negro GND</td></tr><tr><td>GPIO15 (amarillo)</td><td>Resistencia 1 kΩ → B del S8050 (base)</td></tr></table>
 <div class="pass"><b>PASS:</b> suena un bip al arrancar y habla con cada frase de Jarvis (<span class="pins">JARVIS;…</span> en serie).</div></div>
 
 <div class="step"><h2><span class="n">6</span>El transistor S8050: el interruptor <span class="tag have">YA TIENES ×2</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Chip negro de 3 patas con un <b>lado plano</b>. Con el lado plano mirándote y las patas hacia abajo, la mayoría trae <span class="pins">E · B · C</span> de izquierda a derecha, <b>PERO varía por lote</b>: manda lo impreso en letras diminutas en el cuerpo. Si no se lee, verifícalo con multímetro antes de energizar. Su hermano S8550 (PNP) no se usa en el núcleo.</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Chip negro de 3 patas con un <b>lado plano</b>. Con el lado plano mirándote y las patas hacia abajo, la mayoría trae <span class="pins">E · B · C</span> de izquierda a derecha, <b>PERO varía por lote</b>: mandan las letritas impresas en el cuerpo. Si no se leen: multímetro en modo diodo, punta roja fija en una pata y negra en las otras dos; <b>la pata que marca ~700 con las otras dos es la B (base)</b>; de las restantes, la que tu circuito lleva a GND es E. Su hermano S8550 (PNP) no se usa en el núcleo.</div>
 <div class="rec">Lógica: <span class="pins">GPIO → 1 kΩ → B</span>, <span class="pins">E → GND</span>, la carga va entre <span class="pins">+V y C</span>. GPIO en HIGH = carga encendida.</div></div>
 
 <div class="step"><h2><span class="n">7</span>DHT11: temperatura y humedad <span class="tag have">YA TIENES</span></h2>
@@ -103,23 +105,23 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 <div class="pass"><b>PASS:</b> LCD página 0 muestra <span class="pins">T:25.3C H:60%</span> (teclas 6 y 7 lo anuncian). Si dice DHT SIN DATOS, revisa el pull-up.</div></div>
 
 <div class="step"><h2><span class="n">8</span>Fotorresistencia LDR: mide la luz <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLA</h3><div class="rec">Pastillita con <b>cara de zigzag</b>: esa cara mira a la luz. <b>No tiene polaridad</b> (da igual cada pata). Forma un divisor con una resistencia de <b>10 kΩ</b>: el punto del medio va al ESP32.</div>
+<h3>CÓMO RECONOCERLA</h3><div class="rec">Pastillita con <b>cara de zigzag</b>: esa cara mira a la luz. <b>No tiene polaridad</b> (da igual cada pata). Forma un divisor con una resistencia de <b>10 kΩ</b>: el <b>nodo</b> (el punto donde se juntan LDR, resistencia y cable a GPIO3: misma columna = mismo cable) va al ESP32.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>3V3</td><td>Una pata del LDR</td></tr><tr><td>Otra pata del LDR (nodo)</td><td>GPIO3</td></tr><tr><td>Mismo nodo</td><td>10 kΩ → GND</td></tr></table>
 <div class="pass"><b>PASS:</b> tapa el LDR con la mano: el valor LUZ cambia. Anota si sube o baja (tecla 8 lo muestra).</div></div>
 
 <div class="step"><h2><span class="n">9</span>Sensor de suelo: sed de la planta <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Dos partes: el <b>tenedor metálico</b> (la sonda, sin polaridad) y la plaquita azul con chip <span class="pins">LM393</span>, foquito rojo de encendido, <b>potenciómetro azul</b> y 4 patas <span class="pins">VCC · GND · DO · AO</span> más una <b>bornera azul de 2 tornillos</b> para la sonda (afloja, mete, aprieta).</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Dos partes: el <b>tenedor metálico</b> (la sonda, sin polaridad) y la plaquita azul con chip <span class="pins">LM393</span>, foquito rojo de encendido, <b>potenciómetro azul</b> y 4 patas impresas (típico <span class="pins">VCC · GND · DO · AO</span>, verifica las letras) más una <b>bornera azul de 2 tornillos</b> para la sonda (afloja con destornillador, mete cada diente del tenedor, aprieta sin arrancar el cobre).</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata</th><th>A</th></tr><tr><td>VCC</td><td>3V3</td></tr><tr><td>GND</td><td>GND</td></tr><tr><td>AO</td><td>GPIO1 (usamos el analógico, no el digital)</td></tr><tr><td>DO</td><td>Libre</td></tr></table>
 <div class="warn"><b>OJO:</b> se corroe si queda energizada siempre; mide y desconecta. El potenciómetro azul no nos importa (es del DO).</div>
 <div class="pass"><b>PASS:</b> al aire un valor, en vaso con agua otro. Registra SECO y HÚMEDO para calibrar.</div></div>
 
 <div class="step"><h2><span class="n">10</span>Sensor de nivel: guardián del riego <span class="tag have">YA TIENES</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Tira con líneas negras: esas líneas van <b>hacia el agua</b>, la electrónica de arriba <b>siempre seca</b>. Patas marcadas <span class="pins">S · + · −</span>.</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Tira con líneas negras: esas líneas van <b>hacia el agua</b>, la electrónica de arriba <b>siempre seca</b>. Patas impresas <span class="pins">S · + · −</span> (algunas tiras dicen <span class="pins">SIG · VCC · GND</span>: es lo mismo, S=SIG). Conecta por letra, no por posición.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata</th><th>A</th></tr><tr><td>+</td><td>3V3</td></tr><tr><td>−</td><td>GND</td></tr><tr><td>S</td><td>GPIO2</td></tr></table>
 <div class="pass"><b>PASS:</b> registra VACÍO, MÍNIMO y LLENO. Sin nivel aprobado, la tecla 5 dice <span class="pins">No puedo regar porque el depósito tiene poca agua</span>.</div></div>
 
 <div class="step"><h2><span class="n">11</span>PIR: detecta movimiento <span class="tag have">YA TIENES · MEDIR</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Cúpula blanca. Debajo: 3 patas con letras impresas <span class="pins">VCC · OUT · GND</span> (el orden cambia por módulo: <b>léelas</b>), 2 jumpers naranjas y 2 potenciómetros (tiempo y sensibilidad). Si tu módulo es de 5 V, mide OUT con multímetro: <b>solo se conecta a GPIO9 si da ≤3.3 V</b>.</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Cúpula blanca. Debajo: 3 patas con letras impresas <span class="pins">VCC · OUT · GND</span> (el orden cambia por módulo: <b>léelas</b>), 2 jumpers naranjas y 2 potenciómetros. Ajuste para pruebas: jumper en <b>H</b> (redispara mientras haya movimiento), potenciómetro de tiempo <b>Tx al mínimo</b> y sensibilidad <b>Sx a la mitad</b>. Si tu módulo es de 5 V, mide OUT con multímetro: <b>solo se conecta a GPIO9 si da ≤3.3 V</b>.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata</th><th>A</th></tr><tr><td>VCC</td><td>Según tu módulo (3V3 o 5 V)</td></tr><tr><td>OUT</td><td>GPIO9 (solo si ≤3.3 V medidos)</td></tr><tr><td>GND</td><td>GND</td></tr></table>
 <div class="pass"><b>PASS:</b> espera 1 minuto (calienta), muévete: serie marca presencia y la sala enciende con poca luz.</div></div>
 
@@ -130,12 +132,12 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 
 <div class="step"><h2><span class="n">13</span>Luz de cultivo: 2 azules + 1 rojo <span class="tag have">YA TIENES · ARMAR</span></h2>
 <h3>CÓMO RECONOCERLO</h3><div class="rec">Representación, NO es UV real. Tres LED con <b>su propia resistencia de 330 Ω cada uno</b> (nunca una sola para los tres). Los cátodos se juntan al colector del S8050.</div>
-<h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>+5 V bus</td><td>330 Ω → ánodo de cada LED (3 ramas)</td></tr><tr><td>Cátodos (3 juntos)</td><td>C del S8050</td></tr><tr><td>E del S8050</td><td>GND</td></tr><tr><td>GPIO8</td><td>1 kΩ (marrón-negro-rojo) → B del S8050</td></tr><tr><td>B del S8050</td><td>10 kΩ → GND (pull-down)</td></tr></table>
+<h3>CONEXIÓN EXACTA (cable rojo al riel 5 V del paso 1)</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>Riel rojo 5 V (pin VIN del ESP32)</td><td>330 Ω → ánodo de cada LED (3 ramas)</td></tr><tr><td>Cátodos (3 juntos)</td><td>C del S8050</td></tr><tr><td>E del S8050</td><td>GND</td></tr><tr><td>GPIO8</td><td>1 kΩ (marrón-negro-rojo) → B del S8050</td></tr><tr><td>B del S8050</td><td>10 kΩ → GND (pull-down)</td></tr></table>
 <div class="pass"><b>PASS:</b> tecla 3 enciende los tres: <span class="pins">Iluminación suplementaria de cultivo activada</span>.</div></div>
 
 <div class="step"><h2><span class="n">14</span>Calibración: enseñarle tus valores <span class="tag have">SIN COMPRAS</span></h2>
 <h3>CÓMO HACERLO</h3><div class="rec">Con todo APAGADO escribe <span class="pins">PARO</span>, anota los crudos (seco, húmedo, oscuro, claro, nivel mínimo) y guarda:</div>
-<div class="rec"><span class="pins">CAL SECO=… · CAL HUMEDO=… · CAL OSCURO=… · CAL CLARO=… · CAL NIVEL=… · CAL VER · CAL GUARDAR · REARMAR</span> (los números de ejemplo del README NO se copian: usa los tuyos).</div>
+<div class="rec"><span class="pins">CAL SECO=… · CAL HUMEDO=… · CAL OSCURO=… · CAL CLARO=… · CAL NIVEL=… · CAL VER · CAL GUARDAR · REARMAR</span> (los números de ejemplo del README NO se copian: usa los tuyos; como orientación suelen salir suelo seco ~2500–3200, húmedo ~1000–1800 y nivel mínimo ~500–800).</div>
 <div class="pass"><b>PASS:</b> LCD muestra <span class="pins">S:45% L:60%</span> y el riego automático ya decide solo.</div></div>
 
 <div class="step"><h2><span class="n">15</span>Tabla de resistencias (colores) <span class="tag have">YA TIENES</span></h2>
@@ -154,7 +156,7 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 <div class="step final"><h2><span class="n">17</span>Fuente cerrada 5 V/5 A <span class="tag buy">COMPRA</span></h2>
 <h3>CÓMO RECONOCERLA</h3><div class="rec">Caja cerrada (metal o plástico) con etiqueta <span class="pins">OUTPUT 5V ⎓ 5A</span>. Sin tornillos con cobre expuesto a 120 V: es cerrada, no abierta. Trae plug <b>5.5×2.1 mm centro positivo</b> + adaptador a bornera de tornillos.</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>De</th><th>A</th></tr><tr><td>Enchufe fuente</td><td>Extensión 120 V</td></tr><tr><td>Plug 5.5×2.1</td><td>Adaptador hembra → bornera (+ y −)</td></tr></table>
-<div class="pass"><b>PASS antes de conectar nada:</b> multímetro en el plug: <b>≈5.0 V</b> y centro positivo (rojo al centro). Si da otra cosa, no la uses.</div></div>
+<div class="pass"><b>PASS antes de conectar nada:</b> multímetro en voltios DC: punta roja dentro del hueco del plug, negra por fuera. Debe leer <b>+5.0 V</b> (si lee −5.0 V el centro es negativo: no la uses). Repite en la bornera del adaptador.</div></div>
 
 <div class="step final"><h2><span class="n">18</span>Portafusible + fusible lento 4 A <span class="tag buy">COMPRA</span></h2>
 <h3>CÓMO RECONOCERLO</h3><div class="rec">Tubito plástico con tapa que guarda un <b>fusible de vidrio 5×20 mm</b> marcado <span class="pins">T4A</span> (la T = lento/retardo: aguanta el pico de arranque). Compra 2: uno puesto y uno de repuesto. Nunca dos en paralelo.</div>
@@ -181,18 +183,18 @@ footer{padding:20px;text-align:center;color:var(--soft);font-size:.8rem;border-t
 <div class="pass"><b>PASS:</b> arranca solo y enciende/apaga por temperatura sin trabarse.</div></div>
 
 <div class="step final"><h2><span class="n">23</span>Capacitores 1000 µF: amortiguan picos <span class="tag buy">COMPRA ×5</span></h2>
-<h3>CÓMO RECONOCERLOS</h3><div class="rec">Cilindros con <b>franja marcada: esa pata es NEGATIVA → GND</b>. Texto <span class="pins">1000 µF 25 V 105 °C</span>. No regulan: solo suavizan arranques. Suma un cerámico 104 (100 nF) pegado a cada módulo (ya tienes 10).</div>
+<h3>CÓMO RECONOCERLOS</h3><div class="rec">Cilindros con texto <span class="pins">1000 µF 25 V 105 °C</span> y <b>franja marcada en un lado: la pata de ese lado es NEGATIVA → GND</b> (la otra pata, más larga cuando es nuevo, es +). No regulan: solo suavizan arranques. Suma un cerámico 104 (100 nF, sin polaridad) pegado a cada módulo (ya tienes 10).</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Capacitor</th><th>Entre</th></tr><tr><td>1 × 1000 µF</td><td>VM y GND pegado al DRV8833</td></tr><tr><td>1 × 1000 µF</td><td>VIN y GND pegado al MAX98357A</td></tr><tr><td>3 restantes</td><td>Repuesto</td></tr></table></div>
 
 <div class="step final"><h2><span class="n">24</span>MAX98357A + parlante: Jarvis habla <span class="tag buy">COMPRA L130+L90</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita morada/azul diminuta con letras <span class="pins">VIN · GND · BCLK · LRC · DIN · GAIN · SD</span> y bornera <span class="pins">SPK+ · SPK−</span>. Parlante redondo <span class="pins">4 Ω 3 W</span> con 2 cables (sin polaridad).</div>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita morada/azul diminuta: ponla con las letras al derecho. Letras <span class="pins">VIN · GND · BCLK · LRC · DIN · GAIN · SD</span> y bornera <span class="pins">SPK+ · SPK−</span>. <b>GAIN y SD se dejan libres</b> (sin cable: suenan con valores de fábrica). Parlante redondo <span class="pins">4 Ω 3 W</span> con 2 cables (sin polaridad).</div>
 <h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata MAX</th><th>A</th></tr><tr><td>VIN</td><td>Bus +5 V</td></tr><tr><td>GND</td><td>GND</td></tr><tr><td>BCLK</td><td>GPIO16</td></tr><tr><td>LRC</td><td>GPIO17</td></tr><tr><td>DIN</td><td>GPIO18</td></tr><tr><td>GAIN · SD</td><td>Libres (fábrica)</td></tr><tr><td>SPK+ / SPK−</td><td>Solo al parlante · NUNCA a GND</td></tr></table>
 <div class="warn"><b>OJO:</b> 16/17/18 son EXCLUSIVOS con el DFPlayer: se usa uno o el otro (<span class="pins">DFPLAYER_HABILITADO</span>).</div>
 <div class="pass"><b>PASS:</b> tecla 1: <span class="pins">He encendido la luz de la sala</span> suena limpio por el parlante.</div></div>
 
 <div class="step final"><h2><span class="n">25</span>DFPlayer Mini (ya lo tienes): voz con MP3 <span class="tag have">YA TIENES · OPCIONAL</span></h2>
-<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita con ranura microSD, patas <span class="pins">VCC · GND · RX · TX · SPK_1 · SPK_2</span>. Copia <span class="pins">0001.mp3, 0002.mp3…</span> en la raíz de la microSD (FAT32) con las frases de la tabla del README esqueleto.</div>
-<h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata DF</th><th>A</th></tr><tr><td>VCC</td><td>+5 V</td></tr><tr><td>GND</td><td>GND</td></tr><tr><td>RX</td><td>GPIO17 (ESP TX) con 1 kΩ en serie</td></tr><tr><td>TX</td><td>GPIO18 (ESP RX) directo</td></tr><tr><td>SPK_1 / SPK_2</td><td>Parlante dedicado (o comparte con MAX, nunca ambos a la vez)</td></tr></table>
+<h3>CÓMO RECONOCERLO</h3><div class="rec">Plaquita con ranura microSD, patas <span class="pins">VCC · GND · RX · TX · SPK_1 · SPK_2</span> y foquito que <b>parpadea mientras suena</b> (si no parpadea con una frase, no encontró la pista). Copia <span class="pins">0001.mp3, 0002.mp3…</span> en la raíz de la microSD (FAT32) con las frases de la tabla del README esqueleto.</div>
+<h3>CONEXIÓN EXACTA</h3><table class="wires"><tr><th>Pata DF</th><th>A</th></tr><tr><td>VCC</td><td>+5 V</td></tr><tr><td>GND</td><td>GND</td></tr><tr><td>RX</td><td>GPIO17 (ESP TX) con 1 kΩ en serie</td></tr><tr><td>TX</td><td>GPIO18 (ESP RX) directo</td></tr><tr><td>SPK_1 / SPK_2</td><td>Al parlante: mueve el parlante del MAX al DF o viceversa; nunca los dos módulos al parlante a la vez</td></tr></table>
 <div class="pass"><b>PASS:</b> en firmware <span class="pins">DFPLAYER_HABILITADO=true</span>; cada frase suena su pista. Sin DF, todo cae a buzzer + LCD sin bloquearse.</div></div>
 
 <div class="step final"><h2><span class="n">26</span>Baquelita + borneras: instalación limpia <span class="tag buy">COMPRA</span></h2>
@@ -230,7 +232,7 @@ if(w.l){const t=el("text",{x:w.lx,y:w.ly,"text-anchor":"middle",fill:"#1c2a30","
 /* ---------- ESQUELETO ---------- */
 const N=(x,y,w,h,t,s)=>({x,y,w,h,t,s});
 drawSVG("svgEsq",1040,690,
-[N(440,90,170,552,"ESP32-S3 N16R8",["USB → PC","","","","","","","","","","","","","","","","","","","","","","PARO>IR>AUTO"]),
+[N(440,90,170,552,"ESP32-S3 N16R8",["USB → PC","G1 suelo · G2 nivel","G3 luz · G14 DHT","G5 sala · G6 dorm","G8 cultivo S8050","G9 PIR · 21/13 LCD","10 PARO · 11 MUTE","12 IR · 16 BTN","15 buzzer S8050","","","","","","","","","","PARO>IR>AUTO"]),
 N(30,90,230,84,"SUELO",["AO → GPIO1","VCC 3V3 · GND"]),
 N(30,188,230,84,"NIVEL",["S → GPIO2","+ 3V3 · − GND"]),
 N(30,286,230,84,"LDR",["nodo → GPIO3","3V3-LDR-10k-GND"]),
@@ -253,10 +255,10 @@ N(780,482,230,84,"CULTIVO",["G8 → 1k → B S8050","+5V·330×3 · E GND"]),
 {p:["260,328","440,328"],c:CSIG,l:"G3",lx:350,ly:322},
 {p:["260,426","440,426"],c:CSIG,l:"G9",lx:350,ly:420},
 {p:["260,524","440,524"],c:CSIG,l:"G14",lx:350,ly:518},
-{p:["260,614","440,614"],c:CSIG,l:"21",lx:350,ly:608},
-{p:["260,630","440,630"],c:CSIG,l:"13",lx:350,ly:644},
+{p:["260,614","440,614"],c:CSIG,l:"SDA·21",lx:350,ly:608},
+{p:["260,630","440,630"],c:CSIG,l:"SCL·13",lx:350,ly:644},
 {p:["610,132","780,132"],c:CSIG,l:"G12",lx:695,ly:126},
-{p:["610,222","780,222"],c:CSIG},{p:["610,230","780,230"],c:CSIG},{p:["610,238","780,238"],c:CSIG,l:"10·11·16",lx:695,ly:214},
+{p:["610,222","780,222"],c:CSIG,l:"G10",lx:655,ly:216},{p:["610,230","780,230"],c:CSIG,l:"G11",lx:695,ly:216},{p:["610,238","780,238"],c:CSIG,l:"G16",lx:735,ly:216},
 {p:["610,328","780,328"],c:CSIG,l:"G15",lx:695,ly:322},
 {p:["610,418","780,418"],c:CLOD,l:"G5",lx:695,ly:412},
 {p:["610,434","780,434"],c:CLOD,l:"G6",lx:695,ly:448},
@@ -288,7 +290,7 @@ N(550,460,220,100,"ORDEN FINAL",["1 DRV frío sin motor","2 un motor · 3 audio"
 {p:["220,290","250,290"],c:CSIG,l:"G7",lx:235,ly:284},
 {p:["450,250","500,250"],c:CMOT,l:"AOUT1·2",lx:475,ly:244},
 {p:["450,310","500,310"],c:CMOT,l:"BOUT1·2",lx:475,ly:304},
-{p:["200,350","200,395","740,395","740,310","750,310"],c:CSIG,l:"G16·17·18",lx:420,ly:389},
+{p:["200,350","200,395","740,395","740,290","750,290"],c:CSIG,l:"G16·17·18",lx:420,ly:389},
 {p:["210,350","210,410","750,410"],c:CSIG,dash:1,l:"G17·18 (o MAX)",lx:620,ly:404}]);
 </script>
 </body>
