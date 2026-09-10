@@ -1,5 +1,11 @@
 # Plan definitivo — Casa inteligente con Jarvis local
 
+> [!WARNING]
+> DOCUMENTO HISTÓRICO (plan TinyML/PicoTTS). Lo vigente es
+> `obsidian/proyect domus/43 - Manual final completo PROJECT DOMUS.md` +
+> `firmware/domus_esqueleto` v2 (IR CAR MP3 + LCD + frases fijas, sin mic ni
+> entrenamiento). No comprar ni cablear desde este archivo.
+
 ## Decisiones cerradas
 
 - Una sola placa principal: ESP32-S3 N16R8.

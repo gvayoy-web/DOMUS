@@ -1,148 +1,145 @@
-# DOMUS: base modular funcional para banco
+# DOMUS: base modular funcional para banco (v2 IR + LCD + Jarvis)
 
-Controlador recomendado para probar el hardware confirmado sin voz, red, SD,
-bateria ni solar. Integra sensores, LCD, DHT, automatizaciones, calibracion
-persistente, propiedad manual, PARO, watchdog y modo seguro. Aun requiere
-validacion fisica supervisada y no sustituye al firmware principal hasta pasar
-la matriz de pruebas de la nota 33. No se ha grabado ninguna placa.
+Controlador recomendado para probar el hardware confirmado sin red, SD,
+batería ni solar. Integra sensores, LCD bonito, DHT, IR CAR MP3 21 teclas,
+Jarvis por frases fijas (DFPlayer opcional + buzzer), automatizaciones,
+calibración persistente, propiedad manual, PARO, watchdog y modo seguro.
+Aún requiere validación física supervisada.
 
-La ronda inicial B01-B05 no necesita conectar
-bomba, motor o luces. El perfil compilado se identifica como
-`ESP32-S3-N16R8 / BANCO_SIN_ACTUADORES`; `HABILITAR_BOMBA=false` debe
-permanecer asi durante toda esa ronda.
+La ronda inicial B01-B05 no necesita conectar bomba ni motor. El perfil
+compilado se identifica como `ESP32-S3-N16R8 / BANCO_IR_LCD`;
+`HABILITAR_BOMBA=false` y `USAR_DRV8833=false` deben permanecer así
+durante toda esa ronda.
+
+## Seguridad 120 V
+
+El 120 V vive SOLO en una extensión externa: de ella salen el cargador USB
+del ESP32-S3 y la fuente cerrada 5 V/5 A. El 120 V NUNCA entra a la maqueta,
+protoboard ni PCB. Orden: fuente 5 V/5 A -> portafusible 4 A lento ->
+switch 5 A DC -> bus 5 V. Medir 5 V antes de conectar.
 
 ## Dependencias Arduino
 
-Instalar desde **Programa > Incluir libreria > Administrar bibliotecas**:
+Instalar desde **Programa > Incluir librería > Administrar bibliotecas**:
 
-- `DHT sensor library` de Adafruit, version 1.4.7 o compatible.
+- `DHT sensor library` de Adafruit, versión 1.4.7 o compatible.
 - `Adafruit Unified Sensor`, dependencia del DHT.
 - `LiquidCrystal I2C` 1.1.2 o compatible.
+- `IRremote` 4.x (shirriff/z3t0/ArminJo) para el CAR MP3 NEC.
 
-Si aparece `DHT.h: No such file or directory`, falta instalar esas dos
-bibliotecas en el mismo sketchbook utilizado por Arduino IDE; reiniciar el IDE
-despues de instalarlas. No se sustituyen lecturas ambientales con valores falsos.
+Si aparece `DHT.h` o `IRremote.hpp: No such file`, falta instalar en el
+mismo sketchbook de Arduino IDE; reiniciar el IDE después.
 
-## Inicio seguro
+## Cableado v2 (cambios)
 
-Mantener motores y otras cargas desconectados. Por defecto las salidas
-estan deshabilitadas y sus pines en entrada. Alta impedancia no asegura que un
-rele conectado este apagado: el driver necesita polarizacion externa adecuada.
-No conectar 5 V a GPIO. Usar la alimentacion y etapas verificadas de la nota 21.
-
-Abrir `domus_esqueleto.ino` con placa ESP32-S3. Monitor serie: 115200 baudios.
-El informe muestra ADC crudo y, despues de calibrar, porcentajes. MIC es lectura del
-interruptor (0 bloqueado, 1 habilitado), no reconocimiento de voz.
-
-| Funcion | GPIO | Etapa |
+| Función | GPIO | Etapa |
 |---|---:|---|
-| Bomba | 4 | GPIO4 -> 1 kOhm -> base S8050; colector controla bomba de 3-6 V |
-| Sala/cuarto/ventilador/invernadero | 5/6/7/8 | Sin etapa fisica; bloqueados por software |
-| Suelo/nivel/luz | 1/2/3 | Senales analogicas <=3.3 V |
-| PIR | 9 | Senal compatible <=3.3 V |
-| PARO / MIC OFF / boton sala | 10/11/12 | Contacto a GND, pull-up interno |
+| Bomba (DRV AIN1) | 4 | Con DRV: GPIO4->AIN1, AIN2=GND, nSLEEP=3V3, VM=5 V. Sin DRV: bloqueada |
+| Sala LED | 5 | LED + 330 Ω a GND |
+| Cuarto LED | 6 | LED + 330 Ω a GND |
+| Ventilador (DRV BIN1) | 7 | Con DRV: GPIO7->BIN1, BIN2=GND. Sin DRV: bloqueado |
+| Cultivo S8050 | 8 | GPIO8 -> 1 k -> base S8050; 2 az + 1 ro con 330 Ω c/u |
+| Suelo/nivel/luz | 1/2/3 | Analógicas <=3.3 V |
+| PIR | 9 | Señal <=3.3 V (si el módulo es 5 V, medir OUT) |
+| PARO | 10 | Contacto a GND, pull-up interno. Manda sobre el IR siempre |
+| SILENCIO Jarvis | 11 | Contacto a GND = mute hardware |
+| IR HX1838 S/OUT | 12 | VCC->3V3, GND->GND. Leer S/+/- del módulo, no asumir orden |
+| Buzzer activo 5 V | 15 | Via segundo S8050, HIGH = suena |
+| Botón sala | 16 | Contacto a GND (se movió de 12: el 12 lo ocupa el IR) |
+| DFPlayer (opcional) | 17 TX / 18 RX | Serial1 9600. ESP_TX->1 k->DF_RX. No usar 19/20 (USB) |
+| LCD I2C | SDA 21 / SCL 13 | Solo a 3V3, 0x27/0x3F |
+| DHT | 14 | DATA + 10 k a 3V3 |
 
-Configuracion en `domus_config.h`. Solo despues de verificar el driver se cambia
-exactamente `constexpr bool HABILITAR_BOMBA = false;` a `true`. Esto habilita
-GPIO4 y no habilita GPIO5-8. Para regresar al banco seguro, volverlo a `false` y
-cargar otra vez el sketch.
+Largo del botón 3 s = entra/sale de modo aprender IR.
 
-La bomba no se conecta directamente a GPIO4 ni a 3V3. Usar un S8050, resistencia
-de 1 kOhm en base y 1N4007 en antiparalelo con el motor: raya al positivo y
-anodo al colector. Confirmar E/B/C del transistor por referencia o multimetro.
-El rele azul queda reservado y fuera del circuito actual.
-La bomba exige ademas una calibracion valida guardada en NVS. Se asume que nivel
-mayor significa mas agua; verificarlo antes de guardar el umbral.
-Los limites ADC detectan rieles, **no garantizan detectar un cable abierto**.
+## Control IR CAR MP3 (NEC, 21 teclas)
 
-## Ordenes manuales de prueba
+Mapa: CH- manual, CH página LCD, CH+ auto, Anterior/1 sala, Play pausa voz,
+Siguiente/2 dormitorio, VOL∓ volumen, EQ diagnóstico, 0 todo off,
+100+ mute, 200+ rearme, 3 cultivo, 4 ventilador, 5 riego, 6 temp,
+7 humedad, 8 suelo+nivel, 9 estado.
 
-Enviar una orden exacta en mayusculas por linea (LF o CRLF):
+Antifallos: cada pulsación vale una vez; se ignoran repeats salvo VOL;
+riego exige pulsación nueva; remoto nunca sustituye PARO GPIO10;
+nivel bajo/timeout rechazan riego; desconocida no ejecuta nada;
+último código siempre por Serial `IR;CMD=0x..`.
 
-```text
-SALA ON
-SALA OFF
-CUARTO ON
-INVERNADERO OFF
-VENTILADOR ON
-BOMBA OFF
-ESTADO
-DIAGNOSTICO
-PARO
-REARMAR
-RECUPERAR
-```
-
-Todas las cinco salidas admiten ON/OFF. Los comandos antiguos de una letra
-estan retirados por riesgo de activacion accidental al pegar texto.
-`!` enclava PARO sin esperar fin de linea e invalida el resto de esa linea.
-`REARMAR` solo funciona con PARO fisico liberado y deja todas las salidas OFF.
-`RECUPERAR` libera el modo seguro solo con watchdog y memoria suficientes.
-Entradas con mas de 47 caracteres o bytes de control se descartan completas.
-Se procesan hasta 16 bytes por ciclo, con protecciones entre bytes.
-ON tiene limite de una solicitud cada 250 ms; OFF y PARO no comparten ese limite.
-El boton fisico mantiene su antirrebote y no depende del puerto serie.
-
-Se responde ACK/NACK. `ESTADO` informa salidas logicas, bloqueo y mensajes TX
-omitidos; no confirma electricamente que un rele haya conmutado. Si no cabe
-la respuesta, se omite sin esperar y se cuenta: ausencia de ACK no prueba que
-una orden no se ejecuto. No reintentar ON a ciegas; consultar ESTADO.
-
-Cada linea `SENSORES` incluye indicadores de validez: `VS` suelo, `VN` nivel,
-`VL` luz y `VA` ambiente. `1` significa lectura aceptada por el filtro basico;
-no significa que el sensor ya este calibrado. `DIAGNOSTICO` imprime además el
-perfil de placa y los GPIO usados en la ronda.
-
-Cada salida admite `NOMBRE AUTO`. Una orden manual toma propiedad y la
-automatizacion no la contradice hasta recibir AUTO, que primero apaga la salida.
-La bomba se apaga por nivel insuficiente/invalido o a los 10 segundos; repetir
-ON mientras funciona no reinicia ese tiempo. Al cortar por fallo de nivel o
-timeout queda bloqueada hasta REARMAR. Rearmar no elimina la comprobacion de
-nivel ni arranca el riego. No hay reinicio automatico del riego.
-
-## Calibracion segura
-
-Con las salidas apagadas, enviar `PARO` y registrar lecturas crudas en seco,
-humedo, oscuridad, claridad y deposito en el minimo seguro. Luego:
+Primera vez con tu control (códigos varían por lote):
 
 ```text
-CAL SECO=2800
-CAL HUMEDO=1200
-CAL OSCURO=300
-CAL CLARO=3000
-CAL NIVEL=600
-CAL VER
-CAL GUARDAR
-REARMAR
+IR LEER
+(pulsa las 21 teclas, una por una)
+IR LISTA
 ```
 
-Los numeros son ejemplos de sintaxis, no valores para copiar. Los extremos de
-suelo y luz deben separarse al menos 100 cuentas ADC. La configuracion se guarda
-con version y checksum; una configuracion corrupta deja la automatizacion bloqueada.
+Si alguna tecla sale `?`, fíjala:
 
-## Lo incluido y lo que falta
+```text
+IR GRABAR 16
+(pulsa 5)
+IR LISTA
+IR BORRAR   (vuelve a Keyes por defecto)
+```
 
-Incluye LCD en 0x27/0x3F, DHT11 o DHT22 seleccionable, ADC/PIR, boton con
-antirrebote, cinco salidas, automatizaciones con histeresis, calibracion NVS,
-paro, timeout de bomba, watchdog, vigilancia de heap y diagnostico.
+## LCD bonito (16x2, 4 páginas)
 
-No incluye DFPlayer, reconocimiento de voz, microSD, Wi-Fi, bateria ni solar.
-Una lectura impresa o compilacion no valida un sensor ni una etapa de potencia.
+CH cambia página. Botón físico o IR muestra las letras de la acción y
+después una animación (barra + spinner). Páginas:
 
-## Verificacion
+- 0 HOME: `T:25.3C H:60%` + `AUTO V20 SSCVI` (R/S/C/V/I).
+- 1 sensores: suelo % + nivel crudo, luz % + PIR.
+- 2 salidas: `R S C V I` con bloque lleno = ON.
+- 3 Jarvis/IR: mute/pausa/vol + frase con scroll o `IR:00XX`.
 
-Compilar sin conectar placa:
+Splash `PROJECT DOMUS` con barra al arrancar. Iconos: gota, sol,
+termómetro, nivel, voz, candado.
+
+## Jarvis (frases fijas, sin IA)
+
+`JARVIS;<frase>` sale siempre por Serial + scroll en LCD pág. 3.
+Con `DFPLAYER_HABILITADO=true` + microSD con `0001.mp3...` suena la pista;
+sin DFPlayer, beep + Serial + LCD (no bloquea).
+
+Pistas sugeridas: 1 sala on, 2 sala off, 3 dorm on, 4 dorm off,
+5 cultivo on, 6 cultivo off, 7 vent on, 8 vent off, 9 riego,
+10 todo off, 11 temp, 12 hum, 13 suelo/nivel, 14 estado,
+30 manual, 31 auto, 32 voz, 33 diagnóstico, 34 sonido, 35 rearme.
+
+```text
+MODO AUTO / MODO MANUAL
+VOL+ / VOL- / MUTE ON / MUTE OFF / VOZ ON / VOZ OFF
+PAGINA / PAGINA 0..3
+ESTADO / DIAGNOSTICO / PARO / REARMAR
+IR LEER / IR LISTA / IR GRABAR <0-20> / IR BORRAR
+```
+
+## Órdenes serie (mayúsculas, LF/CRLF)
+
+```text
+SALA ON / CUARTO ON / INVERNADERO ON / VENTILADOR ON / BOMBA ON
+... OFF / ... AUTO
+ESTADO / DIAGNOSTICO / PARO / REARMAR / RECUPERAR
+```
+
+`!` enclava PARO sin esperar fin de línea. ON limitado a 1/250 ms.
+`REARMAR` exige PARO físico liberado y deja todo OFF.
+
+## Calibración (con PARO y todo OFF)
+
+```text
+CAL SECO=2800 / CAL HUMEDO=1200 / CAL OSCURO=300 / CAL CLARO=3000
+CAL NIVEL=600 / CAL VER / CAL GUARDAR / REARMAR
+```
+
+Números de ejemplo, no copiar. Suelo/luz separados ≥100 cuentas.
+
+## Verificación
 
 ```powershell
-.local-tools/arduino-cli/bin/arduino-cli.exe compile --config-file .arduino-local/arduino-cli.yaml --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1 --build-path build/esqueleto_madurez_compile --output-dir build/esqueleto_madurez firmware/domus_esqueleto
+.local-tools/arduino-cli/bin/arduino-cli.exe compile --config-file .arduino-local/arduino-cli.yaml --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1 --build-path build/esqueleto_v2 --output-dir build/esqueleto_v2-out firmware/domus_esqueleto
 ```
 
-Antes de cargas: comprobar niveles de salida, arranque/reset, PARO y rearme.
-Con montaje validado: probar bloqueo por nivel, timeout de 10 s y ON repetido.
-Probar boton con rebotes y desconexion de USB. Estas pruebas fisicas siguen
-pendientes; compilar no demuestra proteccion electrica ni estabilidad real.
-
-`protocol_tests.cpp` contiene 12 regresiones constexpr: se evalua el parser
-real y falla la compilacion si no se cumple el contrato. No requieren compilador
-host ni consumen tiempo de placa. No prueban GPIO, tiempos reales o potencia.
-`domus_config.h` verifica duplicados de pines, umbral y limite de bomba.
+v2 verificado: 405637 bytes programa, 25652 globales, N16R8.
+`protocol_tests.cpp` trae regresiones constexpr (parser + nuevos comandos).
+Compilar no prueba electricidad: medir 5 V, PARO, rearme y bloqueo por
+nivel/timeout 10 s antes de pensar en DRV.
