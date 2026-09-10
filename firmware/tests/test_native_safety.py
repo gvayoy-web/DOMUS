@@ -3,7 +3,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-from test_native_firmware import SKETCH, function
+from test_native_firmware import SKETCH, function, run_host_process
 
 
 class SafetyIntegrationTests(unittest.TestCase):
@@ -15,10 +15,10 @@ class SafetyIntegrationTests(unittest.TestCase):
             source = Path(directory) / "test.cpp"
             binary = Path(directory) / "test.exe"
             source.write_text(code, encoding="utf-8")
-            result = subprocess.run([compiler, "-std=c++17", "-Wall", "-Wextra", "-I", str(SKETCH.parent),
-                                     str(source), "-o", str(binary)], capture_output=True, text=True, timeout=60)
+            result = run_host_process([compiler, "-std=c++17", "-Wall", "-Wextra", "-I", str(SKETCH.parent),
+                                     str(source), "-o", str(binary)], timeout=60)
             self.assertEqual(result.returncode, 0, result.stderr)
-            result = subprocess.run([str(binary)], capture_output=True, text=True, timeout=10)
+            result = run_host_process([str(binary)], timeout=10, allow_skip=True)
             self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_dispatch_outputs_emergency_recovery_and_timeout_together(self):

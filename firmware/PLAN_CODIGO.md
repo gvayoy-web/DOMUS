@@ -10,8 +10,12 @@ Guía física: `visualizaciones/diagrama-final.html`. Estado real medido abajo.
   `IR LISTA` 21/21, `TX_OMITIDOS` estable (solo ráfaga de arranque).
 - Medido en placa: `FIS=01101 OUT=00000 PARO=0 SEGURO=0`, sensores ADC vivos,
   `LCD=0 DHT=0` = aún sin cablear (pendiente banco, pasos 2 y 7 del diagrama).
-- Contratos: `firmware/tests/test_domus_esqueleto_contract.py` (36 tests,
-  35 pass + fostering: 5 nativos solo en CI Ubuntu por falta de g++ local).
+- Contratos: `firmware/tests/test_domus_esqueleto_contract.py` + nativos
+  (`test_native_*.py`, `test_voice_gate.py`) + HIL real
+  (`test_hil_esqueleto.py`, 8 pruebas contra COM9 sin flashear).
+  Nota PC: g++ MinGW instalado vía winget; si App Control bloquea un .exe
+  recién compilado (WinError 4551), el harness lo reporta SKIP (no FAIL):
+  ese caso corre en CI Ubuntu. `pytest firmware/tests` debe quedar verde.
 - Cuello real encontrado y parchado: ráfagas UART 115200 perdían líneas
   (FIFO 128 B del CH343) → `Serial.flush()` tras cada línea de
   `informarEstado()` (`domus_esqueleto.ino:241`) y de `IR LISTA`.

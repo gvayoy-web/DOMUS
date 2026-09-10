@@ -1,10 +1,18 @@
----
+﻿---
 proyecto: PROJECT DOMUS
 tipo: auditoria
 actualizado: 2026-09-03
 ---
 
+> [!WARNING]
+> DOCUMENTO HISTÓRICO. Lo vigente es [[43 - Manual final completo PROJECT DOMUS]] + irmware/domus_esqueleto v2.1 + [[42 - Solicitud final de cotizacion C&D]]. No comprar ni cablear desde aquí.
+
 # Errores y contradicciones encontradas
+
+> [!NOTE]
+> Auditoría histórica. La corrección final elimina la compra de relés, usa
+> DRV8833 para los motores y LED rojos/azules para el invernadero. Véase
+> [[43 - Manual final completo PROJECT DOMUS]].
 
 ## Estado tras la primera implementación
 

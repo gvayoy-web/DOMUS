@@ -1,11 +1,22 @@
----
+﻿---
 proyecto: PROJECT DOMUS
 tipo: compras
 moneda: HNL
 actualizado: 2026-09-07
 ---
 
+> [!WARNING]
+> DOCUMENTO HISTÓRICO. Lo vigente es [[43 - Manual final completo PROJECT DOMUS]] + irmware/domus_esqueleto v2.1 + [[42 - Solicitud final de cotizacion C&D]]. No comprar ni cablear desde aquí.
+
 # Lista de compras definitiva
+
+> [!IMPORTANT]
+> Esta lista quedó archivada por cambios posteriores. No comprar desde las
+> tablas inferiores. La lista vigente está en
+> [[42 - Solicitud final de cotizacion C&D]] y el razonamiento en
+> [[43 - Manual final completo PROJECT DOMUS]].
+> La cotización nacional más reciente sustituye esos dos MOSFETs por un solo
+> DRV8833 de dos canales disponible en C&D: [[41 - Compra nacional minima y banco de soldadura]].
 
 > Actualización 06-09-2026: consultar [[27 - Comparador de planes costo y versatilidad]]
 > antes de comprar. La sección B histórica agrupa voz y almacenamiento: lector

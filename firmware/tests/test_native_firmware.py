@@ -7,8 +7,31 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
+
+
+def run_host_process(argv, timeout, allow_skip=False):
+    """Ejecuta un proceso local reintentando ante bloqueos del SO.
+
+    En Windows el antivirus puede retener un .exe recién enlazado y el
+    lanzamiento falla con OSError intermitente; reintentar no cambia lo
+    verificado, solo la robustez del harness. Si la política del equipo
+    (App Control, WinError 4551) bloquea el binario y allow_skip es True,
+    se reporta SKIP en vez de FAIL: no se puede afirmar ni negar el
+    comportamiento sin ejecutar; ese caso corre en CI Ubuntu.
+    """
+    last = None
+    for _ in range(5):
+        try:
+            return subprocess.run(argv, check=True, capture_output=True, timeout=timeout)
+        except OSError as error:
+            last = error
+            time.sleep(0.5)
+    if allow_skip:
+        raise unittest.SkipTest(f"El SO bloqueó el binario ({last}); corre en CI Ubuntu")
+    raise last
 
 SKETCH = Path(__file__).resolve().parents[1] / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
 
@@ -100,5 +123,5 @@ int main() {
             for profile in (0, 1):
                 with self.subTest(economical=profile):
                     executable = Path(directory) / f"test-{profile}.exe"
-                    subprocess.run([compiler, "-std=c++17", "-Wall", "-Wextra", f"-DDOMUS_SALIDAS_ECONOMICAS={profile}", str(cpp), "-o", str(executable)], check=True, capture_output=True, timeout=60)
-                    subprocess.run([str(executable)], check=True, capture_output=True, timeout=10)
+                    run_host_process([compiler, "-std=c++17", "-Wall", "-Wextra", f"-DDOMUS_SALIDAS_ECONOMICAS={profile}", str(cpp), "-o", str(executable)], timeout=60)
+                    run_host_process([str(executable)], timeout=10, allow_skip=True)
