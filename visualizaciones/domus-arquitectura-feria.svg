@@ -3,16 +3,16 @@
     .bg{fill:#f8fafc}.card{fill:#fff;stroke:#334155;stroke-width:3}.tbd{fill:#fef9c3;stroke:#a16207;stroke-width:3;stroke-dasharray:12 8}.ok{fill:#ecfdf5;stroke:#047857;stroke-width:3}.warn{fill:#fee2e2;stroke:#b91c1c;stroke-width:3}.title{font:700 34px Arial;fill:#0f172a}.h{font:700 24px Arial;fill:#0f172a}.t{font:19px Arial;fill:#1e293b}.small{font:16px Arial;fill:#334155}.pin{font:700 18px monospace;fill:#1d4ed8}.safe{font:700 22px Arial;fill:#b91c1c}.pend{font:700 22px Arial;fill:#a16207}
   </style>
   <rect class="bg" width="1600" height="1480"/>
-  <text class="title" x="800" y="52" text-anchor="middle">PROJECT DOMUS — mapa final de feria (andamio)</text>
-  <text class="t" x="800" y="84" text-anchor="middle">Verde = aprobado hoy · Amarillo TBD = prohibido cablear hasta evidencia · Detalle alfa: domus-alfa-guia-principiantes.svg</text>
+  <text class="title" x="800" y="52" text-anchor="middle">PROJECT DOMUS — arquitectura de feria (diagrama general)</text>
+  <text class="t" x="800" y="84" text-anchor="middle">Verde = aprobado hoy · Amarillo TBD = prohibido cablear hasta evidencia · Guía pin por pin: domus-final-guia-principiantes.svg</text>
 
   <rect class="card ok" x="45" y="115" width="720" height="300"/>
-  <text class="h" x="75" y="155">1 · Energía final (aprobada)</text>
-  <text class="pin" x="75" y="200">TOMACORRIENTE → adaptador cerrado 5 V/5 A</text>
-  <text class="pin" x="75" y="238">→ fusible lento 4 A → switch maestro DC ≥5 A</text>
-  <text class="pin" x="75" y="276">→ distribución estrella +5 V / GND</text>
-  <text class="t" x="75" y="320">Ramas: ESP32 (una sola ruta +) · controlador · MAX98357A · LED</text>
-  <text class="t" x="75" y="354">GND común · retornos de motor directos al distribuidor</text>
+  <text class="h" x="75" y="155">1 · Energía en 2 ramas (acordado)</text>
+  <text class="pin" x="75" y="200">Rama A — USB → ESP32 + sensores + LCD + LED</text>
+  <text class="t" x="75" y="238">Rama B — fuente externa 5 V → fusible → driver</text>
+  <text class="t" x="75" y="276">confirmado → bomba y ventilador (SOLO motores)</text>
+  <text class="pin" x="75" y="320">GND fuente externa ↔ GND ESP32 (común)</text>
+  <text class="t" x="75" y="354">Amperaje: 3 A o 5 A POR CONFIRMAR según medición</text>
   <text class="small" x="75" y="392">120 V NUNCA entra a maqueta/protoboard · medir 5 V antes de conectar</text>
 
   <rect class="card ok" x="835" y="115" width="720" height="300"/>

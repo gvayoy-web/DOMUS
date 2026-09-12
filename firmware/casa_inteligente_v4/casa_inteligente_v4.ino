@@ -87,6 +87,7 @@
 // histéresis, propiedad manual y protocolo quedan intactos. Pasos pendientes:
 // drivers por perfil (FINAL), IR como entrada, audio por cola y validación
 // física. El esqueleto alfa sigue siendo el firmware de banco vigente.
+// Estado formal: CANDIDATO (ver nota 53); FINAL solo tras puertas F1-F7.
 
 // Jarvis local en español requiere un modelo TinyML entrenado para este
 // hardware. Mientras no exista ese artefacto, el resto de la casa debe seguir

@@ -46,8 +46,9 @@ Texto definitivo para cotizar en C&D: [[42 - Solicitud final de cotizacion C&D]]
 Manual histórico superado (solo historia, nota 50): [[43 - Manual final completo PROJECT DOMUS]].
 Arquitectura histórica superada (conservar reglas de seguridad): [[44 - Arquitectura y ciclo de vida del firmware]].
 Ola 1 (buffers, Jarvis único, GPIO12, validación por perfil): [[50 - Ola 1 buffers Jarvis GPIO12 y validacion por perfil]].
-Ola 2 (cierre: casa histórica, planos canónicos, sim del esqueleto): [[51 - Ola 2 cierre casa historica planos y sim]].
+Ola 2 (cierre: casa candidata, planos canónicos, sim del esqueleto): [[51 - Ola 2 cierre casa historica planos y sim]].
 Ola 3 (migración SalidaDomus + diagrama final con TBD): [[52 - Ola 3 migracion SalidaDomus y diagrama final]].
+Definición formal de firmware final y puertas F1-F7: [[53 - Definicion formal de firmware final y puertas]].
 Plano alfa actual sin control IR y antes de recibir el driver: [[45 - Diagrama ASCII alfa sin control IR]].
 Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 

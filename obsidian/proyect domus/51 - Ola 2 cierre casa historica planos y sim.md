@@ -10,11 +10,13 @@ estado: aplicado_ola_2
 Autoridad: [[46 - Plan maestro de consolidacion un costado]].
 Ola previa: [[50 - Ola 1 buffers Jarvis GPIO12 y validacion por perfil]].
 
-## 1. casa_inteligente_v4, referencia histórica
+## 1. casa_inteligente_v4, referencia migrada candidata (ver nota 53)
 
 `firmware/casa_inteligente_v4/casa_inteligente_v4.ino` lleva banner de
 migración Fase E paso 1 (ver nota 52): conserva todas sus reglas, ya sin
-abstracción de relés. No es firmware de banco; el banco vigente es
+abstracción de relés. Estado formal: `CANDIDATO`, no `FINAL` ni histórico
+inerte (definición y puertas en
+[[53 - Definicion formal de firmware final y puertas]]). El banco vigente es
 `firmware/domus_esqueleto` (perfil `ALFA_UN_COSTADO_SIN_IR`).
 `firmware/PLAN_CODIGO.md` y `firmware/domus_esqueleto/README.md` anteriores
 quedan como historia donde contradigan a esta nota.

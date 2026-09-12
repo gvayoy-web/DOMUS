@@ -39,12 +39,14 @@ perfiles CI con tamaños idénticos a la nota 34 → comportamiento intacto.
 El contrato de cableado del validador (`PIN_SALIDA_*`) y los harness nativos
 siguen el renombre; `planos/tests` intactos.
 
-## 2. Diagrama final
+## 2. Diagramas: arquitectura general + guía final pin por pin
 
-`visualizaciones/domus-final-feria.svg`: mismo nivel pedagógico que la guía
-alfa. Verde = aprobado hoy (energía, núcleo alfa, guion demo); amarillo TBD =
-prohibido cablear (driver sin identificar, IR/audio sin mapa). No inventa
-pinouts: cada TBD cita su puerta de medición.
+`visualizaciones/domus-arquitectura-feria.svg` (antes `domus-final-feria.svg`):
+diagrama general con energía en 2 ramas y TBD explícitos. No es guía de montaje.
+`visualizaciones/domus-final-guia-principiantes.svg`: guía autónoma pin por
+pin (DHT orientado, LCD 4 hilos, LDR, botones, LED, S8050 + diodo, TP4056,
+checklist) + recuadro NO CONECTAR TODAVÍA. Estado FINAL formal y sus puertas
+en [[53 - Definicion formal de firmware final y puertas]].
 
 ## 3. Pendiente con puerta física (no software)
 
