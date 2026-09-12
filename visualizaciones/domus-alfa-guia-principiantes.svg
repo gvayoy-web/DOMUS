@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180">
+  <style>
+    .bg{fill:#f8fafc}.card{fill:#fff;stroke:#334155;stroke-width:3;rx:18}.esp{fill:#dbeafe;stroke:#1d4ed8;stroke-width:4}.sensor{fill:#ecfdf5;stroke:#047857;stroke-width:3}.warn{fill:#fff7ed;stroke:#c2410c;stroke-width:3}.title{font:700 34px Arial;fill:#0f172a}.h{font:700 24px Arial;fill:#0f172a}.t{font:19px Arial;fill:#1e293b}.small{font:16px Arial;fill:#334155}.pin{font:700 18px monospace;fill:#1d4ed8}.wire{fill:none;stroke-width:5}.pwr{stroke:#f97316}.gnd{stroke:#111827}.sig{stroke:#2563eb}.safe{font:700 22px Arial;fill:#b91c1c}.dot{fill:#2563eb}
+  </style>
+  <rect class="bg" width="1600" height="1180"/>
+  <text class="title" x="800" y="52" text-anchor="middle">PROJECT DOMUS — conexiones alfa para principiantes</text>
+  <text class="t" x="800" y="84" text-anchor="middle">Perfil exacto: ALFA_UN_COSTADO_SIN_IR · ESP32-S3 N16R8 · alimentación por USB</text>
+
+  <rect class="esp" x="610" y="130" width="380" height="850" rx="28"/>
+  <text class="h" x="800" y="180" text-anchor="middle">ESP32-S3 N16R8</text>
+  <text class="t" x="800" y="212" text-anchor="middle">usa el costado accesible</text>
+  <g class="pin">
+    <text x="650" y="270">3V3</text><text x="650" y="310">GND</text>
+    <text x="650" y="370">GPIO3  → LDR</text><text x="650" y="410">GPIO5  → LED sala</text>
+    <text x="650" y="450">GPIO6  → LED cuarto</text><text x="650" y="490">GPIO8  → LED cultivo</text>
+    <text x="650" y="530">GPIO9  ← PIR OUT</text><text x="650" y="570">GPIO10 ← STOP</text>
+    <text x="650" y="610">GPIO11 ← SILENCIO</text><text x="650" y="650">GPIO13 → LCD SCL</text>
+    <text x="650" y="690">GPIO14 ← DHT DATA</text><text x="650" y="730">GPIO15 ← suelo AO</text>
+    <text x="650" y="770">GPIO16 ← nivel S</text><text x="650" y="810">GPIO17 ↔ LCD SDA</text>
+    <text x="650" y="850">GPIO18 ← MODO</text>
+  </g>
+  <text class="safe" x="800" y="915" text-anchor="middle">GPIO4 y GPIO7: NO CONECTAR MOTORES</text>
+  <text class="small" x="800" y="946" text-anchor="middle">GPIO12 reservado, sin conectar (buzzer deshabilitado en alfa)</text>
+
+  <rect class="card sensor" x="45" y="125" width="500" height="245"/>
+  <text class="h" x="75" y="165">DHT11 suelto (4 patas)</text>
+  <text class="t" x="75" y="200">Cara cuadriculada hacia ti · patas abajo</text>
+  <rect x="155" y="225" width="280" height="72" rx="8" fill="#60a5fa" stroke="#1e3a8a" stroke-width="3"/>
+  <text class="t" x="295" y="268" text-anchor="middle">▦  ▦  ▦  ▦  ▦</text>
+  <text class="pin" x="105" y="334">1=3V3</text><text class="pin" x="215" y="334">2=G14</text>
+  <text class="pin" x="325" y="334">3=NC</text><text class="pin" x="425" y="334">4=GND</text>
+  <text class="small" x="75" y="360">10 kΩ entre patita 2 (DATA) y 3V3</text>
+
+  <rect class="card sensor" x="45" y="405" width="500" height="205"/>
+  <text class="h" x="75" y="445">LCD1602 + backpack I²C</text>
+  <text class="t" x="75" y="482">Sigue las LETRAS impresas, no la posición:</text>
+  <text class="pin" x="75" y="525">GND→GND   VCC→3V3</text>
+  <text class="pin" x="75" y="565">SDA→GPIO17   SCL→GPIO13</text>
+  <text class="small" x="75" y="593">Primera prueba siempre a 3V3.</text>
+
+  <rect class="card sensor" x="45" y="645" width="500" height="270"/>
+  <text class="h" x="75" y="685">Sensores por letras impresas</text>
+  <text class="t" x="75" y="727">Suelo: VCC→3V3 · GND→GND</text>
+  <text class="pin" x="75" y="759">AO→GPIO15 · DO sin conectar</text>
+  <text class="t" x="75" y="807">Nivel rojo: +→3V3 · −→GND</text>
+  <text class="pin" x="75" y="839">S / AO→GPIO16</text>
+  <text class="t" x="75" y="883">PIR: VCC→3V3 · OUT→GPIO9 · GND→GND</text>
+
+  <rect class="card sensor" x="1055" y="125" width="500" height="220"/>
+  <text class="h" x="1085" y="165">LDR + resistencia 10 kΩ</text>
+  <text class="pin" x="1085" y="215">3V3 ─ LDR ─ ● ─ 10k ─ GND</text>
+  <text class="pin" x="1260" y="260">● → GPIO3</text>
+  <text class="small" x="1085" y="305">Las 3 uniones del ● van en la misma fila.</text>
+
+  <rect class="card sensor" x="1055" y="380" width="500" height="225"/>
+  <text class="h" x="1085" y="420">Botones (hacia GND)</text>
+  <text class="pin" x="1085" y="470">MODO: GPIO18 ─ botón ─ GND</text>
+  <text class="pin" x="1085" y="510">STOP: GPIO10 ─ botón ─ GND</text>
+  <text class="pin" x="1085" y="550">SILENCIO: GPIO11 ─ botón ─ GND</text>
+  <text class="small" x="1085" y="582">Colócalos cruzando la ranura central.</text>
+
+  <rect class="card sensor" x="1055" y="640" width="500" height="275"/>
+  <text class="h" x="1085" y="680">LED con resistencia propia</text>
+  <text class="small" x="1085" y="715">Pata larga = + · pata corta/lado plano = GND</text>
+  <text class="pin" x="1085" y="755">GPIO5 ─ 330Ω–1kΩ ─► sala ─ GND</text>
+  <text class="pin" x="1085" y="795">GPIO6 ─ 330Ω–1kΩ ─► cuarto ─ GND</text>
+  <text class="pin" x="1085" y="835">GPIO8 ─ 1kΩ ─► cultivo ─ GND</text>
+  <text class="small" x="1085" y="875">Repite la última rama para cada uno de los 3 LED.</text>
+
+  <rect class="warn" x="45" y="1015" width="1510" height="120"/>
+  <text class="safe" x="800" y="1058" text-anchor="middle">DETENTE si las letras de tu pieza no coinciden</text>
+  <text class="t" x="800" y="1093" text-anchor="middle">No adivines izquierda/derecha en LCD, PIR, suelo o nivel. No conectes bomba, ventilador, driver ni 120 V.</text>
+  <text class="small" x="800" y="1122" text-anchor="middle">Todos los GND son comunes · sensores y LCD a 3V3 · ESP32 por USB</text>
+</svg>

@@ -58,7 +58,7 @@ def validate_vault() -> list[str]:
     markdown_files = list(VAULT.glob("*.md"))
     available = {path.stem.casefold() for path in markdown_files}
 
-    for number in range(38):
+    for number in range(51):
         prefix = f"{number:02d} - "
         if not any(path.name.startswith(prefix) for path in markdown_files):
             errors.append(f"Falta una nota de plan con prefijo {prefix!r}")
@@ -79,24 +79,78 @@ def validate_current_decisions() -> list[str]:
         return ["Falta la nota 36 de configuración final"]
 
     decision = CURRENT_DECISION.read_text(encoding="utf-8")
-    guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
     config = BENCH_CONFIG.read_text(encoding="utf-8")
     bench_guide = CURRENT_BENCH_GUIDE.read_text(encoding="utf-8")
+    # Guía Ultimate bajo planos/new fue eliminada del árbol (ver nota 46:150 y
+    # nota 50): se verifica solo si existe, no bloquea la validación.
+    if CURRENT_BUILD_GUIDE.is_file():
+        guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
+    else:
+        guide = ""
     required = {
         "Nota 36": (decision, "bomba de 3-6 V"),
         "Geometría v4": (decision, "800 × 520 mm"),
-        "Guía Ultimate": (guide, "Base total: **800 × 520 mm**"),
         "Firmware de banco": (
             config,
-            "constexpr bool HABILITAR_BOMBA = false;",
+            "constexpr bool HABILITAR_MOTOR_BOMBA = false;",
+        ),
+        "Motor ventilador bloqueado": (
+            config,
+            "constexpr bool HABILITAR_MOTOR_VENTILADOR = false;",
+        ),
+        "Buzzer deshabilitado en alfa": (
+            config,
+            "constexpr bool BUZZER_HABILITADO = false;",
         ),
         "Perfil N16R8": (config, 'PERFIL_PLACA[] = "ESP32-S3-N16R8"'),
+        "Perfil alfa": (config, 'PERFIL_PRUEBA[] = "ALFA_UN_COSTADO_SIN_IR"'),
+        "Validación por funciones activas": (config, "funcionesActivasSinAlias"),
         "Ronda sin compras": (bench_guide, "B01-B05"),
-        "Bomba bloqueada en ronda": (bench_guide, "HABILITAR_BOMBA=false"),
     }
+    if guide:
+        required["Guía Ultimate"] = (guide, "Base total: **800 × 520 mm**")
     for owner, (text, term) in required.items():
         if " ".join(term.split()).casefold() not in " ".join(text.split()).casefold():
             errors.append(f"{owner}: falta decisión vigente {term!r}")
+    return errors
+
+
+def validate_bench_contract() -> list[str]:
+    """Contrato del esqueleto alfa vigente (ola 1, notas 46/47/50)."""
+    errors: list[str] = []
+    config = BENCH_CONFIG.read_text(encoding="utf-8")
+    sketch = (ROOT / "firmware" / "domus_esqueleto" / "domus_esqueleto.ino").read_text(encoding="utf-8")
+    lcd = (ROOT / "firmware" / "domus_esqueleto" / "domus_lcd.h").read_text(encoding="utf-8")
+    voice = (ROOT / "firmware" / "domus_esqueleto" / "domus_voice.h").read_text(encoding="utf-8")
+    for token in (
+        "PIN_SUELO = 15", "PIN_NIVEL = 16", "PIN_LCD_SDA = 17",
+        "PIN_LCD_SCL = 13", "PIN_BOTON = 18",
+        "PERFIL_ALFA_BOMBA_1", "PERFIL_ALFA_VENTILADOR_1",
+        "listaActiva", "funcionesActivasSinAlias",
+    ):
+        if token not in config:
+            errors.append(f"Banco alfa: falta {token!r} en domus_config.h")
+    # Ola 1: buffers propios, buzzer gateado, beep no bloqueante.
+    for token in ("feedbackTitulo_[17]", "feedbackSub_[17]"):
+        if token not in lcd:
+            errors.append(f"LCD: falta buffer propio {token!r} (dangling buf)")
+    if "delay(40)" in lcd:
+        errors.append("LCD: splash aún usa delay(40) bloqueante")
+    for token in ("ultima_[160]", "BUZZER_HABILITADO", "void actualizar()"):
+        if token not in voice:
+            errors.append(f"Voz: falta {token!r} (ola 1)")
+    if "voz.actualizar()" not in sketch:
+        errors.append("Esqueleto: loop() no llama voz.actualizar()")
+    if "alternarIR(SALA, \"SALA ON\", \"SALA OFF\", 1, 2)" in sketch:
+        errors.append("Esqueleto: alternarIR aún emite doble Jarvis (ola 1)")
+    # SVG guía vigente.
+    guia = ROOT / "visualizaciones" / "domus-alfa-guia-principiantes.svg"
+    if guia.is_file():
+        svg = guia.read_text(encoding="utf-8")
+        if "GPIO12 reservado, sin conectar" not in svg:
+            errors.append("SVG guía: GPIO12 aún figura como libre")
+    else:
+        errors.append("SVG guía: falta domus-alfa-guia-principiantes.svg")
     return errors
 
 
@@ -171,6 +225,7 @@ def main() -> int:
     vault_errors = (
         validate_vault()
         + validate_current_decisions()
+        + validate_bench_contract()
         + validate_firmware_wiring_contract()
         + validate_visualization()
     )

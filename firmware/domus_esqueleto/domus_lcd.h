@@ -15,18 +15,19 @@ class PantallaBonita {
   }
   void splash() {
     if (!lcd_) return;
+    // No bloqueante: muestra título y arma feedback corto, sin delay().
     lcd_->clear();
     lcd_->setCursor(0, 0); lcd_->print("PROJECT DOMUS");
-    lcd_->setCursor(0, 1);
-    for (uint8_t i = 0; i < 16; ++i) { lcd_->print((char)255); delay(40); }
-    lcd_->clear();
+    lcd_->setCursor(0, 1); lcd_->print("JARVIS LISTO");
     modo_ = 0; feedbackHasta_ = millis() + 1400;
-    feedbackTitulo_ = "JARVIS LISTO";
-    feedbackSub_ = "CH cambia pag.";
+    snprintf(feedbackTitulo_, sizeof(feedbackTitulo_), "JARVIS LISTO");
+    snprintf(feedbackSub_, sizeof(feedbackSub_), "CH cambia pag.");
   }
   // Muestra letras de la acción + animación posterior (1200 ms).
   void feedback(const char* titulo, const char* sub = "") {
-    feedbackTitulo_ = titulo; feedbackSub_ = sub;
+    // Copia a buffers propios: el llamador puede pasar char buf[] local.
+    snprintf(feedbackTitulo_, sizeof(feedbackTitulo_), "%-16.16s", titulo ? titulo : "");
+    snprintf(feedbackSub_, sizeof(feedbackSub_), "%-16.16s", sub ? sub : "");
     feedbackHasta_ = millis() + 1400; animPaso_ = 0; ultimoAnim_ = 0;
   }
   void setPagina(uint8_t p) { pagina_ = p % 4; }
@@ -139,6 +140,7 @@ class PantallaBonita {
   LiquidCrystal_I2C* lcd_ = nullptr;
   uint8_t pagina_ = 0, animPaso_ = 0, modo_ = 0;
   uint32_t feedbackHasta_ = 0, ultimoAnim_ = 0, ultimoPag_ = 0;
-  const char* feedbackTitulo_ = "";
-  const char* feedbackSub_ = "";
+  // Buffers propios: nunca se conserva el puntero del llamador (podía ser buf[] local).
+  char feedbackTitulo_[17] = "";
+  char feedbackSub_[17] = "";
 };

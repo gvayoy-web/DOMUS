@@ -1,26 +1,27 @@
 #pragma once
 #include <stdint.h>
 
-// PROJECT DOMUS v2 — banco IR + LCD + Jarvis + DRV8833 listo.
+// PROJECT DOMUS v3 — banco alfa por un solo costado, sin IR.
 // Placa: ESP32-S3 N16R8. Alimentación banco: USB / fuente regulada.
 // Alimentación final (cuando llegue): extensión 120 V AC -> cargador USB ESP32
 // + fuente cerrada 5 V/5 A -> portafusible 4 A lento -> switch 5 A DC -> bus 5 V.
 // El 120 V NUNCA entra a la maqueta ni a la protoboard.
 //
-// Cambios v2:
-// - IR HX1838/VS1838B S/OUT -> GPIO12 (VCC->3V3, GND->GND, leer serigrafía S/+/-).
-// - BOTON sala se mueve GPIO12 -> GPIO16 (el 12 lo ocupa el IR).
-// - Buzzer activo 5 V via S8050 -> GPIO15.
-// - DFPlayer (opcional, ya tienes) Serial1 RX=18 TX=17, 9600. No usar GPIO19/20 (USB).
-// - DRV8833 (compra): AIN1=GPIO4 bomba, BIN1=GPIO7 ventilador, AIN2/BIN2=GND,
-//   nSLEEP=3V3, VM=5 V bus, GND común. Sin diodos externos.
-// - Sala/cuarto/invernadero son LED (ya tienes), bomba/vent se habilitan con DRV.
+// Perfil actual:
+// - Solo usa el costado físicamente accesible de la protoboard.
+// - IR y controlador doble quedan fuera hasta identificarlos y congelar el mapa final.
+// - Sala, cuarto e iluminación de cultivo son LED; motores bloqueados por defecto.
 namespace Config {
-constexpr bool HABILITAR_BOMBA = false;   // banco: false. Con DRV medido: true.
-constexpr bool USAR_DRV8833 = false;      // true solo cuando el DRV esté medido.
-constexpr bool DFPLAYER_HABILITADO = false; // true solo con DFPlayer + microSD cableados.
+constexpr bool HABILITAR_MOTOR_BOMBA = false;      // una carga motriz por prueba vigilada.
+constexpr bool HABILITAR_MOTOR_VENTILADOR = false; // nunca habilitar ambos por accidente.
+constexpr bool CONTROLADOR_DOBLE_IDENTIFICADO = false;
+constexpr bool IR_HABILITADO = false;
+constexpr bool DFPLAYER_HABILITADO = false;  // true solo con DFPlayer + microSD cableados.
+// Buzzer: deshabilitado en alfa. GPIO12 queda RESERVADO, SIN CONECTAR.
+// No configurar ni escribir GPIO12 mientras siga en false (ver domus_voice.h).
+constexpr bool BUZZER_HABILITADO = false;
 constexpr const char PERFIL_PLACA[] = "ESP32-S3-N16R8";
-constexpr const char PERFIL_PRUEBA[] = "BANCO_IR_LCD";
+constexpr const char PERFIL_PRUEBA[] = "ALFA_UN_COSTADO_SIN_IR";
 constexpr bool LCD_HABILITADO = true;
 constexpr bool DHT_HABILITADO = true;
 constexpr uint8_t DHT_TIPO = 11; // Cambiar a 22 solo tras identificar el modulo.
@@ -32,38 +33,83 @@ constexpr uint32_t PIR_RETENCION_MS = 30000;
 constexpr uint32_t WATCHDOG_TIMEOUT_MS = 5000;
 constexpr uint32_t HEAP_CRITICO_BYTES = 24000;
 // Sensores / entradas
-constexpr uint8_t PIN_SUELO = 1, PIN_NIVEL = 2, PIN_LUZ = 3;
-constexpr uint8_t PIN_PIR = 9, PIN_PARO = 10, PIN_SILENCIO = 11, PIN_BOTON = 16;
-constexpr uint8_t PIN_DHT = 14, PIN_LCD_SDA = 21, PIN_LCD_SCL = 13;
+constexpr uint8_t PIN_SUELO = 15, PIN_NIVEL = 16, PIN_LUZ = 3;
+constexpr uint8_t PIN_PIR = 9, PIN_PARO = 10, PIN_SILENCIO = 11, PIN_BOTON = 18;
+constexpr uint8_t PIN_DHT = 14, PIN_LCD_SDA = 17, PIN_LCD_SCL = 13;
 // Salidas lógicas 5 cargas: 0 bomba, 1 sala, 2 cuarto, 3 ventilador, 4 invernadero.
 constexpr uint8_t PINES[] = {4, 5, 6, 7, 8};
-// Buzzer activo 5 V via S8050 (segundo transistor). HIGH = suena.
-constexpr uint8_t PIN_BUZZER = 15;
+// Buzzer pasivo temporal en GPIO12. SOLO activo si BUZZER_HABILITADO.
+// En ALFA_UN_COSTADO_SIN_IR permanece deshabilitado: GPIO12 reservado, sin conectar.
+constexpr uint8_t PIN_BUZZER = 12;
 // IR receptor (VS1838B/TSOP1838/HX1838 en placa): S/OUT a este pin.
+// FINAL-ONLY: no pertenece al perfil alfa. Solo se valida si IR_HABILITADO.
 constexpr uint8_t PIN_IR = 12;
 // DFPlayer Mini Serial1 (opcional). ESP_RX <- DF_TX, ESP_TX -> DF_RX (con 1 k).
+// FINAL-ONLY: no pertenece al perfil alfa. Solo se valida si DFPLAYER_HABILITADO.
 constexpr uint8_t PIN_DF_RX = 18, PIN_DF_TX = 17;
 constexpr uint32_t DF_BAUDIOS = 9600;
-// I2S MAX98357A futuro (EXCLUSIVO con DFPlayer en 17/18): BCLK=16 LRC=17 DIN=18.
-constexpr uint8_t PIN_I2S_BCLK = 16, PIN_I2S_LRC = 17, PIN_I2S_DIN = 18;
+// Audio futuro: sin mapa asignado en este perfil para impedir duplicar GPIO.
 // Habilitación física: LEDs ya (sala/cuarto/invernadero), motores solo con DRV.
 constexpr bool SALIDA_FISICA_HABILITADA[] = {
-  HABILITAR_BOMBA && USAR_DRV8833, true, true, HABILITAR_BOMBA && USAR_DRV8833, true
+  HABILITAR_MOTOR_BOMBA, true, true, HABILITAR_MOTOR_VENTILADOR, true
 };
-// DRV8833 es HIGH activo. Relé desnudo queda fuera del núcleo (demo separada).
+// El alfa usa LED/S8050 activos HIGH. El controlador doble sigue pendiente de identificar.
 constexpr bool ACTIVA_LOW[] = {false, false, false, false, false};
-constexpr uint8_t LCD_DIRECCIONES[] = {0x27, 0x3F};
 // Jarvis voz (runtime, no flash): volumen DFPlayer 0-30.
 constexpr uint8_t JARVIS_VOL_DEF = 20, JARVIS_VOL_MIN = 0, JARVIS_VOL_MAX = 30;
 // Reservas: no cablear 19/20 (USB nativo S3).
-constexpr uint8_t RESERVADOS[] = {1,2,3,4,5,6,7,8,9,10,11,12,14,21,13,15,16,17,18};
+// Validación por FUNCIONES ACTIVAS (nota 46:234): solo se comprueban los GPIO
+// que el perfil realmente usa. Una combinación habilitada que comparta GPIO
+// falla en compilación. Los pines FINAL-ONLY (IR/DF) no entran si están off.
+constexpr uint8_t RESERVADOS[] = {3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
 constexpr bool pinesUnicos() {
   for (unsigned i = 0; i < sizeof(RESERVADOS); ++i)
     for (unsigned j = i + 1; j < sizeof(RESERVADOS); ++j)
       if (RESERVADOS[i] == RESERVADOS[j]) return false;
   return true;
 }
+// Perfiles de motor mutuamente exclusivos (nota 49):
+// ALFA_BOMBA_1 -> solo GPIO4; ALFA_VENTILADOR_1 -> solo GPIO7; nunca ambos.
+constexpr bool PERFIL_ALFA_BOMBA_1 = HABILITAR_MOTOR_BOMBA && !HABILITAR_MOTOR_VENTILADOR;
+constexpr bool PERFIL_ALFA_VENTILADOR_1 = HABILITAR_MOTOR_VENTILADOR && !HABILITAR_MOTOR_BOMBA;
+// Lista explícita de GPIO usados por FUNCIONES ACTIVAS del perfil.
+// Cada entrada se añade solo si su función está habilitada: así un pin
+// FINAL-ONLY (IR/DF/buzzer) no contamina al perfil alfa aunque comparta número.
+constexpr uint8_t listaActiva(uint8_t idx) {
+  // Orden: 0 suelo,1 nivel,2 luz,3 pir,4 paro,5 silencio,6 boton,7 dht,8 sda,9 scl,
+  // 10..14 salidas 0..4 (255 si bloqueada),15 buzzer,16 ir,17 df_rx,18 df_tx.
+  return idx == 0 ? PIN_SUELO : idx == 1 ? PIN_NIVEL : idx == 2 ? PIN_LUZ :
+    idx == 3 ? PIN_PIR : idx == 4 ? PIN_PARO : idx == 5 ? PIN_SILENCIO :
+    idx == 6 ? PIN_BOTON : idx == 7 ? (DHT_HABILITADO ? PIN_DHT : 255) :
+    idx == 8 ? (LCD_HABILITADO ? PIN_LCD_SDA : 255) :
+    idx == 9 ? (LCD_HABILITADO ? PIN_LCD_SCL : 255) :
+    idx == 10 ? (SALIDA_FISICA_HABILITADA[0] ? PINES[0] : 255) :
+    idx == 11 ? (SALIDA_FISICA_HABILITADA[1] ? PINES[1] : 255) :
+    idx == 12 ? (SALIDA_FISICA_HABILITADA[2] ? PINES[2] : 255) :
+    idx == 13 ? (SALIDA_FISICA_HABILITADA[3] ? PINES[3] : 255) :
+    idx == 14 ? (SALIDA_FISICA_HABILITADA[4] ? PINES[4] : 255) :
+    idx == 15 ? (BUZZER_HABILITADO ? PIN_BUZZER : 255) :
+    idx == 16 ? (IR_HABILITADO ? PIN_IR : 255) :
+    idx == 17 ? (DFPLAYER_HABILITADO ? PIN_DF_RX : 255) :
+    idx == 18 ? (DFPLAYER_HABILITADO ? PIN_DF_TX : 255) : 255;
+}
+constexpr bool funcionesActivasSinAlias() {
+  for (uint8_t i = 0; i < 19; ++i) {
+    const uint8_t a = listaActiva(i);
+    if (a == 255) continue;
+    for (uint8_t j = i + 1; j < 19; ++j) {
+      const uint8_t b = listaActiva(j);
+      if (b == 255) continue;
+      if (a == b) return false;
+    }
+  }
+  return true;
+}
 static_assert(pinesUnicos(), "GPIO duplicado");
+static_assert(funcionesActivasSinAlias(), "Alias GPIO entre funciones HABILITADAS del perfil");
+static_assert(!(HABILITAR_MOTOR_BOMBA && HABILITAR_MOTOR_VENTILADOR),
+              "El perfil alfa permite un solo motor por prueba");
+static_assert(!BUZZER_HABILITADO || PIN_BUZZER != 255, "Buzzer habilitado sin pin");
 static_assert(BOMBA_MAX_MS > 0 && BOMBA_MAX_MS <= 120000, "Tiempo bomba invalido");
 static_assert(DHT_TIPO == 11 || DHT_TIPO == 22, "DHT_TIPO debe ser 11 o 22");
 static_assert(sizeof(PINES) == sizeof(ACTIVA_LOW), "Tabla de salidas inconsistente");

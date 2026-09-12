@@ -1,5 +1,5 @@
 /* PROJECT DOMUS v2: controlador local modular ESP32-S3.
- * Banco IR + LCD bonito + Jarvis + DRV8833 listo.
+ * Banco alfa por un solo costado, sin IR ni controlador doble supuesto.
  * 120 V solo en extensión externa -> cargador USB + fuente 5 V/5 A.
  * El 120 V NUNCA entra a la maqueta.
  */
@@ -147,8 +147,8 @@ void revisarSeguridad() {
 }
 void revisarSalud() { if (esp_get_free_heap_size()<HEAP_CRITICO_BYTES) entrarModoSeguro("heap_critico"); }
 
-// Botón físico sala (GPIO16): corto = toggle sala con letras+animación,
-// largo 3 s = entrar/salir modo aprender IR.
+// Botón MODO temporal del perfil alfa (GPIO18). El gesto largo solo arma
+// aprendizaje cuando el perfil IR está habilitado.
 void revisarBoton() {
   static bool crudoAnterior=HIGH,estable=HIGH;
   static uint32_t cambio=0, pressIni=0;
@@ -158,7 +158,7 @@ void revisarBoton() {
     estable=crudo;
     if (estable==HIGH) {
       const uint32_t dur = millis()-pressIni;
-      if (dur >= 3000) {
+      if (dur >= 3000 && IR_HABILITADO) {
         ir.setAprender(!ir.modoAprender());
         notificarFormato("IR;APRENDER=%d", ir.modoAprender());
         pantalla.feedback(ir.modoAprender() ? "IR APRENDER ON" : "IR APRENDER OFF", "Pulsa 21 teclas");
@@ -183,8 +183,16 @@ bool detectarI2C(uint8_t direccion) { Wire.beginTransmission(direccion); return 
 void inicializarPantalla() {
   if (!LCD_HABILITADO) return;
   Wire.begin(PIN_LCD_SDA,PIN_LCD_SCL); Wire.setTimeOut(20);
-  if (detectarI2C(0x27)) lcd=&lcd27; else if (detectarI2C(0x3F)) lcd=&lcd3f;
-  if (!lcd) { notificar("EVENTO;LCD_NO_DETECTADO"); return; }
+  uint8_t halladas = 0;
+  for (uint8_t direccion = 0x08; direccion <= 0x77; ++direccion) {
+    if (!detectarI2C(direccion)) continue;
+    ++halladas;
+    notificarFormato("I2C;ENCONTRADO=0x%02X", direccion);
+    if (direccion == 0x27) lcd = &lcd27;
+    else if (direccion == 0x3F) lcd = &lcd3f;
+  }
+  if (!halladas) { notificar("EVENTO;I2C_SIN_DISPOSITIVOS"); return; }
+  if (!lcd) { notificar("EVENTO;LCD_DIRECCION_NO_COMPATIBLE"); return; }
   lcd->init(); lcd->backlight();
   pantalla.begin(lcd);
   lcdDisponible=true;
@@ -241,8 +249,8 @@ bool procesarCalibracion(const char *texto) {
 void informarEstado(bool diagnostico) {
   // Ráfagas por UART 115200 (FIFO 128 B vía CH343): pausar tras cada línea
   // para no perderlas. ~10 ms por línea; solo en diagnósticos puntuales.
-  if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;DRV=%d;DF=%d;FIS=%d%d%d%d%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
-    PERFIL_PLACA,PERFIL_PRUEBA,USAR_DRV8833,DFPLAYER_HABILITADO,
+  if (diagnostico) notificarFormato("DIAGNOSTICO;PLACA=%s;PERFIL=%s;DRIVER=%d;DF=%d;IR=%d;FIS=%d%d%d%d%d;OUT=%d%d%d%d%d;PARO=%d;SEGURO=%d",
+    PERFIL_PLACA,PERFIL_PRUEBA,CONTROLADOR_DOBLE_IDENTIFICADO,DFPLAYER_HABILITADO,IR_HABILITADO,
     SALIDA_FISICA_HABILITADA[0],SALIDA_FISICA_HABILITADA[1],SALIDA_FISICA_HABILITADA[2],
     SALIDA_FISICA_HABILITADA[3],SALIDA_FISICA_HABILITADA[4],
     encendida[0],encendida[1],encendida[2],encendida[3],encendida[4],paro,modoSeguro);
@@ -255,19 +263,18 @@ void informarEstado(bool diagnostico) {
   if (diagnostico) notificarFormato("SALUD;HEAP=%lu;LCD=%d;DHT=%d;IR=%04X;MOTIVO=%s",
     static_cast<unsigned long>(esp_get_free_heap_size()),lcdDisponible,sensores.ambienteValido,ultimoIR,motivoSeguro);
   if (diagnostico) Serial.flush();
-  if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;ADC=1,2,3;PIR=9;IR=12;BTN=16;I2C=21,13;DF=18,17",
-    PERFIL_PLACA,PERFIL_PRUEBA);
+  if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;ADC=15,16,3;PIR=9;IR=OFF;BTN=18;I2C=17,13;MOTORES=%d%d",
+    PERFIL_PLACA,PERFIL_PRUEBA,HABILITAR_MOTOR_BOMBA,HABILITAR_MOTOR_VENTILADOR);
   if (diagnostico) Serial.flush();
 }
 
-// Alterna una salida por IR/botón con feedback bonito + Jarvis.
-bool alternarIR(Salida s, const char* nomOn, const char* nomOff, uint8_t trackOn, uint8_t trackOff) {
+// Alterna una salida por IR/botón con feedback. NO emite Jarvis aquí:
+// el llamador emite UNA sola frase humana y UN solo ACK/NACK (ola 1).
+bool alternarIR(Salida s, const char* nomOn, const char* nomOff) {
   const bool on = !encendida[s];
   const Propietario o = on ? Propietario::MANUAL_ON : Propietario::MANUAL_OFF;
   if (pedirSalida(s, on, o)) {
     pantalla.feedback(on ? nomOn : nomOff, "Control IR");
-    voz.dice(on ? nomOn : nomOff, on ? trackOn : trackOff, notificar);
-    // Frases Jarvis humanas para las 4 principales:
     return true;
   }
   pantalla.feedback("BLOQUEADO", motivoRechazo);
@@ -297,9 +304,11 @@ void ejecutarTeclaIR(IRDOMUS::Tecla t) {
       notificar("ACK;IR;AUTO"); break;
     case T_ANTERIOR: case T_1: {
       const bool on = !encendida[SALA];
-      if (alternarIR(SALA, "SALA ON", "SALA OFF", 1, 2))
+      if (alternarIR(SALA, "SALA ON", "SALA OFF")) {
         voz.dice(on ? "He encendido la luz de la sala." : "He apagado la luz de la sala.", on ? 1 : 2, notificar);
-      notificar("ACK;IR;SALA"); break;
+        notificar("ACK;IR;SALA");
+      }
+      break;
     }
     case T_PLAY:
       voz.setPausa(!voz.pausa());
@@ -309,9 +318,11 @@ void ejecutarTeclaIR(IRDOMUS::Tecla t) {
       notificarFormato("ACK;IR;PAUSA=%d", voz.pausa()); break;
     case T_SIGUIENTE: case T_2: {
       const bool on = !encendida[CUARTO];
-      if (alternarIR(CUARTO, "DORM ON", "DORM OFF", 3, 4))
+      if (alternarIR(CUARTO, "DORM ON", "DORM OFF")) {
         voz.dice(on ? "He encendido la luz del dormitorio." : "He apagado la luz del dormitorio.", on ? 3 : 4, notificar);
-      notificar("ACK;IR;CUARTO"); break;
+        notificar("ACK;IR;CUARTO");
+      }
+      break;
     }
     case T_VOL_MENOS:
       voz.bajar();
@@ -355,15 +366,19 @@ void ejecutarTeclaIR(IRDOMUS::Tecla t) {
       break;
     case T_3: {
       const bool on = !encendida[INVERNADERO];
-      if (alternarIR(INVERNADERO, "CULTIVO ON", "CULTIVO OFF", 5, 6))
+      if (alternarIR(INVERNADERO, "CULTIVO ON", "CULTIVO OFF")) {
         voz.dice(on ? "Iluminación suplementaria de cultivo activada." : "Iluminación de cultivo apagada.", on ? 5 : 6, notificar);
-      notificar("ACK;IR;CULTIVO"); break;
+        notificar("ACK;IR;CULTIVO");
+      }
+      break;
     }
     case T_4: {
       const bool on = !encendida[VENTILADOR];
-      if (alternarIR(VENTILADOR, "VENT ON", "VENT OFF", 7, 8))
+      if (alternarIR(VENTILADOR, "VENT ON", "VENT OFF")) {
         voz.dice(on ? "He encendido la ventilación." : "He apagado la ventilación.", on ? 7 : 8, notificar);
-      notificar("ACK;IR;VENT"); break;
+        notificar("ACK;IR;VENT");
+      }
+      break;
     }
     case T_5: { // riego: pulsación nueva, nivel y timeout mandan.
       if (pedirSalida(BOMBA, true, Propietario::MANUAL_ON)) {
@@ -444,6 +459,7 @@ void revisarIR() {
 bool procesarIRGrabar(const char* texto) {
   const char* p = "IR GRABAR ";
   if (strncmp(texto, p, strlen(p)) != 0) return false;
+  if (!IR_HABILITADO) { notificar("NACK;IR;DESHABILITADO_EN_PERFIL"); return true; }
   const long n = strtol(texto + strlen(p), nullptr, 10);
   if (n < 0 || n > 20) { notificar("NACK;IR;TECLA 0-20"); return true; }
   irPendiente = static_cast<int8_t>(n);
@@ -481,17 +497,17 @@ void procesarLinea(const char *texto) {
     else pantalla.setPagina(comando.valor);
     notificarFormato("ACK;PAGINA=%u", pantalla.pagina());
   }
-  else if (comando.tipo==TipoComando::IR_LEER) {
+  else if (comando.tipo==TipoComando::IR_LEER && IR_HABILITADO) {
     ir.setAprender(!ir.modoAprender());
     notificarFormato("ACK;IR;APRENDER=%d", ir.modoAprender());
   }
-  else if (comando.tipo==TipoComando::IR_LISTA) {
+  else if (comando.tipo==TipoComando::IR_LISTA && IR_HABILITADO) {
     for (uint8_t i = 0; i < 21; ++i) {
       notificarFormato("IR;TECLA=%s;CMD=0x%02X", IRDOMUS::GestorIR::nombre(i), ir.codigoDe(i));
       Serial.flush(); // ráfaga 21 líneas por UART 115200: no saturar FIFO.
     }
   }
-  else if (comando.tipo==TipoComando::IR_BORRAR) { ir.borrar(); notificar("ACK;IR;DEFECTO"); }
+  else if (comando.tipo==TipoComando::IR_BORRAR && IR_HABILITADO) { ir.borrar(); notificar("ACK;IR;DEFECTO"); }
   else if (comando.tipo==TipoComando::AUTO) { escribirSalida(comando.salida,false); propietario[comando.salida]=Propietario::AUTO; notificar("ACK;AUTO;SALIDA_OFF"); }
   else if (comando.tipo==TipoComando::SALIDA) {
     const Propietario origen=comando.activar?Propietario::MANUAL_ON:Propietario::MANUAL_OFF;
@@ -528,19 +544,20 @@ void setup() {
     propietario[i]=Propietario::AUTO;
   }
   paro=digitalRead(PIN_PARO)==LOW; apagarTodo(); cargarCalibracion(); inicializarPantalla();
-  ir.begin();
+  if (IR_HABILITADO) ir.begin();
   voz.begin();
   voz.setMute(muteSW || digitalRead(PIN_SILENCIO)==LOW);
   if (DHT_HABILITADO) dht.begin(); watchdogActivo=inicializarWatchdog();
   if (!watchdogActivo) entrarModoSeguro("watchdog");
-  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;DRV=%d;BOMBA=%d;IR=12;BTN=16;USE_DIAGNOSTICO",
-    PERFIL_PLACA,PERFIL_PRUEBA,USAR_DRV8833,HABILITAR_BOMBA);
-  notificar("USA: IR LEER + pulsa 21 teclas + IR LISTA para mapear tu control");
+  notificarFormato("DOMUS_LISTO;PLACA=%s;PERFIL=%s;DRIVER=%d;BOMBA=%d;VENT=%d;IR=%d;BUZZER=%d;BTN=%u;USE_DIAGNOSTICO",
+    PERFIL_PLACA,PERFIL_PRUEBA,CONTROLADOR_DOBLE_IDENTIFICADO,HABILITAR_MOTOR_BOMBA,
+    HABILITAR_MOTOR_VENTILADOR,IR_HABILITADO,BUZZER_HABILITADO,PIN_BOTON);
+  notificar("USA: DIAGNOSTICO para revisar I2C, sensores y salidas bloqueadas");
 }
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset()!=ESP_OK) { watchdogActivo=false; entrarModoSeguro("watchdog_reset"); }
   revisarSeguridad();
   // Mute por hardware (PIN_SILENCIO a GND) + software (100+).
   voz.setMute(muteSW || digitalRead(PIN_SILENCIO)==LOW);
-  revisarBoton(); revisarIR(); revisarComandos(); leerSensores(); revisarAutomatizacion(); revisarSalud(); actualizarPantalla(); delay(1);
+  revisarBoton(); if (IR_HABILITADO) revisarIR(); revisarComandos(); leerSensores(); revisarAutomatizacion(); revisarSalud(); actualizarPantalla(); voz.actualizar(); delay(1);
 }

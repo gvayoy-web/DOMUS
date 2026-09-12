@@ -8,12 +8,14 @@
 class VozJarvis {
  public:
   void begin() {
-    pinMode(Config::PIN_BUZZER, OUTPUT);
-    digitalWrite(Config::PIN_BUZZER, LOW);
+    if (Config::BUZZER_HABILITADO) {
+      pinMode(Config::PIN_BUZZER, OUTPUT);
+      digitalWrite(Config::PIN_BUZZER, LOW);
+    }
     if (Config::DFPLAYER_HABILITADO) {
       Serial1.begin(Config::DF_BAUDIOS, SERIAL_8N1, Config::PIN_DF_RX, Config::PIN_DF_TX);
       delay(300);
-     dfEnviar(0x3F, 0, 0); // init
+      dfEnviar(0x3F, 0, 0);  // init
       dfVolumen(volumen_);
     }
   }
@@ -32,11 +34,12 @@ class VozJarvis {
 
   // Dice una frase: Serial JARVIS; + LCD scroll + DFPlayer track (si hay) + beep.
   // `track`: 0 = sin pista (solo Serial/LCD/beep), 1..99 = 0001.mp3.. en DFPlayer.
+  // Copia la frase a buffer propio: el llamador puede pasar buf[] local.
   void dice(const char* frase, uint8_t track = 0, void (*notificar)(const char*) = nullptr) {
-    ultima_ = frase;
+    snprintf(ultima_, sizeof(ultima_), "%s", frase ? frase : "");
     if (notificar) {
       char linea[160];
-      snprintf(linea, sizeof(linea), "JARVIS;%s", frase);
+      snprintf(linea, sizeof(linea), "JARVIS;%s", ultima_);
       notificar(linea);
     }
     if (mute_ || pausa_) { beep(1, 60); return; }
@@ -44,15 +47,39 @@ class VozJarvis {
     else beep(1, 90);
   }
 
+  // Programa pulsos sin bloquear: actualizar() los ejecuta desde el loop.
+  // Si el buzzer está deshabilitado en el perfil, no toca GPIO ni demora.
   void beep(uint8_t n = 1, uint16_t ms = 90) {
-    if (mute_) return;
-    for (uint8_t i = 0; i < n; ++i) {
-      digitalWrite(Config::PIN_BUZZER, HIGH); delay(ms);
-      digitalWrite(Config::PIN_BUZZER, LOW);
-      if (i + 1 < n) delay(70);
-    }
+    if (!Config::BUZZER_HABILITADO || mute_) return;
+    if (n == 0) return;
+    // Si ya hay una secuencia en curso, la nueva la sustituye (última orden manda).
+    pulsosPendientes_ = n;
+    pulsoMs_ = ms;
+    nivelActual_ = true;
+    digitalWrite(Config::PIN_BUZZER, HIGH);
+    proximoCambio_ = millis() + ms;
+    secuenciaActiva_ = true;
   }
   void error() { beep(2, 160); }
+
+  // Llamar cada loop. Apaga/en alterna el pin sin delay().
+  void actualizar() {
+    if (!secuenciaActiva_ || !Config::BUZZER_HABILITADO) return;
+    const uint32_t ahora = millis();
+    if ((int32_t)(ahora - proximoCambio_) < 0) return;
+    if (nivelActual_) {
+      // Terminó el HIGH de un pulso.
+      digitalWrite(Config::PIN_BUZZER, LOW);
+      if (pulsosPendientes_ > 0) --pulsosPendientes_;
+      if (pulsosPendientes_ == 0) { secuenciaActiva_ = false; return; }
+      nivelActual_ = false;
+      proximoCambio_ = ahora + 70;  // pausa entre pulsos.
+    } else {
+      digitalWrite(Config::PIN_BUZZER, HIGH);
+      nivelActual_ = true;
+      proximoCambio_ = ahora + pulsoMs_;
+    }
+  }
 
  private:
   void dfEnviar(uint8_t cmd, uint8_t p1, uint8_t p2) {
@@ -67,5 +94,11 @@ class VozJarvis {
   void dfVolumen(uint8_t v) { dfEnviar(0x06, 0, v); }
   uint8_t volumen_ = Config::JARVIS_VOL_DEF;
   bool pausa_ = false, mute_ = false;
-  const char* ultima_ = "";
+  // Buffer propio: nunca se conserva el puntero del llamador.
+  char ultima_[160] = "";
+  // Estado del beep no bloqueante.
+  bool secuenciaActiva_ = false, nivelActual_ = false;
+  uint8_t pulsosPendientes_ = 0;
+  uint16_t pulsoMs_ = 90;
+  uint32_t proximoCambio_ = 0;
 };
