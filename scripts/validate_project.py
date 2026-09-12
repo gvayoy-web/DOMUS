@@ -106,6 +106,7 @@ def validate_current_decisions() -> list[str]:
             config,
             "constexpr bool BUZZER_HABILITADO = (DOMUS_BUZZER != 0)",
         ),
+        "IR/DF/buzzer prohibidos en alfa": (config, "fuera del perfil alfa"),
         "Banderas seleccionables": (config, "#ifndef DOMUS_PERFIL_ALFA"),
         "Perfil N16R8": (config, 'PERFIL_PLACA[] = "ESP32-S3-N16R8"'),
         "Perfil alfa": (config, "PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)"),

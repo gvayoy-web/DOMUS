@@ -68,6 +68,21 @@ Si no detecta movimiento:
 - [x] `validate_project.py` actualizado a selección única + GPIO15/16/17 (corrección entrega)
 - [ ] HIL solo después de lo anterior
 
+## Corrección de entrega 3 (auditoría REQUEST CHANGES 3, 2026-09-12)
+
+Las banderas `-DDOMUS_IR/-DDOMUS_DF/-DDOMUS_BUZZER` reabrían GPIO12 en alfa.
+Cierre: `static_assert(DOMUS_IR==0 / DOMUS_DF==0 / DOMUS_BUZZER==0)` en todo
+perfil alfa; esas opciones quedan reservadas al futuro perfil FINAL. La matriz
+negativa las rechaza con ese mensaje (no con el de alias, que queda como
+segunda barrera para el FINAL).
+
+* `check_perfil_matrix.py`: usa arduino-cli local o del PATH (CI); sin
+  toolchain falla con código 2 salvo `--allow-skip` consciente.
+* CI `firmware-ci.yml`: job `compilar-perfiles-alfa` (0/1/2) + job
+  `rechazos-perfil-alfa` que ejecuta la matriz completa.
+* Evidencia binaria: `.bin` de cada perfil contiene solo su nombre
+  (`ALFA_UN_COSTADO_SIN_IR` / `ALFA_BOMBA_1` / `ALFA_VENTILADOR_1`).
+
 ## Corrección de entrega 2 (auditoría REQUEST CHANGES 2, 2026-09-12)
 
 Sin reescribir lo publicado; commits pequeños nuevos:

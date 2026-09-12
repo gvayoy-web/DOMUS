@@ -168,6 +168,12 @@ static_assert(!motoresExclusivos(true, true), "Ambas cargas deben rechazarse");
 static_assert(!alias12Ok(true, true), "IR+buzzer en GPIO12 deben rechazarse");
 static_assert(!dfSinAlias(true, true, true), "DF+boton/LCD en 18/17 deben rechazarse");
 // Perfil real seleccionado en este build.
+// IR, DFPlayer y buzzer pertenecen al futuro perfil FINAL, no al alfa:
+// mientras la selección sea alfa, habilitar cualquiera de ellos es error.
+// Así PERFIL_PRUEBA siempre describe el binario real (nota 50).
+static_assert(DOMUS_IR == 0, "IR fuera del perfil alfa (reservado al futuro FINAL)");
+static_assert(DOMUS_DF == 0, "DFPlayer fuera del perfil alfa (reservado al futuro FINAL)");
+static_assert(DOMUS_BUZZER == 0, "Buzzer fuera del perfil alfa: GPIO12 reservado, sin conectar");
 static_assert(motoresExclusivos(HABILITAR_MOTOR_BOMBA, HABILITAR_MOTOR_VENTILADOR),
               "El perfil alfa permite un solo motor por prueba");
 static_assert(alias12Ok(BUZZER_HABILITADO, IR_HABILITADO),

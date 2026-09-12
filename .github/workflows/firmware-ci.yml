@@ -148,6 +148,30 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  rechazos-perfil-alfa:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: "1.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar ESP32 y bibliotecas de la base
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.10
+          arduino-cli lib install "LiquidCrystal I2C@1.1.2"
+          arduino-cli lib install "DHT sensor library@1.4.7"
+          arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+      - name: Matriz 3 perfiles OK + 3 prohibidos rechazados
+        run: python scripts/check_perfil_matrix.py
+
   compilar-base-modular:
     needs: pruebas
     runs-on: ubuntu-latest

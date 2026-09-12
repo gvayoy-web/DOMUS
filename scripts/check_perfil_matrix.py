@@ -1,12 +1,15 @@
 """Matriz de perfiles compilable del esqueleto alfa (nota 50).
 
-Compila firmware/domus_esqueleto con arduino-cli:
+Compila firmware/domus_esqueleto con arduino-cli (local o del PATH):
   PASS esperado: DOMUS_PERFIL_ALFA=0/1/2 (sensores, bomba, ventilador).
-  FAIL esperado: perfil 3 inválido, IR+buzzer en GPIO12, DFPlayer en 17/18.
+  FAIL esperado: perfil 3 inválido, IR/buzzer/DFPlayer (fuera del perfil alfa).
 Sale 0 solo si los 3 pasan y los 3 son rechazados por static_assert.
+Sin toolchain prográmese --allow-skip (código 0); sin esa opción, la
+omisión es fallo (código 2), nunca éxito silencioso.
 """
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -24,15 +27,25 @@ PASS_CASES = {
 }
 FAIL_CASES = {
     "perfil_invalido": (["-DDOMUS_PERFIL_ALFA=3"], "DOMUS_PERFIL_ALFA debe ser 0, 1 o 2"),
-    "ir_mas_buzzer_gpio12": (["-DDOMUS_BUZZER=1", "-DDOMUS_IR=1"], "GPIO12"),
-    "dfplayer_en_17_18": (["-DDOMUS_DF=1"], "DFPlayer comparte GPIO"),
+    "ir_mas_buzzer_gpio12": (["-DDOMUS_BUZZER=1", "-DDOMUS_IR=1"], "fuera del perfil alfa"),
+    "dfplayer_en_17_18": (["-DDOMUS_DF=1"], "fuera del perfil alfa"),
 }
+
+
+def resolve_cli() -> list[str]:
+    """arduino-cli local o del PATH (CI). Devuelve base del comando o []."""
+    if CLI.is_file():
+        return [str(CLI), "--config-file", str(CONFIG)]
+    found = shutil.which("arduino-cli")
+    if found:
+        return [found]
+    return []
 
 
 def compile_case(name: str, flags: list[str]) -> tuple[int, str]:
     build = ROOT / "build" / f"perfil_{name}"
-    cmd = [
-        str(CLI), "compile", "--config-file", str(CONFIG),
+    cmd = resolve_cli() + [
+        "compile",
         "--fqbn", FQBN,
         "--build-property", f"compiler.cpp.extra_flags={' '.join(flags)}",
         "--build-path", str(build),
@@ -44,9 +57,10 @@ def compile_case(name: str, flags: list[str]) -> tuple[int, str]:
 
 
 def main() -> int:
-    if not CLI.is_file():
-        print("SKIP: arduino-cli local no disponible")
-        return 0
+    allow_skip = "--allow-skip" in sys.argv[1:]
+    if not resolve_cli():
+        print("MATRIZ_NO_EJECUTADA: falta arduino-cli (local y PATH)")
+        return 0 if allow_skip else 2
     ok = True
     for name, flags in PASS_CASES.items():
         rc, out = compile_case(name, flags)

@@ -66,6 +66,16 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         self.assertIn("dfSinAlias(DFPLAYER_HABILITADO, true, LCD_HABILITADO)", self.config)
         self.assertIn("funcionesActivasSinAlias()", self.config)
 
+    def test_ir_df_buzzer_prohibidos_en_alfa(self):
+        # IR/DF/buzzer pertenecen al futuro FINAL: en alfa son error de compilación,
+        # así PERFIL_PRUEBA siempre describe el binario real.
+        self.assertIn("DOMUS_IR == 0", self.config)
+        self.assertIn("DOMUS_DF == 0", self.config)
+        self.assertIn("DOMUS_BUZZER == 0", self.config)
+        self.assertIn("fuera del perfil alfa", self.config)
+        for nombre in ('"ALFA_UN_COSTADO_SIN_IR"', '"ALFA_BOMBA_1"', '"ALFA_VENTILADOR_1"'):
+            self.assertIn(nombre, self.config)
+
     def test_ola1_buffers_propios_y_sin_bloqueos(self):
         lcd = (BASE / "domus_lcd.h").read_text(encoding="utf-8")
         voice = (BASE / "domus_voice.h").read_text(encoding="utf-8")
