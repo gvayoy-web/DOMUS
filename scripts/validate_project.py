@@ -123,6 +123,40 @@ def validate_current_decisions() -> list[str]:
     return errors
 
 
+def validate_casa_candidato() -> list[str]:
+    """Contrato del candidato a producto (notas 53/54, jefatura)."""
+    errors: list[str] = []
+    candidate = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
+    drivers = candidate.with_name("domus_drivers.h")
+    if not drivers.is_file():
+        return ["Candidato: falta domus_drivers.h (interfaces futuras)"]
+    source = candidate.read_text(encoding="utf-8")
+    header = drivers.read_text(encoding="utf-8")
+    for token in (
+        "enum class PerfilCasa", "BANCO_SIN_ACTUADORES",
+        "LED_SIN_MOTORES", "MOTOR_PENDIENTE_DRIVER",
+        "#ifndef DOMUS_PERFIL_CASA", "constexpr PerfilCasa PERFIL_CASA =",
+        "struct MapaPinesCasa", "constexpr MapaPinesCasa MAPA_CASA = {",
+        "constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS]",
+        '"salida_no_instalada"', '"driver_no_listo"',
+        "PERFIL_CANDIDATO=", '"CANDIDATO_BANCO_SIN_ACTUADORES"',
+        '"CANDIDATO_LED_SIN_MOTORES"', '"CANDIDATO_MOTOR_PENDIENTE_DRIVER"',
+    ):
+        if token not in source:
+            errors.append(f"Candidato: falta {token!r} en casa_inteligente_v4.ino")
+    if '"FINAL"' in source:
+        errors.append("Candidato: ningún binario puede llamarse FINAL (F1-F7)")
+    for token in (
+        "constexpr bool DRIVER_MOTORES_LISTO = false;",
+        "constexpr uint8_t IR_TOTAL_TECLAS = 21;",
+        "constexpr bool IR_CANDIDATO_HABILITADO = false;",
+        "constexpr bool AUDIO_CANDIDATO_HABILITADO = false;",
+    ):
+        if token not in header:
+            errors.append(f"Candidato: falta {token!r} en domus_drivers.h")
+    return errors
+
+
 def validate_bench_contract() -> list[str]:
     """Contrato del esqueleto alfa vigente (ola 1, notas 46/47/50)."""
     errors: list[str] = []
@@ -234,6 +268,7 @@ def main() -> int:
         validate_vault()
         + validate_current_decisions()
         + validate_bench_contract()
+        + validate_casa_candidato()
         + validate_firmware_wiring_contract()
         + validate_visualization()
     )

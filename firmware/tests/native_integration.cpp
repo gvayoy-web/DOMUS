@@ -26,6 +26,12 @@ bool estadoSalidas[5]={}, SALIDA_ACTIVA_EN_BAJO[5]={true,true,true,true,true};
 int fallosVerificacionSalida[5]={};
 const char *NOMBRES_SALIDAS[5]={"bomba","sala","cuarto","ventilador","invernadero"};
 PropietarioActuador propietarioSalidas[5]={};
+// Fakes de perfil (nota 54): máscara con TODAS las etapas + driver validado,
+// para probar la lógica de despacho/seguridad/timeout con actuadores presentes.
+// El rechazo sin etapa y sin driver lo cubren test_casa_candidato.py, el
+// contrato de compilación y la matriz (all-false/all-disabled reales).
+constexpr bool SALIDA_FISICA_CASA[5]={true,true,true,true,true};
+inline bool driverMotoresListo() { return true; }
 bool paroEmergenciaActivo=false, modoSeguroActivo=false, watchdogActivo=true, ventanaEscuchaActiva=false;
 char motivoModoSeguro[48]="ninguno";
 unsigned long bombaEncendidaDesdeMs=0, reloj=1000, heap=100000;

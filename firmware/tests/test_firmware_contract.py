@@ -174,9 +174,9 @@ class FirmwareContractTests(unittest.TestCase):
         ):
             self.assertIn(f"static_assert({expression}", self.source)
 
-    def test_relays_are_preloaded_off_before_output_mode(self):
+    def test_outputs_are_preloaded_off_before_output_mode(self):
         preload = "digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));"
-        output = "pinMode(PINES_SALIDAS[i], OUTPUT);"
+        output = "pinMode(PINES_SALIDAS[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);"
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))
 

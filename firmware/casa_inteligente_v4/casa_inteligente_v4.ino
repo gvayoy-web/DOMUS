@@ -111,6 +111,7 @@
 #include "domus_types.h"
 #include "domus_calibration.h"
 #include "domus_voice_contract.h"
+#include "domus_drivers.h"
 #include "esp_heap_caps.h"
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
@@ -170,11 +171,11 @@
 #define TIPO_DHT        DHT11
 DHT dht(PIN_DHT11, TIPO_DHT);
 
-// --- Cinco salidas con etapa de potencia mínima y económica ---
-// La bomba conserva el relé existente, activo en LOW. Las tres luces son LED
-// individuales con resistencia de 1 kΩ y el ventilador usa el S8050 existente
-// con resistor de base de 1 kΩ y diodo flyback; esas cuatro salidas son activas
-// en HIGH. Si se instala un módulo de relés distinto, calibrar esta tabla.
+// --- Cinco salidas con su etapa física según perfil (nota 53/54) ---
+// Bomba y ventilador exigen driver confirmado (F1) y permanecen bloqueados en
+// los tres perfiles actuales. Las tres luces son LED individuales con
+// resistencia propia y son activas en HIGH en el perfil económico.
+// Si se instala una etapa distinta, calibrar esta tabla y el perfil.
 #define TOTAL_SALIDAS 5
 
 #define PIN_SALIDA_BOMBA           4
@@ -198,6 +199,54 @@ const bool SALIDA_ACTIVA_EN_BAJO[TOTAL_SALIDAS] = {
 const char* NOMBRES_SALIDAS[TOTAL_SALIDAS] = {
   "Bomba", "Luz Sala", "Luz Cuarto", "Ventilador",
   "Luz Inv."
+};
+
+// --- Perfil del candidato y mapa central (nota 53/54, jefatura) ---
+// 0 = BANCO_SIN_ACTUADORES (todo bloqueado). 1 = LED_SIN_MOTORES.
+// 2 = MOTOR_PENDIENTE_DRIVER (motores bloqueados hasta F1; declara la
+// intención del cableado futuro, no habilita nada hoy). El nombre de producto
+// final no se usa en ningún binario (ver puertas F1-F7). Selección por
+// bandera -DDOMUS_PERFIL_CASA=N.
+#ifndef DOMUS_PERFIL_CASA
+#define DOMUS_PERFIL_CASA 0
+#endif
+enum class PerfilCasa : uint8_t { BANCO_SIN_ACTUADORES, LED_SIN_MOTORES, MOTOR_PENDIENTE_DRIVER };
+static_assert(DOMUS_PERFIL_CASA >= 0 && DOMUS_PERFIL_CASA <= 2,
+              "DOMUS_PERFIL_CASA debe ser 0, 1 o 2");
+constexpr PerfilCasa PERFIL_CASA =
+    DOMUS_PERFIL_CASA == 1 ? PerfilCasa::LED_SIN_MOTORES :
+    DOMUS_PERFIL_CASA == 2 ? PerfilCasa::MOTOR_PENDIENTE_DRIVER :
+                             PerfilCasa::BANCO_SIN_ACTUADORES;
+constexpr const char* nombrePerfilCasa(PerfilCasa p) {
+  return p == PerfilCasa::LED_SIN_MOTORES ? "CANDIDATO_LED_SIN_MOTORES" :
+         p == PerfilCasa::MOTOR_PENDIENTE_DRIVER ? "CANDIDATO_MOTOR_PENDIENTE_DRIVER" :
+         "CANDIDATO_BANCO_SIN_ACTUADORES";
+}
+// Mapa GPIO central: cada #define de pines de arriba se verifica aquí, que es
+// la única fuente que el resto del firmware consulta para validar perfiles.
+struct MapaPinesCasa {
+  int suelo, nivel, ldr;
+  int bomba, sala, cuarto, vent, inv;
+  int pir, paro, micOff, demo, scl, dht, sda;
+};
+constexpr MapaPinesCasa MAPA_CASA = {
+  PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR,
+  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO,
+  PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO,
+  PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
+  I2C_SCL_PIN, PIN_DHT11, I2C_SDA_PIN
+};
+static_assert(MAPA_CASA.bomba == 4 && MAPA_CASA.sala == 5 && MAPA_CASA.cuarto == 6 &&
+              MAPA_CASA.vent == 7 && MAPA_CASA.inv == 8, "Mapa de salidas del candidato");
+static_assert(MAPA_CASA.sda == 21 && MAPA_CASA.scl == 13, "Bus I2C del candidato");
+// Habilitación física derivada del perfil. Los motores quedan bloqueados en
+// los tres perfiles vigentes (ver DRIVER_MOTORES_LISTO en domus_drivers.h).
+constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {
+  false,
+  PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES,
+  PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES,
+  false,
+  PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES
 };
 
 // --- Módulo MP3 (DFPlayer / TF-16P) - respuestas habladas, OPCIONAL ---
@@ -468,6 +517,7 @@ String obtenerUltimoError() {
 
 String construirReporteDiagnostico() {
   String r = "DIAGNOSTICO;";
+  r += "PERFIL_CANDIDATO=" + String(nombrePerfilCasa(PERFIL_CASA)) + ";";
   r += "UPTIME_S=" + String(millis() / 1000) + ";";
   r += "MEM_LIBRE=" + String(esp_get_free_heap_size()) + ";";
   r += "RAM_INTERNA=" + String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)) + ";";
@@ -894,6 +944,18 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   if (modoSeguroActivo && orden.encender) {
     log("SEGURIDAD", "Encendido rechazado: modo seguro activo");
     return {false, false, "modo_seguro"};
+  }
+
+  // Habilitación física del perfil: ninguna fuente enciende una salida sin
+  // etapa instalada (nota 53/54). Los motores exigen además driver (F1).
+  if (orden.encender && !SALIDA_FISICA_CASA[orden.indiceRele]) {
+    log("SEGURIDAD", "Encendido rechazado: salida sin etapa en este perfil");
+    return {false, false, "salida_no_instalada"};
+  }
+  if (orden.encender && (orden.indiceRele == 0 || orden.indiceRele == 3) &&
+      !driverMotoresListo()) {
+    log("SEGURIDAD", "Encendido rechazado: driver de motores no validado (F1)");
+    return {false, false, "driver_no_listo"};
   }
 
   // El nivel del depósito es una interlock física: ninguna fuente puede
@@ -1820,11 +1882,12 @@ void setup() {
   for (int i = 0; i < TOTAL_SALIDAS; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
+    // Arranque OFF: las salidas sin etapa quedan en INPUT (nota 53/54).
     digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));
-    pinMode(PINES_SALIDAS[i], OUTPUT);
+    pinMode(PINES_SALIDAS[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);
     propietarioSalidas[i] = PROPIETARIO_NINGUNO;
   }
-  log("SISTEMA", "Relés inicializados (todos apagados)");
+  log("SISTEMA", "Salidas inicializadas (todas apagadas)");
   watchdogActivo = inicializarWatchdog();
   if (!watchdogActivo) entrarModoSeguro("watchdog_no_disponible");
   else log("SISTEMA", "Watchdog verificado: " + String(WATCHDOG_TIMEOUT_S) + "s");
