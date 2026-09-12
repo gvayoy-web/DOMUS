@@ -126,6 +126,7 @@
 
 // ---- Pantalla oficial del proyecto ----
 #include <LiquidCrystal_I2C.h>
+#include "domus_pantalla.h"
 
 // ---- Sensor de temperatura/humedad ambiental ----
 #include <DHT.h>                    // "DHT sensor library" de Adafruit (DHT11/DHT22)
@@ -412,6 +413,10 @@ enum TipoPantalla { PANTALLA_NINGUNA, PANTALLA_LCD };
 TipoPantalla pantallaActiva = PANTALLA_NINGUNA;
 
 LiquidCrystal_I2C* lcd = nullptr;
+
+// Pantalla final 16x2: el objeto vive siempre; si el LCD no responde, el
+// puntero queda nulo y la clase lo tolera sin detener el resto del sistema.
+PantallaFinal pantallaFinal;
 
 // Estado de las cinco cargas físicas del diseño vigente.
 bool estadoSalidas[TOTAL_SALIDAS] = {false, false, false, false, false};
@@ -718,66 +723,15 @@ bool pantallaDisponible() {
   return false;
 }
 
-// ---- Pantalla de bienvenida ----
-void mostrarBienvenida() {
-  if (!pantallaDisponible()) return;
-  lcd->clear();
-  lcd->setCursor(0, 0);
-  lcd->print("PROJECT DOMUS");
-  lcd->setCursor(0, 1);
-  lcd->print("Iniciando...");
-}
-
-// ---- Pantalla principal de estado (llamada periódicamente en el loop) ----
-void actualizarPantallaEstado(int humedadPct, int nivelAgua, bool humedadValida, bool nivelValido, float tempC = -1.0, bool tempValida = false) {
-  if (!pantallaDisponible()) return;
-  lcd->clear();
-  lcd->setCursor(0, 0);
-  lcd->print("H:");
-  lcd->print(humedadValida ? (String(humedadPct) + "%") : "ERR");
-  lcd->print(" T:");
-  lcd->print(tempValida ? (String(tempC, 0) + "C") : "ERR");
-
-  lcd->setCursor(0, 1);
-  String linea2 = "";
-  if (paroEmergenciaActivo) linea2 = "!! EMERGENCIA !!";
-  else {
-    if (estadoSalidas[0]) linea2 += "B ";
-    if (estadoSalidas[1]) linea2 += "LS ";
-    if (estadoSalidas[2]) linea2 += "LC ";
-    if (estadoSalidas[3]) linea2 += "V ";
-    if (estadoSalidas[4]) linea2 += "LI ";
-    if (linea2 == "") {
-      if (!nivelValido) linea2 = "Nivel ERR";
-      else if (nivelAgua < calibracion.nivelMinimo) linea2 = "Nivel bajo";
-      else linea2 = "Todo apagado";
-    }
-  }
-  lcd->print(linea2.substring(0, 16));
-}
-
-// ---- Pantalla de error: muestra el último error registrado ----
-void mostrarPantallaError() {
-  String ultimoError = obtenerUltimoError();
-  if (ultimoError.length() == 0) return;
-
-  if (!pantallaDisponible()) return;
-  lcd->clear();
-  lcd->setCursor(0, 0);
-  lcd->print("ERROR:");
-  lcd->setCursor(0, 1);
-  lcd->print(ultimoError.substring(0, min(16, (int)ultimoError.length())));
-}
-
-// ---- Pantalla de "escuchando" cuando se detecta wake word ----
-void mostrarEscuchando() {
-  if (!pantallaDisponible()) return;
-  lcd->clear();
-  lcd->setCursor(0, 0);
-  lcd->print("Escuchando...");
-  lcd->setCursor(0, 1);
-  lcd->print(micHabilitado ? "Di una orden" : "MIC OFF");
-}
+// ---- Pantalla final (domus_pantalla.h, clase PantallaFinal) ----
+// Las cuatro rutinas anteriores de dibujo directo (bienvenida, estado,
+// error y escucha) quedaron sustituidas por la clase PantallaFinal:
+// saludo no bloqueante, cinco vistas fijas de 16x2, escritura diferencial
+// y prioridad absoluta de emergencia. El pegamento con los sensores y los
+// reles (clasificarSalidaFinal / refrescarPantallaFinal) vive junto a la
+// seccion de reles porque necesita sus contadores; el refresco
+// temporizado esta en loop(). El escaneo I2C y su registro Serial de
+// arriba se conservan intactos.
 
 // ============================================================================
 // SECCIÓN 7: MÓDULO MP3 (respuestas habladas, opcional)
@@ -1012,6 +966,67 @@ void verificarLimiteBomba() {
   OrdenActuador corte = {0, false, ORIGEN_SISTEMA, 1.0f, "BOMBA_TIMEOUT"};
   ResultadoOrden resultado = ejecutarOrdenActuador(corte);
   if (resultado.exito) emitirEventoLocal("EVENTO;BOMBA_TIMEOUT;0");
+}
+
+// ============================================================================
+// SECCIÓN 8B: PEGAMENTO DE LA PANTALLA FINAL
+// ============================================================================
+// Traduce el estado real de la casa a DatosPantallaFinal y deja que la
+// clase decida la vista (saludo, emergencia, escucha o indice manual).
+// Solo lee sensores y estados: no modifica seguridad ni automatizacion.
+#define DURACION_PANTALLA_ERROR_MS 4000
+
+EstadoSalidaFinal clasificarSalidaFinal(int indice) {
+  if (indice < 0 || indice >= TOTAL_SALIDAS) return SAL_ERR;
+  if (fallosVerificacionSalida[indice] >= MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE) return SAL_ERR;
+  if (!SALIDA_FISICA_CASA[indice]) return SAL_BLOQ;
+  if ((indice == 0 || indice == 3) && !driverMotoresListo()) return SAL_BLOQ;
+  if (propietarioSalidas[indice] == PROPIETARIO_AUTOMATICO) return SAL_AUTO;
+  return estadoSalidas[indice] ? SAL_ON : SAL_OFF;
+}
+
+void refrescarPantallaFinal() {
+  if (!pantallaDisponible()) return;
+
+  int humedadCrudo = 0, humedadPct = 0, nivelAgua = 0, ldrCrudo = 0, luzPct = 0;
+  float tempC = 0, humAire = 0;
+  bool humedadValida = leerHumedad(humedadCrudo, humedadPct);
+  bool nivelValido = leerNivelAgua(nivelAgua);
+  bool luzValida = leerLuz(ldrCrudo, luzPct);
+  bool tempValida = leerAmbiente(tempC, humAire);
+
+  unsigned long idxUltimo = (indiceErrorActual - 1 + MAX_ERRORES_GUARDADOS) % MAX_ERRORES_GUARDADOS;
+  bool hayErrorReciente = bufferErrores[idxUltimo].ocupado &&
+                           (millis() - bufferErrores[idxUltimo].momentoMs) < DURACION_PANTALLA_ERROR_MS;
+  static char textoErrorPantalla[41];
+  if (hayErrorReciente) {
+    String ultimo = obtenerUltimoError();
+    strncpy(textoErrorPantalla, ultimo.c_str(), sizeof(textoErrorPantalla) - 1);
+    textoErrorPantalla[sizeof(textoErrorPantalla) - 1] = '\0';
+  } else {
+    textoErrorPantalla[0] = '\0';
+  }
+
+  DatosPantallaFinal d;
+  d.tempC = tempC;
+  d.tempValida = tempValida;
+  d.humAire = humAire;
+  d.humAireValida = tempValida;
+  d.sueloPct = humedadPct;
+  d.sueloValido = humedadValida;
+  d.nivelRaw = nivelAgua;
+  d.nivelValido = nivelValido;
+  d.nivelMin = calibracion.nivelMinimo;
+  d.luzPct = luzPct;
+  d.luzValida = luzValida;
+  d.presencia = ultimaPresenciaMs != 0 && millis() - ultimaPresenciaMs <= PIR_RETENCION_MS;
+  for (int i = 0; i < TOTAL_SALIDAS; ++i) d.salidas[i] = clasificarSalidaFinal(i);
+  d.emergencia = paroEmergenciaActivo;
+  d.modoSeguro = modoSeguroActivo;
+  d.error = textoErrorPantalla;
+  d.escuchando = ventanaEscuchaActiva;
+  d.micOn = micHabilitado;
+  pantallaFinal.tick(d);
 }
 
 // ============================================================================
@@ -1634,6 +1649,9 @@ void revisarControlesFisicos() {
       emitirEventoLocal(resultado.exito
         ? String("ACK;BOTON_LUZ_SALA;") + (estadoSalidas[1] ? "1" : "0")
         : String("NACK;BOTON_LUZ_SALA;") + resultado.motivo);
+      // Misma pulsacion y mismo antirebote: ademas de conmutar, avanza la
+      // vista de la pantalla final. La navegacion no usa pausas.
+      pantallaFinal.siguiente();
     }
   }
 }
@@ -1769,7 +1787,8 @@ void revisarVoz() {
     log("VOZ", "Palabra de activación detectada, abriendo ventana de escucha");
     ventanaEscuchaActiva = true;
     inicioVentanaEscuchaMs = millis();
-    mostrarEscuchando();
+    // La vista de escucha la dibuja refrescarPantallaFinal() mientras la
+    // ventana siga abierta; aqui basta con abrirla.
   }
 
   // Cierra la ventana sola si expiró, sin esperar a la siguiente vuelta de detect()
@@ -1891,7 +1910,8 @@ void setup() {
   }
 
   detectarPantalla();
-  mostrarBienvenida();
+  pantallaFinal.begin(lcd);
+  refrescarPantallaFinal();
 
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);
@@ -1922,7 +1942,6 @@ void setup() {
 // SECCIÓN 14: LOOP PRINCIPAL (no bloqueante)
 // ============================================================================
 unsigned long ultimaActualizacionPantalla = 0;
-#define DURACION_PANTALLA_ERROR_MS 4000
 
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset() != ESP_OK) {
@@ -1953,23 +1972,10 @@ void loop() {
   // Corte independiente: se mantiene aun si el supervisor está degradado.
   verificarLimiteBomba();
 
-  // 5. Pantalla: se refresca solo cada INTERVALO_PANTALLA_MS.
+  // 5. Pantalla final: refresco temporizado; el saludo, la prioridad de
+  // emergencia y la escritura diferencial viven en PantallaFinal.
   if (millis() - ultimaActualizacionPantalla > INTERVALO_PANTALLA_MS) {
-    unsigned long idxUltimo = (indiceErrorActual - 1 + MAX_ERRORES_GUARDADOS) % MAX_ERRORES_GUARDADOS;
-    bool hayErrorReciente = bufferErrores[idxUltimo].ocupado &&
-                             (millis() - bufferErrores[idxUltimo].momentoMs) < DURACION_PANTALLA_ERROR_MS;
-
-    if (hayErrorReciente) {
-      mostrarPantallaError();
-    } else {
-      int humedadCrudo = 0, humedadPct = 0, nivelAgua = 0, ldrCrudo = 0, luzPct = 0;
-      float tempC = 0, humAire = 0;
-      bool humedadValida = leerHumedad(humedadCrudo, humedadPct);
-      bool nivelValido = leerNivelAgua(nivelAgua);
-      leerLuz(ldrCrudo, luzPct);
-      bool tempValida = leerAmbiente(tempC, humAire);
-      actualizarPantallaEstado(humedadPct, nivelAgua, humedadValida, nivelValido, tempC, tempValida);
-    }
+    refrescarPantallaFinal();
     ultimaActualizacionPantalla = millis();
   }
 }
