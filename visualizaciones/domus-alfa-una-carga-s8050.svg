@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940">
+  <style>
+    .bg{fill:#f8fafc}.box{fill:#fff;stroke:#334155;stroke-width:3}.mcu{fill:#dbeafe;stroke:#1d4ed8;stroke-width:4}.power{fill:#fef3c7;stroke:#b45309;stroke-width:4}.tr{fill:#dcfce7;stroke:#15803d;stroke-width:4}.warn{fill:#fee2e2;stroke:#b91c1c;stroke-width:4}.h{font:700 30px Arial;fill:#0f172a}.t{font:21px Arial;fill:#1e293b}.pin{font:700 21px monospace;fill:#0f172a}.small{font:18px Arial;fill:#334155}.wire{fill:none;stroke-width:7}.red{stroke:#dc2626}.black{stroke:#111827}.blue{stroke:#2563eb}.danger{font:700 23px Arial;fill:#991b1b}
+  </style>
+  <rect class="bg" width="1500" height="940"/>
+  <text class="h" x="750" y="48" text-anchor="middle">Un S8050 → una carga por vez</text>
+  <text class="t" x="750" y="82" text-anchor="middle">Escoge BOMBA en GPIO4 o VENTILADOR en GPIO7 · la otra carga queda desconectada</text>
+
+  <rect class="mcu" x="60" y="190" width="275" height="420" rx="22"/>
+  <text class="h" x="197" y="235" text-anchor="middle">ESP32-S3</text>
+  <text class="pin" x="90" y="325">GPIO4 BOMBA</text>
+  <text class="t" x="197" y="365" text-anchor="middle">O</text>
+  <text class="pin" x="90" y="410">GPIO7 VENT.</text>
+  <text class="pin" x="90" y="555">GND</text>
+
+  <path class="wire blue" d="M335 365 H405"/>
+  <rect class="box" x="405" y="330" width="150" height="70" rx="10"/>
+  <text class="pin" x="480" y="374" text-anchor="middle">1 kΩ</text>
+  <path class="wire blue" d="M555 365 H660"/>
+
+  <rect class="tr" x="660" y="275" width="230" height="220" rx="105"/>
+  <text class="h" x="775" y="325" text-anchor="middle">S8050 NPN</text>
+  <text class="pin" x="680" y="390">B</text><text class="pin" x="760" y="470">E</text><text class="pin" x="850" y="390">C</text>
+  <rect class="box" x="570" y="440" width="90" height="120" rx="10"/>
+  <text class="small" x="615" y="487" text-anchor="middle">10 kΩ</text><text class="small" x="615" y="516" text-anchor="middle">B→GND</text>
+  <path class="wire black" d="M660 440 H615 M615 560 V650 H197 V610"/>
+  <path class="wire black" d="M775 495 V650"/>
+
+  <rect class="power" x="1060" y="105" width="300" height="155" rx="20"/>
+  <text class="h" x="1210" y="150" text-anchor="middle">TP4056 + celda</text>
+  <text class="pin" x="1090" y="210">OUT+       OUT−</text>
+  <path class="wire red" d="M1120 225 V315 H1030"/>
+  <path class="wire black" d="M1310 225 V650 H775"/>
+
+  <rect class="power" x="1000" y="330" width="370" height="190" rx="28"/>
+  <text class="h" x="1185" y="380" text-anchor="middle">CARGA ELEGIDA</text>
+  <text class="t" x="1185" y="418" text-anchor="middle">bomba O ventilador</text>
+  <text class="pin" x="1040" y="475">+                 −</text>
+  <path class="wire red" d="M1030 315 V475 H1040"/>
+  <path class="wire black" d="M890 385 H940 V475 H1330"/>
+  <path class="wire red" d="M1040 475 V575 H1330 V475"/>
+  <text class="small" x="1185" y="610" text-anchor="middle">1N4007 en paralelo · RAYA hacia OUT+</text>
+
+  <rect class="warn" x="60" y="720" width="1380" height="165" rx="18"/>
+  <text class="danger" x="750" y="765" text-anchor="middle">El S8550 queda en reserva: NO copiar este circuito con él</text>
+  <text class="t" x="750" y="808" text-anchor="middle">No unas OUT+ de los dos TP4056 · prueba una carga por vez · primer pulso ≤ 500 ms.</text>
+  <text class="t" x="750" y="848" text-anchor="middle">Confirma físicamente E/B/C antes de energizar. OUT− y GND del ESP32 sí deben compartir tierra.</text>
+</svg>

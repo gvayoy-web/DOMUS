@@ -92,11 +92,15 @@ def validate_current_decisions() -> list[str]:
         "Geometría v4": (decision, "800 × 520 mm"),
         "Firmware de banco": (
             config,
-            "constexpr bool HABILITAR_MOTOR_BOMBA = false;",
+            "PERFIL_HARDWARE = PerfilHardware::ALFA_SENSORES",
         ),
-        "Motor ventilador bloqueado": (
+        "Motor bomba deriva del perfil": (
             config,
-            "constexpr bool HABILITAR_MOTOR_VENTILADOR = false;",
+            "HABILITAR_MOTOR_BOMBA = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1)",
+        ),
+        "Motor ventilador deriva del perfil": (
+            config,
+            "HABILITAR_MOTOR_VENTILADOR = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1)",
         ),
         "Buzzer deshabilitado en alfa": (
             config,

@@ -90,7 +90,7 @@ class HilEsqueletoTests(unittest.TestCase):
 
     def test_identidad_y_diagnostico_completo(self):
         resp = self.board.cmd("DIAGNOSTICO", wait=4.0)
-        self.assertTrue(find(resp, "DIAGNOSTICO;PLACA=ESP32-S3-N16R8;PERFIL=BANCO_IR_LCD"))
+        self.assertTrue(find(resp, "DIAGNOSTICO;PLACA=ESP32-S3-N16R8;PERFIL=ALFA_UN_COSTADO_SIN_IR"))
         for pref in ("ESTADO;PARO=", "SALUD;HEAP=", "BANCO;PLACA="):
             self.assertTrue(find(resp, pref), pref)
 
@@ -100,10 +100,9 @@ class HilEsqueletoTests(unittest.TestCase):
         for campo in ("MODO=", "VOL=", "OUT=", "CAL=", "TX_OMITIDOS="):
             self.assertIn(campo, resp[0])
 
-    def test_tabla_ir_completa_21_teclas(self):
-        resp = self.board.cmd("IR LISTA", wait=6.0)
-        teclas = find(resp, "IR;TECLA=")
-        self.assertEqual(len(teclas), 21, [line for line in resp if line.startswith("IR;")])
+    def test_ir_permanece_fuera_del_perfil_alfa(self):
+        resp = self.board.cmd("IR LISTA", wait=2.0)
+        self.assertIn("NACK;COMANDO_DESCONOCIDO", resp)
 
     def test_comando_invalido_y_linea_larga_se_rechazan(self):
         self.assertIn("NACK;COMANDO_DESCONOCIDO", self.board.cmd("HOLA"))

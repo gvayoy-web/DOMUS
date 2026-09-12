@@ -63,10 +63,34 @@ Si no detecta movimiento:
 
 ## Verificación pendiente (ola 1)
 
-- [ ] Compilación N16R8/OPI sin warnings nuevos del esqueleto
-- [ ] Tests contrato (LCD copia, ACK único, GPIO activos, buzzer off = GPIO12 intacto)
-- [ ] `validate_project.py` actualizado a GPIO15/16/17 + `HABILITAR_MOTOR_BOMBA` (ola 2)
+- [x] Compilación N16R8/OPI sin warnings nuevos del esqueleto (382278B/25620B)
+- [x] Tests contrato (LCD copia, ACK único, GPIO activos, buzzer off = GPIO12 intacto)
+- [x] `validate_project.py` actualizado a selección única + GPIO15/16/17 (corrección entrega)
 - [ ] HIL solo después de lo anterior
+
+## Corrección de entrega (auditoría REQUEST CHANGES, 2026-09-12)
+
+La auditoría rechazó el commit `7102224` por no reproducible aislado. Correctivo
+pequeño, sin reescribir el publicado:
+
+1. `PerfilHardware` pasa a selección única (`ALFA_SENSORES` por defecto) y
+   `HABILITAR_MOTOR_BOMBA/VENTILADOR` derivan de ella; alias `PERFIL_ALFA_BOMBA_1`
+   / `VENTILADOR_1` conservados. Archivo: `domus_config.h`.
+2. Matriz de compilación parametrizada (`motoresExclusivos`, `alias12Ok`,
+   `dfSinAlias`): 5 casos que compilan + 3 prohibidos afirmados negados + 3 del
+   perfil real. Archivo: `domus_config.h`.
+3. Tests de contrato extendidos a ola 1 (selección única, matriz, buffers,
+   Jarvis único + ACK condicional, SVG GPIO12). Archivos:
+   `firmware/tests/test_domus_esqueleto_contract.py`,
+   `firmware/tests/test_hil_esqueleto.py` (perfil alfa).
+4. README operativo: GPIO12 reservado + Jarvis sin buzzer en alfa. Archivo:
+   `firmware/domus_esqueleto/README.md`.
+5. SVG `domus-alfa-una-carga-s8050.svg` incluido en seguimiento (estaba untracked).
+6. Validador: cheques en forma de selección única; `planos/new` opcional.
+   Las pruebas `planos/tests` siguen estrictas: fallan en árbol sucio porque
+   `planos/new/*` está borrado sin commitear (condición preexistente, fuera de
+   este commit); en checkout limpio del commit existen y pasan. Resolver el
+   duelo `planos/new` vs `planos/planos` queda para ola 2 (ítem 11).
 
 ## Relaciones
 

@@ -12,8 +12,14 @@
 // - IR y controlador doble quedan fuera hasta identificarlos y congelar el mapa final.
 // - Sala, cuarto e iluminación de cultivo son LED; motores bloqueados por defecto.
 namespace Config {
-constexpr bool HABILITAR_MOTOR_BOMBA = false;      // una carga motriz por prueba vigilada.
-constexpr bool HABILITAR_MOTOR_VENTILADOR = false; // nunca habilitar ambos por accidente.
+// ÚNICA selección del perfil de motores (notas 49/50). Todo lo demás deriva.
+// ALFA_SENSORES: GPIO4 y GPIO7 bloqueados (banco normal).
+// ALFA_BOMBA_1: solo GPIO4. ALFA_VENTILADOR_1: solo GPIO7.
+// Para una prueba vigilada se cambia SOLO esta línea; nunca ambas cargas.
+enum class PerfilHardware : uint8_t { ALFA_SENSORES, ALFA_BOMBA_1, ALFA_VENTILADOR_1 };
+constexpr PerfilHardware PERFIL_HARDWARE = PerfilHardware::ALFA_SENSORES;
+constexpr bool HABILITAR_MOTOR_BOMBA = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1);
+constexpr bool HABILITAR_MOTOR_VENTILADOR = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1);
 constexpr bool CONTROLADOR_DOBLE_IDENTIFICADO = false;
 constexpr bool IR_HABILITADO = false;
 constexpr bool DFPLAYER_HABILITADO = false;  // true solo con DFPlayer + microSD cableados.
@@ -68,10 +74,20 @@ constexpr bool pinesUnicos() {
       if (RESERVADOS[i] == RESERVADOS[j]) return false;
   return true;
 }
-// Perfiles de motor mutuamente exclusivos (nota 49):
+// Alias históricos derivados de la selección única (nota 49):
 // ALFA_BOMBA_1 -> solo GPIO4; ALFA_VENTILADOR_1 -> solo GPIO7; nunca ambos.
-constexpr bool PERFIL_ALFA_BOMBA_1 = HABILITAR_MOTOR_BOMBA && !HABILITAR_MOTOR_VENTILADOR;
-constexpr bool PERFIL_ALFA_VENTILADOR_1 = HABILITAR_MOTOR_VENTILADOR && !HABILITAR_MOTOR_BOMBA;
+constexpr bool PERFIL_ALFA_BOMBA_1 = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1);
+constexpr bool PERFIL_ALFA_VENTILADOR_1 = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1);
+// Matriz de compilación (nota 50): predicados parametrizados. Los casos
+// prohibidos se afirman NEGADOS para probar el rechazo sin romper el build.
+constexpr bool motoresExclusivos(bool bomba, bool vent) { return !(bomba && vent); }
+constexpr bool alias12Ok(bool buzzer, bool ir) { return !(buzzer && ir); }  // GPIO12
+constexpr bool dfSinAlias(bool df, bool botonActivo, bool lcdActivo) {
+  if (!df) return true;
+  if (botonActivo) return false;  // DF_RX=18 choca con BOTON
+  if (lcdActivo) return false;    // DF_TX=17 choca con SDA
+  return true;
+}
 // Lista explícita de GPIO usados por FUNCIONES ACTIVAS del perfil.
 // Cada entrada se añade solo si su función está habilitada: así un pin
 // FINAL-ONLY (IR/DF/buzzer) no contamina al perfil alfa aunque comparta número.
@@ -107,8 +123,24 @@ constexpr bool funcionesActivasSinAlias() {
 }
 static_assert(pinesUnicos(), "GPIO duplicado");
 static_assert(funcionesActivasSinAlias(), "Alias GPIO entre funciones HABILITADAS del perfil");
-static_assert(!(HABILITAR_MOTOR_BOMBA && HABILITAR_MOTOR_VENTILADOR),
+// Matriz: casos que deben compilar.
+static_assert(motoresExclusivos(false, false), "ALFA_SENSORES debe compilar");
+static_assert(motoresExclusivos(true, false), "ALFA_BOMBA_1 debe compilar");
+static_assert(motoresExclusivos(false, true), "ALFA_VENTILADOR_1 debe compilar");
+static_assert(alias12Ok(false, false) && alias12Ok(true, false) && alias12Ok(false, true),
+              "Usos individuales de GPIO12 deben compilar");
+static_assert(dfSinAlias(false, true, true), "DF off debe compilar con boton/LCD");
+// Matriz: casos prohibidos (afirmados negados para no romper el build).
+static_assert(!motoresExclusivos(true, true), "Ambas cargas deben rechazarse");
+static_assert(!alias12Ok(true, true), "IR+buzzer en GPIO12 deben rechazarse");
+static_assert(!dfSinAlias(true, true, true), "DF+boton/LCD en 18/17 deben rechazarse");
+// Perfil real seleccionado en este build.
+static_assert(motoresExclusivos(HABILITAR_MOTOR_BOMBA, HABILITAR_MOTOR_VENTILADOR),
               "El perfil alfa permite un solo motor por prueba");
+static_assert(alias12Ok(BUZZER_HABILITADO, IR_HABILITADO),
+              "GPIO12 compartido por funciones habilitadas");
+static_assert(dfSinAlias(DFPLAYER_HABILITADO, true, LCD_HABILITADO),
+              "DFPlayer comparte GPIO con boton/LCD en este perfil");
 static_assert(!BUZZER_HABILITADO || PIN_BUZZER != 255, "Buzzer habilitado sin pin");
 static_assert(BOMBA_MAX_MS > 0 && BOMBA_MAX_MS <= 120000, "Tiempo bomba invalido");
 static_assert(DHT_TIPO == 11 || DHT_TIPO == 22, "DHT_TIPO debe ser 11 o 22");

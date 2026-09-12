@@ -1,15 +1,15 @@
-# DOMUS: base modular funcional para banco (v2 IR + LCD + Jarvis)
+# DOMUS: base modular para banco alfa por un solo costado
 
 Controlador recomendado para probar el hardware confirmado sin red, SD,
-batería ni solar. Integra sensores, LCD bonito, DHT, IR CAR MP3 21 teclas,
-Jarvis por frases fijas (DFPlayer opcional + buzzer), automatizaciones,
+batería, solar, IR ni controlador de motores supuesto. Integra sensores,
+LCD, DHT, automatizaciones,
 calibración persistente, propiedad manual, PARO, watchdog y modo seguro.
 Aún requiere validación física supervisada.
 
-La ronda inicial B01-B05 no necesita conectar bomba ni motor. El perfil
-compilado se identifica como `ESP32-S3-N16R8 / BANCO_IR_LCD`;
-`HABILITAR_BOMBA=false` y `USAR_DRV8833=false` deben permanecer así
-durante toda esa ronda.
+El perfil se identifica como `ESP32-S3-N16R8 / ALFA_UN_COSTADO_SIN_IR`.
+`HABILITAR_MOTOR_BOMBA=false`, `HABILITAR_MOTOR_VENTILADOR=false`,
+`CONTROLADOR_DOBLE_IDENTIFICADO=false` e `IR_HABILITADO=false` permanecen así
+hasta superar las puertas físicas de la nota 46.
 
 ## Seguridad 120 V
 
@@ -30,29 +30,28 @@ Instalar desde **Programa > Incluir librería > Administrar bibliotecas**:
 Si aparece `DHT.h` o `IRremote.hpp: No such file`, falta instalar en el
 mismo sketchbook de Arduino IDE; reiniciar el IDE después.
 
-## Cableado v2 (cambios)
+## Mapa alfa por el costado accesible
 
 | Función | GPIO | Etapa |
 |---|---:|---|
-| Bomba (DRV AIN1) | 4 | Con DRV: GPIO4->AIN1, AIN2=GND, nSLEEP=3V3, VM=5 V. Sin DRV: bloqueada |
+| Bomba S8050 #1 | 4 | Bloqueada; sólo perfil de prueba individual vigilada |
 | Sala LED | 5 | LED + 330 Ω a GND |
 | Cuarto LED | 6 | LED + 330 Ω a GND |
-| Ventilador (DRV BIN1) | 7 | Con DRV: GPIO7->BIN1, BIN2=GND. Sin DRV: bloqueado |
+| Ventilador S8050 #2 | 7 | Bloqueado; sólo perfil de prueba individual vigilada |
 | Cultivo S8050 | 8 | GPIO8 -> 1 k -> base S8050; 2 az + 1 ro con 330 Ω c/u |
-| Suelo/nivel/luz | 1/2/3 | Analógicas <=3.3 V |
+| Suelo/nivel/luz | 15/16/3 | Analógicas <=3.3 V |
 | PIR | 9 | Señal <=3.3 V (si el módulo es 5 V, medir OUT) |
 | PARO | 10 | Contacto a GND, pull-up interno. Manda sobre el IR siempre |
 | SILENCIO Jarvis | 11 | Contacto a GND = mute hardware |
-| IR HX1838 S/OUT | 12 | VCC->3V3, GND->GND. Leer S/+/- del módulo, no asumir orden |
-| Buzzer activo 5 V | 15 | Via segundo S8050, HIGH = suena |
-| Botón sala | 16 | Contacto a GND (se movió de 12: el 12 lo ocupa el IR) |
-| DFPlayer (opcional) | 17 TX / 18 RX | Serial1 9600. ESP_TX->1 k->DF_RX. No usar 19/20 (USB) |
-| LCD I2C | SDA 21 / SCL 13 | Solo a 3V3, 0x27/0x3F |
+| IR HX1838 | — | No montar en este perfil |
+| GPIO12 | reservado | Sin conectar (`BUZZER_HABILITADO=false` en alfa; IR fuera del perfil) |
+| Botón MODO | 18 | Contacto temporal a GND |
+| LCD I2C | SDA 17 / SCL 13 | Alimentar a 3.3 V; el arranque escanea 0x08-0x77 |
 | DHT | 14 | DATA + 10 k a 3V3 |
 
-Largo del botón 3 s = entra/sale de modo aprender IR.
+GPIO1, GPIO2 y GPIO21 quedan fuera porque están en el costado tapado.
 
-## Control IR CAR MP3 (NEC, 21 teclas)
+## Control IR CAR MP3 (fase final, no montar ahora)
 
 Mapa: CH- manual, CH página LCD, CH+ auto, Anterior/1 sala, Play pausa voz,
 Siguiente/2 dormitorio, VOL∓ volumen, EQ diagnóstico, 0 todo off,
@@ -98,7 +97,8 @@ termómetro, nivel, voz, candado.
 
 `JARVIS;<frase>` sale siempre por Serial + scroll en LCD pág. 3.
 Con `DFPLAYER_HABILITADO=true` + microSD con `0001.mp3...` suena la pista;
-sin DFPlayer, beep + Serial + LCD (no bloquea).
+sin DFPlayer y con buzzer habilitado, beep + Serial + LCD (no bloquea).
+En alfa (`BUZZER_HABILITADO=false`, GPIO12 reservado) es solo Serial + LCD.
 
 Pistas sugeridas: 1 sala on, 2 sala off, 3 dorm on, 4 dorm off,
 5 cultivo on, 6 cultivo off, 7 vent on, 8 vent off, 9 riego,
