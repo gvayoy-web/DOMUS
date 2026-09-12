@@ -24,9 +24,9 @@ class SafetyIntegrationTests(unittest.TestCase):
     def test_dispatch_outputs_emergency_recovery_and_timeout_together(self):
         source = SKETCH.read_text(encoding="utf-8")
         signatures = ["int nivelSalida(int indice, bool encendida)",
-            "bool verificarEstadoLogicoGpio(int indice, bool estadoEsperado)",
-            "bool encenderRele(int indice, bool anunciarPorVoz = true)",
-            "bool apagarRele(int indice, bool anunciarPorVoz = true)",
+            "bool verificarNivelLogicoSalida(int indice, bool estadoEsperado)",
+            "bool solicitarSalida(int indice, bool anunciarPorVoz = true)",
+            "bool desactivarSalida(int indice, bool anunciarPorVoz = true)",
             "ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden)",
             "void verificarLimiteBomba()", "void activarParoEmergencia(const char* motivo)",
             "void entrarModoSeguro(const char* motivo)", "bool recuperarModoSeguro()", "bool rearmarSistema()"]

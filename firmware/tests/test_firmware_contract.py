@@ -13,9 +13,21 @@ class FirmwareContractTests(unittest.TestCase):
         cls.source = FIRMWARE.read_text(encoding="utf-8")
         cls.workflow = WORKFLOW.read_text(encoding="utf-8")
 
-    def test_exactly_five_logical_relays(self):
-        self.assertRegex(self.source, r"#define\s+CANTIDAD_RELES\s+5\b")
-        self.assertNotRegex(self.source, r"PINES_RELES\s*\[\s*8\s*\]")
+    def test_exactly_five_logical_outputs(self):
+        self.assertRegex(self.source, r"#define\s+TOTAL_SALIDAS\s+5\b")
+        self.assertNotRegex(self.source, r"PINES_SALIDAS\s*\[\s*8\s*\]")
+
+    def test_relay_abstraction_is_gone(self):
+        # Migración Fase E paso 1 (nota 46/52): cero restos de la abstracción de relés.
+        for token in (
+            "CANTIDAD_RELES", "PINES_RELES", "NOMBRES_RELES",
+            "SALIDA_ACTIVA_EN_LOW", "RELE_ACTIVO_LOW", "RELE_ACTIVO_EN_LOW",
+            "estadoReles", "propietarioReles",
+            "encenderRele", "apagarRele",
+            "verificarEstadoLogicoGpio", "fallosVerificacionRele",
+            "USAR_DRV8833",
+        ):
+            self.assertNotIn(token, self.source)
 
     def test_arduino_prototypes_can_resolve_command_types(self):
         self.assertIn('#include "domus_types.h"', self.source)
@@ -163,8 +175,8 @@ class FirmwareContractTests(unittest.TestCase):
             self.assertIn(f"static_assert({expression}", self.source)
 
     def test_relays_are_preloaded_off_before_output_mode(self):
-        preload = "digitalWrite(PINES_RELES[i], nivelSalida(i, false));"
-        output = "pinMode(PINES_RELES[i], OUTPUT);"
+        preload = "digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));"
+        output = "pinMode(PINES_SALIDAS[i], OUTPUT);"
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))
 

@@ -13,7 +13,7 @@ struct String : std::string {
   String(int n):std::string(std::to_string(n)) {}
   String(float n,int):std::string(std::to_string(n)) {}
 };
-constexpr int LOW=0,HIGH=1,CANTIDAD_RELES=5,PIN_PARO_EMERGENCIA=10;
+constexpr int LOW=0,HIGH=1,TOTAL_SALIDAS=5,PIN_PARO_EMERGENCIA=10;
 constexpr int PIN_MIC_OFF=11;
 bool micHabilitado=true;
 constexpr int MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE=3;
@@ -21,11 +21,11 @@ constexpr bool MP3_HABILITADO=false;
 constexpr unsigned long TIEMPO_MAXIMO_BOMBA_MS=120000, MEMORIA_LIBRE_RECUPERACION_BYTES=65536;
 enum PropietarioActuador {PROPIETARIO_NINGUNO, PROPIETARIO_MANUAL_ON,
                          PROPIETARIO_MANUAL_OFF, PROPIETARIO_AUTOMATICO};
-int PINES_RELES[5]={4,5,6,7,8}, gpio[64]={};
-bool estadoReles[5]={}, SALIDA_ACTIVA_EN_LOW[5]={true,true,true,true,true};
-int fallosVerificacionRele[5]={};
-const char *NOMBRES_RELES[5]={"bomba","sala","cuarto","ventilador","invernadero"};
-PropietarioActuador propietarioReles[5]={};
+int PINES_SALIDAS[5]={4,5,6,7,8}, gpio[64]={};
+bool estadoSalidas[5]={}, SALIDA_ACTIVA_EN_BAJO[5]={true,true,true,true,true};
+int fallosVerificacionSalida[5]={};
+const char *NOMBRES_SALIDAS[5]={"bomba","sala","cuarto","ventilador","invernadero"};
+PropietarioActuador propietarioSalidas[5]={};
 bool paroEmergenciaActivo=false, modoSeguroActivo=false, watchdogActivo=true, ventanaEscuchaActiva=false;
 char motivoModoSeguro[48]="ninguno";
 unsigned long bombaEncendidaDesdeMs=0, reloj=1000, heap=100000;
@@ -49,19 +49,19 @@ int main() {
   gpio[PIN_PARO_EMERGENCIA]=HIGH;
   gpio[PIN_MIC_OFF]=HIGH;
   for(int profile=0;profile<2;profile++) {
-    for(int i=0;i<5;i++) SALIDA_ACTIVA_EN_LOW[i]=(i==0 || profile==0);
+    for(int i=0;i<5;i++) SALIDA_ACTIVA_EN_BAJO[i]=(i==0 || profile==0);
     for(int i=0;i<5;i++) {
       assert(ejecutarOrdenActuador({i,true,ORIGEN_MANUAL,1,"on"}).exito);
-      assert(estadoReles[i] && digitalRead(PINES_RELES[i])==nivelSalida(i,true));
+      assert(estadoSalidas[i] && digitalRead(PINES_SALIDAS[i])==nivelSalida(i,true));
     }
     activarParoEmergencia("test");
     for(int i=0;i<5;i++) {
-      assert(!estadoReles[i]);
+      assert(!estadoSalidas[i]);
       assert(!ejecutarOrdenActuador({i,true,ORIGEN_MANUAL,1,"on"}).exito);
     }
     gpio[PIN_PARO_EMERGENCIA]=LOW; assert(!rearmarSistema());
     gpio[PIN_PARO_EMERGENCIA]=HIGH; assert(rearmarSistema());
-    assert(!estadoReles[0]);
+    assert(!estadoSalidas[0]);
     agua=0; assert(!ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"pump"}).exito);
     agua=1000; sensorValido=false;
     assert(!ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"pump"}).exito);
@@ -70,14 +70,14 @@ int main() {
     assert(!ejecutarOrdenActuador({1,true,ORIGEN_VOZ,1,"mic disabled"}).exito);
     assert(ejecutarOrdenActuador({1,true,ORIGEN_MANUAL,1,"manual allowed"}).exito);
     assert(!ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"mic disabled"}).exito);
-    assert(estadoReles[1]);
+    assert(estadoSalidas[1]);
     micHabilitado=true; gpio[PIN_MIC_OFF]=LOW;
     assert(!ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"physical mic off"}).exito);
     gpio[PIN_MIC_OFF]=HIGH;
     assert(ejecutarOrdenActuador({1,false,ORIGEN_VOZ,1,"voice enabled"}).exito);
     assert(ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"pump"}).exito);
-    reloj+=TIEMPO_MAXIMO_BOMBA_MS; verificarLimiteBomba(); assert(!estadoReles[0]);
-    assert(propietarioReles[0]==PROPIETARIO_MANUAL_OFF);
+    reloj+=TIEMPO_MAXIMO_BOMBA_MS; verificarLimiteBomba(); assert(!estadoSalidas[0]);
+    assert(propietarioSalidas[0]==PROPIETARIO_MANUAL_OFF);
     assert(!ejecutarOrdenActuador({1,true,ORIGEN_VOZ,0.2f,"voice"}).exito);
     for (float bad : {std::numeric_limits<float>::quiet_NaN(),
                       std::numeric_limits<float>::infinity(), -1.0f, 1.01f})
@@ -86,7 +86,7 @@ int main() {
     assert(!ejecutarOrdenActuador({1,true,ORIGEN_MANUAL,1,"on"}).exito);
     watchdogActivo=false; assert(!recuperarModoSeguro());
     watchdogActivo=true; heap=100; assert(!recuperarModoSeguro());
-    heap=100000; assert(recuperarModoSeguro()); assert(!estadoReles[1]);
+    heap=100000; assert(recuperarModoSeguro()); assert(!estadoSalidas[1]);
   }
   assert(!ejecutarOrdenActuador({-1,true,ORIGEN_MANUAL,1,"invalid"}).exito);
   assert(!ejecutarOrdenActuador({5,true,ORIGEN_MANUAL,1,"invalid"}).exito);

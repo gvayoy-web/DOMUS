@@ -81,8 +81,9 @@ def validate_current_decisions() -> list[str]:
     decision = CURRENT_DECISION.read_text(encoding="utf-8")
     config = BENCH_CONFIG.read_text(encoding="utf-8")
     bench_guide = CURRENT_BENCH_GUIDE.read_text(encoding="utf-8")
-    # Guía Ultimate bajo planos/new fue eliminada del árbol (ver nota 46:150 y
-    # nota 50): se verifica solo si existe, no bloquea la validación.
+    # Guía Ultimate canónica bajo planos/new (nota 51): si falta en el árbol
+    # (p. ej. limpieza sin commitear), su chequeo se omite sin bloquear;
+    # planos/tests la exigen cuando existe. planos/planos/ no es canónico.
     if CURRENT_BUILD_GUIDE.is_file():
         guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
     else:

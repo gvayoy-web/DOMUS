@@ -166,12 +166,12 @@ typedef uint8_t DomusResult;
   #define TTS_DOUT_PIN    I2S_GPIO_UNUSED
   #define MP3_RX_PIN      -1   // DFPlayer no expuesto -> SKIP
   #define MP3_TX_PIN      -1
-  #define PIN_RELE_BOMBA           4    // reles intactos: 4-8 son los 5 que SÍ tienes
-  #define PIN_RELE_LUZ_SALA        5
-  #define PIN_RELE_LUZ_CUARTO      6
-  #define PIN_RELE_VENTILADOR      7
-  #define PIN_RELE_LUZ_INVERNADERO 8
-  #define CANTIDAD_RELES 5
+  #define PIN_SALIDA_BOMBA           4    // reles intactos: 4-8 son los 5 que SÍ tienes
+  #define PIN_SALIDA_LUZ_SALA        5
+  #define PIN_SALIDA_LUZ_CUARTO      6
+  #define PIN_SALIDA_VENTILADOR      7
+  #define PIN_SALIDA_LUZ_INVERNADERO 8
+  #define TOTAL_SALIDAS 5
   #define SD_SCK_PIN      -1   // SD no expuesto (38/39/47/48) -> SKIP
   #define SD_MISO_PIN     -1
   #define SD_MOSI_PIN     -1
@@ -199,12 +199,12 @@ typedef uint8_t DomusResult;
   #define TTS_DOUT_PIN    42
   #define MP3_RX_PIN      18
   #define MP3_TX_PIN      19
-  #define PIN_RELE_BOMBA           4
-  #define PIN_RELE_LUZ_SALA        5
-  #define PIN_RELE_LUZ_CUARTO      6
-  #define PIN_RELE_VENTILADOR      7
-  #define PIN_RELE_LUZ_INVERNADERO 8
-  #define CANTIDAD_RELES 5
+  #define PIN_SALIDA_BOMBA           4
+  #define PIN_SALIDA_LUZ_SALA        5
+  #define PIN_SALIDA_LUZ_CUARTO      6
+  #define PIN_SALIDA_VENTILADOR      7
+  #define PIN_SALIDA_LUZ_INVERNADERO 8
+  #define TOTAL_SALIDAS 5
   #define SD_SCK_PIN   38
   #define SD_MISO_PIN  39
   #define SD_MOSI_PIN  47
@@ -267,14 +267,14 @@ SPIClass* spiTFT = nullptr;
 bool tftOk = false;
 String tftInfo = "";
 
-const int PINES_RELES[CANTIDAD_RELES] = {
-  PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO, PIN_RELE_VENTILADOR, PIN_RELE_LUZ_INVERNADERO
+const int PINES_SALIDAS[TOTAL_SALIDAS] = {
+  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO, PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO
 };
-const char* NOMBRES_RELES[CANTIDAD_RELES] = {"Bomba","Luz Sala","Luz Cuarto","Ventilador","Luz Inv."};
+const char* NOMBRES_SALIDAS[TOTAL_SALIDAS] = {"Bomba","Luz Sala","Luz Cuarto","Ventilador","Luz Inv."};
 // Perfil 0 = rele activo LOW (compatible con modulo C&D). Si usas perfil economico cambia a false para 1-4.
-const bool RELE_ACTIVO_LOW[CANTIDAD_RELES] = {true, true, true, true, true};
+const bool SALIDA_ACTIVA_EN_BAJO[TOTAL_SALIDAS] = {true, true, true, true, true};
 
-int nivelRele(int idx, bool on) { return (on == RELE_ACTIVO_LOW[idx]) ? LOW : HIGH; }
+int nivelSalida(int idx, bool on) { return (on == SALIDA_ACTIVA_EN_BAJO[idx]) ? LOW : HIGH; }
 
 // -------------------- FRAMEWORK DE REPORTE TOLERANTE --------------------------------------
 const char* resStr(DomusResult r){ return r==DOMUS_PASS?"PASS":r==DOMUS_FAIL?"FAIL":r==DOMUS_SKIP?"SKIP":"WARN"; }
@@ -627,12 +627,12 @@ void testBotones(){
 void testRelesDry(bool conPulso){
   // Verifica nivel logico GPIO sin asumir carga. Si conPulso==false solo chequea apagado inicial.
   // Si conPulso==true hace pulso 350ms por canal con confirmacion via digitalRead.
-  for(int i=0;i<CANTIDAD_RELES;i++){
-    int pin=PINES_RELES[i];
-    int lvlOff = nivelRele(i,false);
+  for(int i=0;i<TOTAL_SALIDAS;i++){
+    int pin=PINES_SALIDAS[i];
+    int lvlOff = nivelSalida(i,false);
     int leidoOff = digitalRead(pin);
     bool okInit = (leidoOff==lvlOff);
-    String base=String(NOMBRES_RELES[i])+" GPIO"+String(pin)+" activoLow="+(RELE_ACTIVO_LOW[i]?"SI":"NO")+" init="+(leidoOff==LOW?"LOW":"HIGH");
+    String base=String(NOMBRES_SALIDAS[i])+" GPIO"+String(pin)+" activoLow="+(SALIDA_ACTIVA_EN_BAJO[i]?"SI":"NO")+" init="+(leidoOff==LOW?"LOW":"HIGH");
     if(!okInit){
       report(("RL"+String(i)).c_str(), DOMUS_FAIL, base+" esperado "+String(lvlOff==LOW?"LOW":"HIGH")+" -> FAIL cable o pinMode. Revisa 18-Manual.");
       continue;
@@ -642,14 +642,14 @@ void testRelesDry(bool conPulso){
       continue;
     }
     // Pulso con verificacion
-    digitalWrite(pin, nivelRele(i,true)); delay(350);
+    digitalWrite(pin, nivelSalida(i,true)); delay(350);
     int leidoOn = digitalRead(pin);
-    bool okOn = (leidoOn==nivelRele(i,true));
-    digitalWrite(pin, nivelRele(i,false)); delay(250);
+    bool okOn = (leidoOn==nivelSalida(i,true));
+    digitalWrite(pin, nivelSalida(i,false)); delay(250);
     int leidoOff2 = digitalRead(pin);
     bool okOff2 = (leidoOff2==lvlOff);
     if(okOn && okOff2) report(("RL"+String(i)).c_str(), DOMUS_PASS, base+" pulso 350ms ON->OFF verificado por GPIO -> PASS (ojo: esto no confirma contacto NO, solo GPIO)");
-    else report(("RL"+String(i)).c_str(), DOMUS_FAIL, base+" pulso fallo on="+String(leidoOn)+" off2="+String(leidoOff2)+" esperado ON="+String(nivelRele(i,true))+" OFF="+String(lvlOff));
+    else report(("RL"+String(i)).c_str(), DOMUS_FAIL, base+" pulso fallo on="+String(leidoOn)+" off2="+String(leidoOff2)+" esperado ON="+String(nivelSalida(i,true))+" OFF="+String(lvlOff));
   }
   if(!conPulso){
     report("RELE", DOMUS_SKIP, "Rele en seco verificado sin pulso. Para prueba con pulso y señal visible escribe R SI con cargas desconectadas y lee advertencia.");
@@ -822,7 +822,7 @@ void testWS2812(){
 void cmdBuzz(int pin, int freq){
   if(pin<0 || pin>48){ report("BUZZ", DOMUS_FAIL, "Pin fuera de rango 0-48"); return; }
   // Verificacion de conflicto con pines reservados
-  int reservados[]={PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR, PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO, PIN_RELE_VENTILADOR, PIN_RELE_LUZ_INVERNADERO, PIN_PIR, PIN_PARO, PIN_MIC_OFF, PIN_DEMO, I2C_SDA_PIN, I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN, MP3_RX_PIN, MP3_TX_PIN, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN, TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN};
+  int reservados[]={PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR, PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO, PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO, PIN_PIR, PIN_PARO, PIN_MIC_OFF, PIN_DEMO, I2C_SDA_PIN, I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN, MP3_RX_PIN, MP3_TX_PIN, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN, TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN};
   for(int r: reservados) if(r==pin){ report("BUZZ", DOMUS_WARN, String("Pin ")+pin+" esta reservado en DOMUS (ver domus_types). Usa otro libre para no pisar sensor. Igual intentando 300ms..."); break; }
   pinMode(pin, OUTPUT);
   // tone en ESP32-S3 usa ledc por debajo; si no disponible hace digital
@@ -1054,7 +1054,7 @@ void setup(){
   Serial.println("\n\n=== PROJECT DOMUS — SELFTEST v2 COMPLETA ===");
   Serial.println("Si algo falta reporta SKIP y sigue. Cada pantalla detectada dibuja 'Hola'.");
 #endif
-  for(int i=0;i<CANTIDAD_RELES;i++){ if(PINES_RELES[i]>=0){ digitalWrite(PINES_RELES[i], nivelRele(i,false)); pinMode(PINES_RELES[i], OUTPUT); } }
+  for(int i=0;i<TOTAL_SALIDAS;i++){ if(PINES_SALIDAS[i]>=0){ digitalWrite(PINES_SALIDAS[i], nivelSalida(i,false)); pinMode(PINES_SALIDAS[i], OUTPUT); } }
   if(PIN_PIR>=0) pinMode(PIN_PIR, INPUT);
   if(PIN_PARO>=0) pinMode(PIN_PARO, INPUT_PULLUP);
   if(PIN_MIC_OFF>=0) pinMode(PIN_MIC_OFF, INPUT_PULLUP);

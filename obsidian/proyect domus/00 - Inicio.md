@@ -1,27 +1,33 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: indice
-actualizado: 2026-09-07
+actualizado: 2026-09-10
 ---
 
 # PROJECT DOMUS — bóveda técnica
+
+> [!IMPORTANT]
+> La autoridad durante la consolidación es [[46 - Plan maestro de consolidacion un costado]].
+> El manual 43 y los diagramas 44-45 quedan superados hasta publicar el manual
+> consolidado. Las notas 02-45 conservan historia, pero no autorizan cableado.
 
 Esta bóveda usa como inventario oficial **únicamente la lista confirmada por Isaac el 1 de septiembre de 2026**. Si una pieza aparece en un documento antiguo pero no en [[01 - Inventario confirmado]], se considera no disponible.
 
 ## Respuesta rápida
 
 - **Pantalla:** ya existe LCD1602 con interfaz I2C. No comprar OLED.
-- **Relés:** inventario real: un relé azul desnudo de 5 V para la minibomba. Requiere S8050 + 1 kOhm + 1N4007. GPIO5-8 no tienen relé y quedan bloqueados.
+- **Motores:** probar uno por vez con S8050; no asumir DRV8833 hasta identificar el módulo pedido.
 - **microSD:** no obligatoria para el núcleo. DFPlayer necesita una tarjeta para sus pistas; lector SPI y otra tarjeta solo si se requiere almacenamiento independiente del ESP32.
-- **Voz Jarvis:** objetivo de comandos locales; falta micrófono y reconocimiento integrado/validado. Para respuestas grabadas reutilizar DFPlayer con altavoz y tarjeta; MAX98357A solo para la alternativa PicoTTS.
-- **Energía de feria:** falta una fuente real de 5 V/3 A y distribución segura. El módulo de alimentación de protoboard no debe alimentar bomba, motor y audio simultáneamente.
+- **Jarvis:** control confiable con control remoto CAR MP3 + receptor HX1838. El
+  MAX98357A y parlante reproduciran respuestas fijas en español; no comprar
+  INMP441 ni entrenar reconocimiento de voz.
+- **Energía de feria:** fuente cerrada regulada de 5 V/5 A, fusible principal de 4 A y distribución común. El módulo de protoboard y el TP4056 no forman parte de la alimentación final.
 - **Batería y solar:** quedan como estética, eléctricamente desconectados. La casa funciona con una fuente común regulada de 5 V.
-- **Software:** el núcleo offline, las cinco cargas, sensores, seguridad y
-  simulación están integrados. Quedan calibración física y modelos de voz;
-  véanse [[13 - Plan de cierre de codigo]] y
-  [[14 - Protocolo anti-colapso IA y ESP32]].
-- **Ronda inmediata:** B01-B05 se ejecutan con el N16R8 y las piezas ya
-  compradas, sin relés ni cargas; usar [[37 - Ronda de pruebas sin compras]].
+- **Software:** el esqueleto conserva sensores y salidas seguras. Faltan los
+  firmwares de aprendizaje IR, prueba del DRV8833, prueba de audio e integracion
+  final; seguir [[44 - Arquitectura y ciclo de vida del firmware]].
+- **Ronda inmediata:** usar `ALFA_UN_COSTADO_SIN_IR`; conectar sensores, LCD,
+  botones y LED por el único costado accesible. IR, relé y módulo pedido quedan fuera.
 
 ## Navegación
 
@@ -30,8 +36,20 @@ Metas y criterios vigentes de la base modular: [[32 - Metas y madurez de la base
 Implementacion vigente y secuencia de banco: [[33 - Base modular funcional y plan de banco]].
 Cierre local de software y evidencia vigente: [[34 - Cierre de software y matriz de verificacion]].
 Preparacion del IDE y auditoria Markdown: [[35 - Preparacion Arduino IDE y revision documental]].
-Decisión física corregida a un relé real y geometría v4: [[36 - Configuracion final 1 mas 4 reles y planos v4]].
-Guía y hoja imprimible para la ronda sin compras: [[37 - Ronda de pruebas sin compras]].
+Arquitectura histórica descartada de relés: [[36 - Configuracion final 1 mas 4 reles y planos v4]].
+Guía histórica de la primera ronda: [[37 - Ronda de pruebas sin compras]].
+Acta histórica previa al DRV8833: [[38 - Reunion integracion final y rumbo del firmware]].
+Inventario fotografiado y pines visibles: [[39 - Inventario fotografiado y pines visibles]].
+Presupuesto mínimo, diagramas antes/después y migración: [[40 - Presupuesto minimo Jarvis diagramas y migracion de firmware]].
+Compra hondureña vigente y banco de soldadura: [[41 - Compra nacional minima y banco de soldadura]].
+Texto definitivo para cotizar en C&D: [[42 - Solicitud final de cotizacion C&D]].
+Manual histórico superado (solo historia, nota 50): [[43 - Manual final completo PROJECT DOMUS]].
+Arquitectura histórica superada (conservar reglas de seguridad): [[44 - Arquitectura y ciclo de vida del firmware]].
+Ola 1 (buffers, Jarvis único, GPIO12, validación por perfil): [[50 - Ola 1 buffers Jarvis GPIO12 y validacion por perfil]].
+Ola 2 (cierre: casa histórica, planos canónicos, sim del esqueleto): [[51 - Ola 2 cierre casa historica planos y sim]].
+Ola 3 (migración SalidaDomus + diagrama final con TBD): [[52 - Ola 3 migracion SalidaDomus y diagrama final]].
+Plano alfa actual sin control IR y antes de recibir el driver: [[45 - Diagrama ASCII alfa sin control IR]].
+Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 
 1. [[01 - Inventario confirmado]]
 2. [[02 - Matriz funciones y componentes]]
@@ -57,6 +75,11 @@ Guía y hoja imprimible para la ronda sin compras: [[37 - Ronda de pruebas sin c
 22. [[35 - Preparacion Arduino IDE y revision documental]]
 23. [[36 - Configuracion final 1 mas 4 reles y planos v4]]
 24. [[37 - Ronda de pruebas sin compras]]
+25. [[38 - Reunion integracion final y rumbo del firmware]]
+26. [[39 - Inventario fotografiado y pines visibles]]
+27. [[40 - Presupuesto minimo Jarvis diagramas y migracion de firmware]]
+28. [[41 - Compra nacional minima y banco de soldadura]]
+29. [[42 - Solicitud final de cotizacion C&D]]
 
 ## Estado real del proyecto
 

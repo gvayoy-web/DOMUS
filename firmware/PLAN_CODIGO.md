@@ -1,5 +1,12 @@
 # Plan del código: esqueleto v2 → firmware FINAL
 
+> [!WARNING]
+> **Documento histórico (corrección 2026-09-12, nota 51).** Describe
+> `BANCO_IR_LCD` con `HABILITAR_BOMBA/USAR_DRV8833`; el banco vigente es
+> `ALFA_UN_COSTADO_SIN_IR` con `PERFIL_HARDWARE` y `HABILITAR_MOTOR_*`
+> derivados (nota 46/50). Guía física vigente: nota 47 + SVG alfa, no
+> `diagrama-final.html`. Se conserva como historia, no autoriza cableado.
+
 Fuente vigente de pines: `firmware/domus_esqueleto/domus_config.h`.
 Guía física: `visualizaciones/diagrama-final.html`. Estado real medido abajo.
 

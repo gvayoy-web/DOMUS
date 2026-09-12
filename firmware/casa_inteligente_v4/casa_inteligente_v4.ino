@@ -80,6 +80,14 @@
   ============================================================================
 */
 
+// MIGRACIÓN FASE E PASO 1 (nota 46, nota 52): la abstracción de relés se
+// sustituye por SalidaDomus (TOTAL_SALIDAS, PINES_SALIDAS, estadoSalidas,
+// propietarioSalidas, solicitar/desactivarSalida, verificarNivelLogicoSalida).
+// Renombre mecánico, cero cambios de comportamiento: reglas de seguridad,
+// histéresis, propiedad manual y protocolo quedan intactos. Pasos pendientes:
+// drivers por perfil (FINAL), IR como entrada, audio por cola y validación
+// física. El esqueleto alfa sigue siendo el firmware de banco vigente.
+
 // Jarvis local en español requiere un modelo TinyML entrenado para este
 // hardware. Mientras no exista ese artefacto, el resto de la casa debe seguir
 // compilando y funcionando sin el SDK de voz.
@@ -166,27 +174,27 @@ DHT dht(PIN_DHT11, TIPO_DHT);
 // individuales con resistencia de 1 kΩ y el ventilador usa el S8050 existente
 // con resistor de base de 1 kΩ y diodo flyback; esas cuatro salidas son activas
 // en HIGH. Si se instala un módulo de relés distinto, calibrar esta tabla.
-#define CANTIDAD_RELES 5
+#define TOTAL_SALIDAS 5
 
-#define PIN_RELE_BOMBA           4
-#define PIN_RELE_LUZ_SALA        5
-#define PIN_RELE_LUZ_CUARTO      6
-#define PIN_RELE_VENTILADOR      7
-#define PIN_RELE_LUZ_INVERNADERO 8
-const int PINES_RELES[CANTIDAD_RELES] = {
-  PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO, PIN_RELE_VENTILADOR,
-  PIN_RELE_LUZ_INVERNADERO
+#define PIN_SALIDA_BOMBA           4
+#define PIN_SALIDA_LUZ_SALA        5
+#define PIN_SALIDA_LUZ_CUARTO      6
+#define PIN_SALIDA_VENTILADOR      7
+#define PIN_SALIDA_LUZ_INVERNADERO 8
+const int PINES_SALIDAS[TOTAL_SALIDAS] = {
+  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO, PIN_SALIDA_VENTILADOR,
+  PIN_SALIDA_LUZ_INVERNADERO
 };
 // Mantener 0 para el cableado original de relés. Seleccionar 1 únicamente
 // después de montar la alternativa descrita en la nota 21 de Obsidian.
 #ifndef DOMUS_SALIDAS_ECONOMICAS
 #define DOMUS_SALIDAS_ECONOMICAS 0
 #endif
-const bool SALIDA_ACTIVA_EN_LOW[CANTIDAD_RELES] = {
+const bool SALIDA_ACTIVA_EN_BAJO[TOTAL_SALIDAS] = {
   true, !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS,
   !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS
 };
-const char* NOMBRES_RELES[CANTIDAD_RELES] = {
+const char* NOMBRES_SALIDAS[TOTAL_SALIDAS] = {
   "Bomba", "Luz Sala", "Luz Cuarto", "Ventilador",
   "Luz Inv."
 };
@@ -297,8 +305,8 @@ const char* NOMBRES_RELES[CANTIDAD_RELES] = {
 // ampliación futura reutilice silenciosamente una señal ya ocupada.
 constexpr int PINES_RESERVADOS_DOMUS[] = {
   PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR,
-  PIN_RELE_BOMBA, PIN_RELE_LUZ_SALA, PIN_RELE_LUZ_CUARTO,
-  PIN_RELE_VENTILADOR, PIN_RELE_LUZ_INVERNADERO,
+  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO,
+  PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO,
   PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
   I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN,
   MP3_RX_PIN, MP3_TX_PIN, I2C_SDA_PIN,
@@ -317,7 +325,7 @@ constexpr bool pinesDomusSonUnicos() {
   return true;
 }
 
-static_assert(CANTIDAD_RELES == 5, "DOMUS requiere exactamente cinco cargas");
+static_assert(TOTAL_SALIDAS == 5, "DOMUS requiere exactamente cinco cargas");
 static_assert(pinesDomusSonUnicos(), "Hay GPIO duplicados en el mapa DOMUS");
 static_assert(UMBRAL_HUMEDAD_SECA_PCT < UMBRAL_HUMEDAD_HUMEDA_PCT,
               "Histeresis de suelo invertida");
@@ -366,7 +374,7 @@ TipoPantalla pantallaActiva = PANTALLA_NINGUNA;
 LiquidCrystal_I2C* lcd = nullptr;
 
 // Estado de las cinco cargas físicas del diseño vigente.
-bool estadoReles[CANTIDAD_RELES] = {false, false, false, false, false};
+bool estadoSalidas[TOTAL_SALIDAS] = {false, false, false, false, false};
 
 // Toda fuente de control pasa por el mismo contrato. Esto evita que controles
 // físicos, Serial, automatización y voz mantengan estados incompatibles.
@@ -377,7 +385,7 @@ enum PropietarioActuador {
   PROPIETARIO_AUTOMATICO
 };
 
-PropietarioActuador propietarioReles[CANTIDAD_RELES] = {
+PropietarioActuador propietarioSalidas[TOTAL_SALIDAS] = {
   PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO,
   PROPIETARIO_NINGUNO, PROPIETARIO_NINGUNO
 };
@@ -693,11 +701,11 @@ void actualizarPantallaEstado(int humedadPct, int nivelAgua, bool humedadValida,
   String linea2 = "";
   if (paroEmergenciaActivo) linea2 = "!! EMERGENCIA !!";
   else {
-    if (estadoReles[0]) linea2 += "B ";
-    if (estadoReles[1]) linea2 += "LS ";
-    if (estadoReles[2]) linea2 += "LC ";
-    if (estadoReles[3]) linea2 += "V ";
-    if (estadoReles[4]) linea2 += "LI ";
+    if (estadoSalidas[0]) linea2 += "B ";
+    if (estadoSalidas[1]) linea2 += "LS ";
+    if (estadoSalidas[2]) linea2 += "LC ";
+    if (estadoSalidas[3]) linea2 += "V ";
+    if (estadoSalidas[4]) linea2 += "LI ";
     if (linea2 == "") {
       if (!nivelValido) linea2 = "Nivel ERR";
       else if (nivelAgua < calibracion.nivelMinimo) linea2 = "Nivel bajo";
@@ -749,7 +757,7 @@ void reproducirPista(uint8_t numeroPista) {
 // SECCIÓN 8: CONTROL DE RELÉS
 // ============================================================================
 // Contador de fallos de verificación por relé.
-int fallosVerificacionRele[CANTIDAD_RELES] = {0, 0, 0, 0, 0};
+int fallosVerificacionSalida[TOTAL_SALIDAS] = {0, 0, 0, 0, 0};
 #define MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE 3
 
 // IMPORTANTE (corrección del feedback #5 de v3): esta función NO verifica
@@ -761,40 +769,40 @@ int fallosVerificacionRele[CANTIDAD_RELES] = {0, 0, 0, 0, 0};
 // haría falta una señal de realimentación por hardware (ej. leer el propio
 // contacto NO/NC del relé hacia un pin de entrada), que este kit no tiene.
 int nivelSalida(int indice, bool encendida) {
-  return encendida == SALIDA_ACTIVA_EN_LOW[indice] ? LOW : HIGH;
+  return encendida == SALIDA_ACTIVA_EN_BAJO[indice] ? LOW : HIGH;
 }
 
-bool verificarEstadoLogicoGpio(int indice, bool estadoEsperado) {
+bool verificarNivelLogicoSalida(int indice, bool estadoEsperado) {
   int nivelEsperado = nivelSalida(indice, estadoEsperado);
-  int nivelReal = digitalRead(PINES_RELES[indice]);
+  int nivelReal = digitalRead(PINES_SALIDAS[indice]);
   return nivelReal == nivelEsperado;
 }
 
 // Devuelve true si el cambio de GPIO se aplicó y quedó confirmado. Los
 // llamadores (Serial, botones y voz) usan este valor de retorno para construir un
 // ACK o NACK real, en vez de asumir éxito silenciosamente.
-bool encenderRele(int indice, bool anunciarPorVoz = true) {
-  if (indice < 0 || indice >= CANTIDAD_RELES) {
+bool solicitarSalida(int indice, bool anunciarPorVoz = true) {
+  if (indice < 0 || indice >= TOTAL_SALIDAS) {
     registrarError("RELE", "Indice invalido solicitado: " + String(indice));
     return false;
   }
-  if (estadoReles[indice]) return true; // ya encendido, se considera éxito idempotente
+  if (estadoSalidas[indice]) return true; // ya encendido, se considera éxito idempotente
 
-  digitalWrite(PINES_RELES[indice], nivelSalida(indice, true));
+  digitalWrite(PINES_SALIDAS[indice], nivelSalida(indice, true));
   delay(5); // pequeña espera para que el relé mecánico termine de conmutar antes de releer
 
-  if (!verificarEstadoLogicoGpio(indice, true)) {
-    fallosVerificacionRele[indice]++;
-    registrarError("RELE", String(NOMBRES_RELES[indice]) + " no confirmo encendido en GPIO (revisar cableado)");
-    if (fallosVerificacionRele[indice] >= MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE) {
-      registrarError("RELE", String(NOMBRES_RELES[indice]) + " fallo repetido, revisar hardware");
+  if (!verificarNivelLogicoSalida(indice, true)) {
+    fallosVerificacionSalida[indice]++;
+    registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " no confirmo encendido en GPIO (revisar cableado)");
+    if (fallosVerificacionSalida[indice] >= MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE) {
+      registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " fallo repetido, revisar hardware");
     }
     return false;
   }
 
-  fallosVerificacionRele[indice] = 0;
-  estadoReles[indice] = true;
-  log("RELE", String(NOMBRES_RELES[indice]) + " -> ENCENDIDO (GPIO confirmado)");
+  fallosVerificacionSalida[indice] = 0;
+  estadoSalidas[indice] = true;
+  log("RELE", String(NOMBRES_SALIDAS[indice]) + " -> ENCENDIDO (GPIO confirmado)");
 
   if (anunciarPorVoz && MP3_HABILITADO) {
     if (indice == 0) reproducirPista(1);       // "Regando ahora"
@@ -804,25 +812,25 @@ bool encenderRele(int indice, bool anunciarPorVoz = true) {
   return true;
 }
 
-bool apagarRele(int indice, bool anunciarPorVoz = true) {
-  if (indice < 0 || indice >= CANTIDAD_RELES) {
+bool desactivarSalida(int indice, bool anunciarPorVoz = true) {
+  if (indice < 0 || indice >= TOTAL_SALIDAS) {
     registrarError("RELE", "Indice invalido solicitado: " + String(indice));
     return false;
   }
-  if (!estadoReles[indice]) return true; // ya apagado, éxito idempotente
+  if (!estadoSalidas[indice]) return true; // ya apagado, éxito idempotente
 
-  digitalWrite(PINES_RELES[indice], nivelSalida(indice, false));
+  digitalWrite(PINES_SALIDAS[indice], nivelSalida(indice, false));
   delay(5);
 
-  if (!verificarEstadoLogicoGpio(indice, false)) {
-    fallosVerificacionRele[indice]++;
-    registrarError("RELE", String(NOMBRES_RELES[indice]) + " no confirmo apagado en GPIO (posible rele pegado)");
+  if (!verificarNivelLogicoSalida(indice, false)) {
+    fallosVerificacionSalida[indice]++;
+    registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " no confirmo apagado en GPIO (posible rele pegado)");
     return false;
   }
 
-  fallosVerificacionRele[indice] = 0;
-  estadoReles[indice] = false;
-  log("RELE", String(NOMBRES_RELES[indice]) + " -> APAGADO (GPIO confirmado)");
+  fallosVerificacionSalida[indice] = 0;
+  estadoSalidas[indice] = false;
+  log("RELE", String(NOMBRES_SALIDAS[indice]) + " -> APAGADO (GPIO confirmado)");
 
   if (anunciarPorVoz && MP3_HABILITADO) {
     if (indice == 0) reproducirPista(2);       // "Riego detenido"
@@ -838,7 +846,7 @@ String construirRespuestaJarvis(const OrdenActuador &orden, bool estadoAnterior,
     return "No pude completar la orden. Revisa el dispositivo.";
   }
 
-  const String nombre = String(NOMBRES_RELES[orden.indiceRele]);
+  const String nombre = String(NOMBRES_SALIDAS[orden.indiceRele]);
   if (estadoAnterior == orden.encender) {
     return orden.encender
       ? "El dispositivo " + nombre + " ya estaba encendido."
@@ -857,7 +865,7 @@ void responderJarvis(const String &texto) {
 }
 
 ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
-  if (orden.indiceRele < 0 || orden.indiceRele >= CANTIDAD_RELES) {
+  if (orden.indiceRele < 0 || orden.indiceRele >= TOTAL_SALIDAS) {
     registrarError("ORDEN", "Indice de rele fuera de rango");
     return {false, false, "indice_invalido"};
   }
@@ -873,7 +881,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   if (orden.origen == ORIGEN_VOZ && !domusVoiceConfidenceValid(orden.confianza)) {
     log("VOZ", "Orden rechazada por baja confianza: " + String(orden.confianza, 2));
     ResultadoOrden rechazo = {false, false, "confianza_baja"};
-    responderJarvis(construirRespuestaJarvis(orden, estadoReles[orden.indiceRele], rechazo));
+    responderJarvis(construirRespuestaJarvis(orden, estadoSalidas[orden.indiceRele], rechazo));
     return rechazo;
   }
 
@@ -901,10 +909,10 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     }
   }
 
-  const bool estadoAnterior = estadoReles[orden.indiceRele];
+  const bool estadoAnterior = estadoSalidas[orden.indiceRele];
   const bool exito = orden.encender
-    ? encenderRele(orden.indiceRele, false)
-    : apagarRele(orden.indiceRele, false);
+    ? solicitarSalida(orden.indiceRele, false)
+    : desactivarSalida(orden.indiceRele, false);
   if (!exito) {
     ResultadoOrden fallo = {false, false, "gpio_no_confirmado"};
     if (orden.origen == ORIGEN_VOZ) {
@@ -916,16 +924,16 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   // Una orden manual/voz/Wi-Fi toma propiedad incluso si fue idempotente.
   // Así el automático no apagará después algo que el usuario decidió dejar ON.
   if (orden.encender) {
-    propietarioReles[orden.indiceRele] = (orden.origen == ORIGEN_AUTOMATICO)
+    propietarioSalidas[orden.indiceRele] = (orden.origen == ORIGEN_AUTOMATICO)
       ? PROPIETARIO_AUTOMATICO : PROPIETARIO_MANUAL_ON;
     if (orden.indiceRele == 0 && !estadoAnterior) bombaEncendidaDesdeMs = millis();
   } else {
     if (orden.origen == ORIGEN_AUTOMATICO) {
-      propietarioReles[orden.indiceRele] = PROPIETARIO_NINGUNO;
+      propietarioSalidas[orden.indiceRele] = PROPIETARIO_NINGUNO;
     } else {
       // Un apagado manual, por voz o por seguridad persiste hasta recibir
       // explícitamente el comando *_AUTO (o hasta un reinicio controlado).
-      propietarioReles[orden.indiceRele] = PROPIETARIO_MANUAL_OFF;
+      propietarioSalidas[orden.indiceRele] = PROPIETARIO_MANUAL_OFF;
     }
     if (orden.indiceRele == 0) bombaEncendidaDesdeMs = 0;
   }
@@ -941,7 +949,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
 }
 
 void verificarLimiteBomba() {
-  if (!estadoReles[0] || bombaEncendidaDesdeMs == 0) return;
+  if (!estadoSalidas[0] || bombaEncendidaDesdeMs == 0) return;
   if (millis() - bombaEncendidaDesdeMs < TIEMPO_MAXIMO_BOMBA_MS) return;
 
   registrarError("SEGURIDAD", "Bomba detenida por tiempo maximo continuo");
@@ -1099,7 +1107,7 @@ void verificarRiegoAutomatico() {
   int nivelAgua = 0;
   bool nivelValido = leerNivelAgua(nivelAgua);
   if (!nivelValido || nivelAgua < calibracion.nivelMinimo) {
-    if (estadoReles[0]) {
+    if (estadoSalidas[0]) {
       OrdenActuador corte = {0, false, ORIGEN_SISTEMA, 1.0f, "NIVEL_AGUA_BAJO"};
       if (ejecutarOrdenActuador(corte).exito) {
         emitirEventoLocal("EVENTO;RIEGO_BLOQUEADO_NIVEL;0");
@@ -1113,7 +1121,7 @@ void verificarRiegoAutomatico() {
     // Si el riego fue automático, una pérdida del sensor crítico debe cortar
     // la bomba inmediatamente. Una orden manual conserva el límite máximo
     // independiente de dos minutos.
-    if (estadoReles[0] && propietarioReles[0] == PROPIETARIO_AUTOMATICO) {
+    if (estadoSalidas[0] && propietarioSalidas[0] == PROPIETARIO_AUTOMATICO) {
       OrdenActuador corte = {0, false, ORIGEN_AUTOMATICO, 1.0f, "HUMEDAD_INVALIDA"};
       ejecutarOrdenActuador(corte);
       emitirEventoLocal("EVENTO;RIEGO_BLOQUEADO_SENSOR;0");
@@ -1121,15 +1129,15 @@ void verificarRiegoAutomatico() {
     return;
   }
 
-  if (pct <= UMBRAL_HUMEDAD_SECA_PCT && !estadoReles[0] &&
-      propietarioReles[0] != PROPIETARIO_MANUAL_OFF) {
+  if (pct <= UMBRAL_HUMEDAD_SECA_PCT && !estadoSalidas[0] &&
+      propietarioSalidas[0] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Tierra seca (" + String(pct) + "%), activando riego automático");
     OrdenActuador orden = {0, true, ORIGEN_AUTOMATICO, 1.0f, "RIEGO_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
       emitirEventoLocal("EVENTO;RIEGO_AUTO_ON;" + String(pct));
     }
-  } else if (pct >= UMBRAL_HUMEDAD_HUMEDA_PCT && estadoReles[0] &&
-             propietarioReles[0] == PROPIETARIO_AUTOMATICO) {
+  } else if (pct >= UMBRAL_HUMEDAD_HUMEDA_PCT && estadoSalidas[0] &&
+             propietarioSalidas[0] == PROPIETARIO_AUTOMATICO) {
     // Solo apaga automáticamente si fue el modo automático quien lo prendió;
     // si el usuario lo encendió manualmente por voz/Serial, se respeta su
     // decisión y no se apaga solo.
@@ -1143,7 +1151,7 @@ void verificarRiegoAutomatico() {
 
 // Misma filosofía que verificarRiegoAutomatico(): solo actúa si el estado
 // actual del relé fue decisión del propio modo automático, para no pisar
-// una decisión manual del usuario (índice 3 = Ventilador, ver PINES_RELES).
+// una decisión manual del usuario (índice 3 = Ventilador, ver PINES_SALIDAS).
 unsigned long ultimaVerificacionVentilador = 0;
 
 void verificarVentiladorAutomatico() {
@@ -1152,7 +1160,7 @@ void verificarVentiladorAutomatico() {
 
   float tempC, humAire;
   if (!leerAmbiente(tempC, humAire)) {
-    if (estadoReles[3] && propietarioReles[3] == PROPIETARIO_AUTOMATICO) {
+    if (estadoSalidas[3] && propietarioSalidas[3] == PROPIETARIO_AUTOMATICO) {
       OrdenActuador corte = {3, false, ORIGEN_AUTOMATICO, 1.0f, "DHT_INVALIDO"};
       ejecutarOrdenActuador(corte);
       emitirEventoLocal("EVENTO;VENT_BLOQUEADO_SENSOR;0");
@@ -1160,15 +1168,15 @@ void verificarVentiladorAutomatico() {
     return;
   }
 
-  if (tempC >= UMBRAL_TEMP_ALTA_C && !estadoReles[3] &&
-      propietarioReles[3] != PROPIETARIO_MANUAL_OFF) {
+  if (tempC >= UMBRAL_TEMP_ALTA_C && !estadoSalidas[3] &&
+      propietarioSalidas[3] != PROPIETARIO_MANUAL_OFF) {
     log("AUTO", "Temperatura alta (" + String(tempC, 1) + "C), activando ventilador automático");
     OrdenActuador orden = {3, true, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_ON"};
     if (ejecutarOrdenActuador(orden).exito) {
       emitirEventoLocal("EVENTO;VENT_AUTO_ON;" + String(tempC, 1));
     }
-  } else if (tempC <= UMBRAL_TEMP_NORMAL_C && estadoReles[3] &&
-             propietarioReles[3] == PROPIETARIO_AUTOMATICO) {
+  } else if (tempC <= UMBRAL_TEMP_NORMAL_C && estadoSalidas[3] &&
+             propietarioSalidas[3] == PROPIETARIO_AUTOMATICO) {
     log("AUTO", "Temperatura normal (" + String(tempC, 1) + "C), apagando ventilador automático");
     OrdenActuador orden = {3, false, ORIGEN_AUTOMATICO, 1.0f, "VENT_AUTO_OFF"};
     if (ejecutarOrdenActuador(orden).exito) {
@@ -1193,7 +1201,7 @@ void verificarLucesAutomaticas() {
     const int lucesAutomaticas[] = {1, 4};
     bool huboCorte = false;
     for (int indice : lucesAutomaticas) {
-      if (estadoReles[indice] && propietarioReles[indice] == PROPIETARIO_AUTOMATICO) {
+      if (estadoSalidas[indice] && propietarioSalidas[indice] == PROPIETARIO_AUTOMATICO) {
         OrdenActuador corte = {indice, false, ORIGEN_AUTOMATICO, 1.0f, "LDR_INVALIDO"};
         ejecutarOrdenActuador(corte);
         huboCorte = true;
@@ -1205,24 +1213,24 @@ void verificarLucesAutomaticas() {
 
   bool presenciaReciente = ultimaPresenciaMs != 0 &&
                            millis() - ultimaPresenciaMs <= PIR_RETENCION_MS;
-  if (propietarioReles[1] != PROPIETARIO_MANUAL_ON &&
-      propietarioReles[1] != PROPIETARIO_MANUAL_OFF) {
-    if (!estadoReles[1] && luzPct <= UMBRAL_LUZ_OSCURO_PCT && presenciaReciente) {
+  if (propietarioSalidas[1] != PROPIETARIO_MANUAL_ON &&
+      propietarioSalidas[1] != PROPIETARIO_MANUAL_OFF) {
+    if (!estadoSalidas[1] && luzPct <= UMBRAL_LUZ_OSCURO_PCT && presenciaReciente) {
       OrdenActuador orden = {1, true, ORIGEN_AUTOMATICO, 1.0f, "LUZ_SALA_AUTO_ON"};
       ejecutarOrdenActuador(orden);
-    } else if (estadoReles[1] && propietarioReles[1] == PROPIETARIO_AUTOMATICO &&
+    } else if (estadoSalidas[1] && propietarioSalidas[1] == PROPIETARIO_AUTOMATICO &&
                (luzPct >= UMBRAL_LUZ_CLARO_PCT || !presenciaReciente)) {
       OrdenActuador orden = {1, false, ORIGEN_AUTOMATICO, 1.0f, "LUZ_SALA_AUTO_OFF"};
       ejecutarOrdenActuador(orden);
     }
   }
 
-  if (propietarioReles[4] != PROPIETARIO_MANUAL_ON &&
-      propietarioReles[4] != PROPIETARIO_MANUAL_OFF) {
-    if (!estadoReles[4] && luzPct <= UMBRAL_LUZ_OSCURO_PCT) {
+  if (propietarioSalidas[4] != PROPIETARIO_MANUAL_ON &&
+      propietarioSalidas[4] != PROPIETARIO_MANUAL_OFF) {
+    if (!estadoSalidas[4] && luzPct <= UMBRAL_LUZ_OSCURO_PCT) {
       OrdenActuador orden = {4, true, ORIGEN_AUTOMATICO, 1.0f, "LUZ_INVER_AUTO_ON"};
       ejecutarOrdenActuador(orden);
-    } else if (estadoReles[4] && propietarioReles[4] == PROPIETARIO_AUTOMATICO &&
+    } else if (estadoSalidas[4] && propietarioSalidas[4] == PROPIETARIO_AUTOMATICO &&
                luzPct >= UMBRAL_LUZ_CLARO_PCT) {
       OrdenActuador orden = {4, false, ORIGEN_AUTOMATICO, 1.0f, "LUZ_INVER_AUTO_OFF"};
       ejecutarOrdenActuador(orden);
@@ -1242,10 +1250,10 @@ void verificarLucesAutomaticas() {
 
 String construirReporteEstado() {
   String r = "ESTADO;";
-  for (int i = 0; i < CANTIDAD_RELES; i++) {
-    r += NOMBRES_RELES[i];
+  for (int i = 0; i < TOTAL_SALIDAS; i++) {
+    r += NOMBRES_SALIDAS[i];
     r += "=";
-    r += estadoReles[i] ? "1" : "0";
+    r += estadoSalidas[i] ? "1" : "0";
     r += ";";
   }
   r += "HUM=" + String(ultimaHumedadValida) + ";";       // humedad de TIERRA, crudo ADC
@@ -1297,25 +1305,25 @@ void ejecutarComandoRele(const String &comando, int indice, bool encender,
   OrdenActuador orden = {indice, encender, origen, confianza, comando.c_str()};
   ResultadoOrden resultado = ejecutarOrdenActuador(orden);
   if (resultado.exito) {
-    emitirEventoLocal("ACK;" + comando + ";" + String(estadoReles[indice] ? 1 : 0));
+    emitirEventoLocal("ACK;" + comando + ";" + String(estadoSalidas[indice] ? 1 : 0));
   } else {
     emitirEventoLocal("NACK;" + comando + ";" + String(resultado.motivo));
   }
 }
 
 void restaurarModoAutomatico(const String &comando, int indice) {
-  if (indice < 0 || indice >= CANTIDAD_RELES) {
+  if (indice < 0 || indice >= TOTAL_SALIDAS) {
     emitirEventoLocal("NACK;" + comando + ";indice_invalido");
     return;
   }
-  propietarioReles[indice] = PROPIETARIO_AUTOMATICO;
-  log("MODO", String(NOMBRES_RELES[indice]) + " -> AUTO");
+  propietarioSalidas[indice] = PROPIETARIO_AUTOMATICO;
+  log("MODO", String(NOMBRES_SALIDAS[indice]) + " -> AUTO");
   emitirEventoLocal("ACK;" + comando + ";AUTO");
 }
 
 void activarParoEmergencia(const char* motivo) {
   paroEmergenciaActivo = true;
-  for (int i = 0; i < CANTIDAD_RELES; i++) {
+  for (int i = 0; i < TOTAL_SALIDAS; i++) {
     OrdenActuador orden = {i, false, ORIGEN_SISTEMA, 1.0f, motivo};
     ejecutarOrdenActuador(orden);
   }
@@ -1329,7 +1337,7 @@ void entrarModoSeguro(const char* motivo) {
   motivoModoSeguro[sizeof(motivoModoSeguro) - 1] = '\0';
   ventanaEscuchaActiva = false;
 
-  for (int i = 0; i < CANTIDAD_RELES; i++) {
+  for (int i = 0; i < TOTAL_SALIDAS; i++) {
     OrdenActuador orden = {i, false, ORIGEN_SISTEMA, 1.0f, "MODO_SEGURO"};
     ejecutarOrdenActuador(orden);
   }
@@ -1402,7 +1410,7 @@ bool procesarCalibracion(const String &comando) {
   }
   // NVS solo se modifica con paro enclavado y todas las salidas apagadas.
   bool apagadas = true;
-  for (bool estado : estadoReles) apagadas = apagadas && !estado;
+  for (bool estado : estadoSalidas) apagadas = apagadas && !estado;
   if (!paroEmergenciaActivo || !apagadas) {
     emitirEventoLocal("NACK;CAL;requiere_paro");
     return true;
@@ -1564,11 +1572,11 @@ void revisarControlesFisicos() {
     ultimoBotonDemo = botonDemo;
     if (botonDemo == LOW && !paroEmergenciaActivo) {
       OrdenActuador orden = {
-        1, !estadoReles[1], ORIGEN_MANUAL, 1.0f, "BOTON_DEMO_LUZ_SALA"
+        1, !estadoSalidas[1], ORIGEN_MANUAL, 1.0f, "BOTON_DEMO_LUZ_SALA"
       };
       ResultadoOrden resultado = ejecutarOrdenActuador(orden);
       emitirEventoLocal(resultado.exito
-        ? String("ACK;BOTON_LUZ_SALA;") + (estadoReles[1] ? "1" : "0")
+        ? String("ACK;BOTON_LUZ_SALA;") + (estadoSalidas[1] ? "1" : "0")
         : String("NACK;BOTON_LUZ_SALA;") + resultado.motivo);
     }
   }
@@ -1808,12 +1816,12 @@ void setup() {
   pinMode(PIN_BOTON_DEMO, INPUT_PULLUP);
   micHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
 
-  for (int i = 0; i < CANTIDAD_RELES; i++) {
+  for (int i = 0; i < TOTAL_SALIDAS; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
-    digitalWrite(PINES_RELES[i], nivelSalida(i, false));
-    pinMode(PINES_RELES[i], OUTPUT);
-    propietarioReles[i] = PROPIETARIO_NINGUNO;
+    digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));
+    pinMode(PINES_SALIDAS[i], OUTPUT);
+    propietarioSalidas[i] = PROPIETARIO_NINGUNO;
   }
   log("SISTEMA", "Relés inicializados (todos apagados)");
   watchdogActivo = inicializarWatchdog();

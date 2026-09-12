@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1480" viewBox="0 0 1600 1480">
+  <style>
+    .bg{fill:#f8fafc}.card{fill:#fff;stroke:#334155;stroke-width:3}.tbd{fill:#fef9c3;stroke:#a16207;stroke-width:3;stroke-dasharray:12 8}.ok{fill:#ecfdf5;stroke:#047857;stroke-width:3}.warn{fill:#fee2e2;stroke:#b91c1c;stroke-width:3}.title{font:700 34px Arial;fill:#0f172a}.h{font:700 24px Arial;fill:#0f172a}.t{font:19px Arial;fill:#1e293b}.small{font:16px Arial;fill:#334155}.pin{font:700 18px monospace;fill:#1d4ed8}.safe{font:700 22px Arial;fill:#b91c1c}.pend{font:700 22px Arial;fill:#a16207}
+  </style>
+  <rect class="bg" width="1600" height="1480"/>
+  <text class="title" x="800" y="52" text-anchor="middle">PROJECT DOMUS — mapa final de feria (andamio)</text>
+  <text class="t" x="800" y="84" text-anchor="middle">Verde = aprobado hoy · Amarillo TBD = prohibido cablear hasta evidencia · Detalle alfa: domus-alfa-guia-principiantes.svg</text>
+
+  <rect class="card ok" x="45" y="115" width="720" height="300"/>
+  <text class="h" x="75" y="155">1 · Energía final (aprobada)</text>
+  <text class="pin" x="75" y="200">TOMACORRIENTE → adaptador cerrado 5 V/5 A</text>
+  <text class="pin" x="75" y="238">→ fusible lento 4 A → switch maestro DC ≥5 A</text>
+  <text class="pin" x="75" y="276">→ distribución estrella +5 V / GND</text>
+  <text class="t" x="75" y="320">Ramas: ESP32 (una sola ruta +) · controlador · MAX98357A · LED</text>
+  <text class="t" x="75" y="354">GND común · retornos de motor directos al distribuidor</text>
+  <text class="small" x="75" y="392">120 V NUNCA entra a maqueta/protoboard · medir 5 V antes de conectar</text>
+
+  <rect class="card ok" x="835" y="115" width="720" height="300"/>
+  <text class="h" x="865" y="155">2 · Núcleo alfa (montar hoy)</text>
+  <text class="pin" x="865" y="200">Sensores 15/16/3 · PIR 9 · DHT 14 · LCD 17/13 a 3V3</text>
+  <text class="pin" x="865" y="238">STOP 10 · SILENCIO 11 · MODO 18 (a GND)</text>
+  <text class="pin" x="865" y="276">LED sala 5 · dormitorio 6 · cultivo 8 (1 kΩ c/u)</text>
+  <text class="t" x="865" y="320">GPIO4/7 bloqueados · GPIO12 reservado sin conectar</text>
+  <text class="t" x="865" y="354">USB del PC · perfiles ALFA_SENSORES/BOMBA_1/VENTILADOR_1</text>
+  <text class="small" x="865" y="392">Una carga motriz por vez · pulso ≤500 ms · bomba sumergida</text>
+
+  <rect class="card tbd" x="45" y="450" width="720" height="300"/>
+  <text class="h" x="75" y="490">3 · Motores final (TBD — NO CABLEAR)</text>
+  <text class="pend" x="75" y="528">Puerta: foto ambas caras + leer chip + tabla medida</text>
+  <text class="t" x="75" y="570">Anuncio dice DRV8833 · foto parece MX1508 (IN1-4/OUT1-4)</text>
+  <text class="t" x="75" y="604">Si MX1508: sin nSLEEP · IN1/IN2→OUT1/2 · IN3/IN4→OUT3/4</text>
+  <text class="t" x="75" y="638">Si DRV8833: documentar breakout real + nSLEEP</text>
+  <text class="small" x="75" y="676">Hasta entonces: una carga con 1xS8050 (domus-alfa-una-carga-s8050.svg)</text>
+  <text class="small" x="75" y="710">S8550 en reserva · L293D alternativa si S8050 calienta</text>
+
+  <rect class="card tbd" x="835" y="450" width="720" height="300"/>
+  <text class="h" x="865" y="490">4 · Jarvis IR + audio (TBD — NO CABLEAR)</text>
+  <text class="pend" x="865" y="528">Puerta: mapa final congelado + 21 códigos del mando real</text>
+  <text class="t" x="865" y="570">IR: HX1838 solo tras congelar mapa · repeticiones ignoradas</text>
+  <text class="t" x="865" y="604">Audio: MAX98357A + parlante · pines SIN duplicar 16/17/18</text>
+  <text class="t" x="865" y="638">Frases fijas desde flash · MUTE nunca bloquea seguridad</text>
+  <text class="small" x="865" y="676">Sin micrófono/entrenamiento: Jarvis = IR determinista + voz fija</text>
+  <text class="small" x="865" y="710">La casa funciona sin audio · STOP manda sobre todo</text>
+
+  <rect class="card ok" x="45" y="785" width="1510" height="380"/>
+  <text class="h" x="75" y="825">5 · Guion demo feria (2–4 min, con variante manual sin audio)</text>
+  <text class="t" x="75" y="865">1 Encender: todo OFF · 2 LCD PROJECT DOMUS → sensores · 3 tapar LDR (horario cultivo)</text>
+  <text class="t" x="75" y="899">4 tecla 1: sala + confirmación · 5 tecla 4: ventilación · 6 depósito lleno + tecla 5: riego corto</text>
+  <text class="t" x="75" y="933">7 nivel bajo + tecla 5: rechazo seguro · 8 tecla 9: estado · 9 STOP: nada enciende</text>
+  <text class="t" x="75" y="967">10 liberar STOP + 200+: rearme con salidas OFF</text>
+  <text class="h" x="75" y="1011">PASS mínimo antes de feria</text>
+  <text class="t" x="75" y="1045">5 reinicios limpios · 10 bloqueos nivel · 10 cortes timeout · 0 falsos IR · 1 h vigilada</text>
+  <text class="t" x="75" y="1079">Cultivo = representación roja/azul, NO UV · solar/batería = estética desconectada</text>
+  <text class="small" x="75" y="1117">Autoridad: nota 46 + olas 50/51/52 · firmware banco: domus_esqueleto · final: casa migrada tras drivers</text>
+
+  <rect class="warn" x="45" y="1200" width="1510" height="230"/>
+  <text class="safe" x="800" y="1248" text-anchor="middle">PROHIBIDO cablear lo amarillo · PROHIBIDO afirmar DRV8833/UV/autonomía solar</text>
+  <text class="t" x="800" y="1290" text-anchor="middle">Cada TBD tiene su puerta de medición en la nota 46 (fases D–F).</text>
+  <text class="t" x="800" y="1324" text-anchor="middle">Ante olor, humo, cable caliente, reinicios o agua cerca: cortar y revisar.</text>
+  <text class="small" x="800" y="1362" text-anchor="middle">GPIO12 reservado · GPIO1/2/21 tapados · 19/20 USB · ningún GPIO admite 5 V</text>
+  <text class="small" x="800" y="1396" text-anchor="middle">Perfiles: ALFA_SENSORES / ALFA_BOMBA_1 / ALFA_VENTILADOR_1 · DIAGNOSTICO reporta el real</text>
+</svg>

@@ -55,7 +55,7 @@ class NativeFirmwareTests(unittest.TestCase):
         source = SKETCH.read_text(encoding="utf-8")
         constants = "\n".join(re.findall(
             r"^#define (?:NIVEL_AGUA_(?:MIN_VALIDO|MAX_VALIDO|MUESTRAS_ESTABLES)|MAX_FALLOS_ANTES_DE_REGISTRAR)\s+\d+", source, re.M))
-        polarity = re.search(r"const bool SALIDA_ACTIVA_EN_LOW\[CANTIDAD_RELES\] = \{.*?\};", source, re.S)[0]
+        polarity = re.search(r"const bool SALIDA_ACTIVA_EN_BAJO\[TOTAL_SALIDAS\] = \{.*?\};", source, re.S)[0]
         actual = "\n".join(function(source, signature) for signature in (
             "int nivelSalida(int indice, bool encendida)",
             "void revisarComandosSerial()", "bool leerNivelAgua(int &valorSalida)"))
@@ -66,7 +66,7 @@ class NativeFirmwareTests(unittest.TestCase):
 #include <deque>
 #include <cstdint>
 using String = std::string;
-constexpr int LOW=0, HIGH=1, CANTIDAD_RELES=5, PIN_NIVEL_AGUA=2;
+constexpr int LOW=0, HIGH=1, TOTAL_SALIDAS=5, PIN_NIVEL_AGUA=2;
 struct FakeSerial {
   std::deque<char> bytes;
   int available() { return bytes.size(); }
