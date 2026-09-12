@@ -36,6 +36,8 @@ usa `PINES_SALIDAS`, para no inventar arquitectura antes del hardware.
 
 Prueba: `test_relay_abstraction_is_gone` (cero restos) + compilación de los 5
 perfiles CI con tamaños idénticos a la nota 34 → comportamiento intacto.
+El contrato de cableado del validador (`PIN_SALIDA_*`) y los harness nativos
+siguen el renombre; `planos/tests` intactos.
 
 ## 2. Diagrama final
 
