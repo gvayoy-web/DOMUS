@@ -2,11 +2,21 @@
 proyecto: PROJECT DOMUS
 tipo: manual-maestro
 actualizado: 2026-09-09
-estado: fuente_de_verdad_vigente
+estado: historico_superado_por_46_50
 placa: ESP32-S3 N16R8
 ---
 
 # Manual final completo PROJECT DOMUS
+
+> [!WARNING]
+> **Documento histórico (corrección 2026-09-12, nota 50).** Supone GPIO1/2/21
+> accesibles y DRV8833 confirmado; el banco real usa un solo costado
+> (GPIO15/16/17) y el controlador pedido está sin identificar. Autoridad
+> vigente: [[46 - Plan maestro de consolidacion un costado]] +
+> [[47 - Guia visual principiante conexiones alfa]] +
+> [[49 - Prueba de una carga con un S8050 y TP4056]] +
+> [[50 - Ola 1 buffers Jarvis GPIO12 y validacion por perfil]]. No cablear
+> ni comprar desde aquí.
 
 Este documento reúne la arquitectura vigente, las conexiones, las compras, el
 orden de montaje, las pruebas, los cambios de firmware y el guion técnico de la

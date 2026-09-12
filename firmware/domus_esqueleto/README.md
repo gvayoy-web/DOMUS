@@ -6,8 +6,10 @@ LCD, DHT, automatizaciones,
 calibración persistente, propiedad manual, PARO, watchdog y modo seguro.
 Aún requiere validación física supervisada.
 
-El perfil se identifica como `ESP32-S3-N16R8 / ALFA_UN_COSTADO_SIN_IR`.
-`HABILITAR_MOTOR_BOMBA=false`, `HABILITAR_MOTOR_VENTILADOR=false`,
+El perfil se identifica como `ESP32-S3-N16R8` + `PERFIL_PRUEBA` diagnosticado
+(`ALFA_UN_COSTADO_SIN_IR` en banco normal, `ALFA_BOMBA_1` o `ALFA_VENTILADOR_1`
+en prueba vigilada). La selección vive en una sola línea,
+`PERFIL_HARDWARE` en `domus_config.h` (o bandera `-DDOMUS_PERFIL_ALFA=0/1/2`);
 `CONTROLADOR_DOBLE_IDENTIFICADO=false` e `IR_HABILITADO=false` permanecen así
 hasta superar las puertas físicas de la nota 46.
 
@@ -34,11 +36,11 @@ mismo sketchbook de Arduino IDE; reiniciar el IDE después.
 
 | Función | GPIO | Etapa |
 |---|---:|---|
-| Bomba S8050 #1 | 4 | Bloqueada; sólo perfil de prueba individual vigilada |
+| Bomba (solo `ALFA_BOMBA_1`) | 4 | Un solo S8050 como interruptor lado bajo; ventilador desconectado |
 | Sala LED | 5 | LED + 330 Ω a GND |
 | Cuarto LED | 6 | LED + 330 Ω a GND |
-| Ventilador S8050 #2 | 7 | Bloqueado; sólo perfil de prueba individual vigilada |
-| Cultivo S8050 | 8 | GPIO8 -> 1 k -> base S8050; 2 az + 1 ro con 330 Ω c/u |
+| Ventilador (solo `ALFA_VENTILADOR_1`) | 7 | El MISMO S8050 movido al otro circuito; bomba desconectada |
+| Cultivo LED directo | 8 | GPIO8 -> 1 kΩ por LED -> ánodo; cátodo a GND (sin transistor en alfa) |
 | Suelo/nivel/luz | 15/16/3 | Analógicas <=3.3 V |
 | PIR | 9 | Señal <=3.3 V (si el módulo es 5 V, medir OUT) |
 | PARO | 10 | Contacto a GND, pull-up interno. Manda sobre el IR siempre |
@@ -50,6 +52,12 @@ mismo sketchbook de Arduino IDE; reiniciar el IDE después.
 | DHT | 14 | DATA + 10 k a 3V3 |
 
 GPIO1, GPIO2 y GPIO21 quedan fuera porque están en el costado tapado.
+
+> Inventario real: **un S8050 NPN + un S8550 PNP en reserva**. Bomba y
+> ventilador son usos ALTERNATIVOS del mismo S8050 (una carga por vez,
+> ver nota 49); el S8550 no se conecta copiando este esquema. Cultivo son
+> LED directos a GPIO8, uno con su 1 kΩ; la etapa con transistor es final,
+> no alfa.
 
 ## Control IR CAR MP3 (fase final, no montar ahora)
 

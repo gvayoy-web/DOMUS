@@ -17,17 +17,50 @@ namespace Config {
 // ALFA_BOMBA_1: solo GPIO4. ALFA_VENTILADOR_1: solo GPIO7.
 // Para una prueba vigilada se cambia SOLO esta línea; nunca ambas cargas.
 enum class PerfilHardware : uint8_t { ALFA_SENSORES, ALFA_BOMBA_1, ALFA_VENTILADOR_1 };
-constexpr PerfilHardware PERFIL_HARDWARE = PerfilHardware::ALFA_SENSORES;
+// ÚNICA selección del perfil de motores (notas 49/50). Todo lo demás deriva.
+// 0 = ALFA_SENSORES (GPIO4 y GPIO7 bloqueados, banco normal).
+// 1 = ALFA_BOMBA_1 (solo GPIO4). 2 = ALFA_VENTILADOR_1 (solo GPIO7).
+// Se cambia editando aquí o con bandera de compilación -DDOMUS_PERFIL_ALFA=N.
+// CI construye los tres valores válidos; otro valor falla en compilación.
+#ifndef DOMUS_PERFIL_ALFA
+#define DOMUS_PERFIL_ALFA 0
+#endif
+static_assert(DOMUS_PERFIL_ALFA >= 0 && DOMUS_PERFIL_ALFA <= 2,
+              "DOMUS_PERFIL_ALFA debe ser 0, 1 o 2");
+constexpr PerfilHardware PERFIL_HARDWARE =
+    DOMUS_PERFIL_ALFA == 1 ? PerfilHardware::ALFA_BOMBA_1 :
+    DOMUS_PERFIL_ALFA == 2 ? PerfilHardware::ALFA_VENTILADOR_1 :
+                             PerfilHardware::ALFA_SENSORES;
 constexpr bool HABILITAR_MOTOR_BOMBA = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1);
 constexpr bool HABILITAR_MOTOR_VENTILADOR = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1);
 constexpr bool CONTROLADOR_DOBLE_IDENTIFICADO = false;
-constexpr bool IR_HABILITADO = false;
-constexpr bool DFPLAYER_HABILITADO = false;  // true solo con DFPlayer + microSD cableados.
+// Banderas seleccionables por compilación (0/1). Los valores por defecto son
+// el banco alfa seguro; cualquier combinación que comparta GPIO falla en
+// compilación por los static_assert de la matriz (nota 50).
+#ifndef DOMUS_IR
+#define DOMUS_IR 0
+#endif
+#ifndef DOMUS_DF
+#define DOMUS_DF 0
+#endif
+#ifndef DOMUS_BUZZER
+#define DOMUS_BUZZER 0
+#endif
+constexpr bool IR_HABILITADO = (DOMUS_IR != 0);
+constexpr bool DFPLAYER_HABILITADO = (DOMUS_DF != 0);  // true solo con DFPlayer + microSD cableados.
 // Buzzer: deshabilitado en alfa. GPIO12 queda RESERVADO, SIN CONECTAR.
 // No configurar ni escribir GPIO12 mientras siga en false (ver domus_voice.h).
-constexpr bool BUZZER_HABILITADO = false;
+// Se habilita solo con -DDOMUS_BUZZER=1 y sin IR (comparten GPIO12).
+constexpr bool BUZZER_HABILITADO = (DOMUS_BUZZER != 0);
 constexpr const char PERFIL_PLACA[] = "ESP32-S3-N16R8";
-constexpr const char PERFIL_PRUEBA[] = "ALFA_UN_COSTADO_SIN_IR";
+// Nombre diagnosticado: deriva del perfil REALMENTE seleccionado, no es fijo.
+// DIAGNOSTICO/BANCO/DOMUS_LISTO reportan este valor (nota 50).
+constexpr const char* nombrePerfil(PerfilHardware p) {
+  return p == PerfilHardware::ALFA_BOMBA_1 ? "ALFA_BOMBA_1" :
+         p == PerfilHardware::ALFA_VENTILADOR_1 ? "ALFA_VENTILADOR_1" :
+         "ALFA_UN_COSTADO_SIN_IR";
+}
+constexpr const char* PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE);
 constexpr bool LCD_HABILITADO = true;
 constexpr bool DHT_HABILITADO = true;
 constexpr uint8_t DHT_TIPO = 11; // Cambiar a 22 solo tras identificar el modulo.

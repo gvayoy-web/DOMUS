@@ -68,7 +68,24 @@ Si no detecta movimiento:
 - [x] `validate_project.py` actualizado a selección única + GPIO15/16/17 (corrección entrega)
 - [ ] HIL solo después de lo anterior
 
-## Corrección de entrega (auditoría REQUEST CHANGES, 2026-09-12)
+## Corrección de entrega 2 (auditoría REQUEST CHANGES 2, 2026-09-12)
+
+Sin reescribir lo publicado; commits pequeños nuevos:
+
+1. Diodo: `domus-alfa-una-carga-s8050.svg` dibuja el 1N4007 como símbolo
+   (barra cátodo + triángulo), raya→OUT+, sin raya→C; advierte que no es cable.
+2. README: bomba/ventilador como usos alternativos del único S8050; cultivo
+   LED directo a GPIO8 (1 kΩ por LED); inventario 1xS8050 + S8550 reserva.
+3. Notas 43/44/45: banner + metadata histórico/superado, autoridad 46/47/49/50.
+4-5. Selección compilable: `-DDOMUS_PERFIL_ALFA=0/1/2`,
+   `-DDOMUS_BUZZER/-DDOMUS_IR/-DDOMUS_DF`; CI (`firmware-ci.yml`) construye
+   los 3 perfiles; `scripts/check_perfil_matrix.py` verifica 3 OK + 3 rechazos.
+6. Rechazos probados por compilación real (no solo booleanos): perfil 3,
+   IR+buzzer en GPIO12, DFPlayer en 17/18.
+7. `PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)`: DIAGNOSTICO/BANCO/LISTO
+   reportan el perfil seleccionado (`ALFA_UN_COSTADO_SIN_IR` por defecto).
+
+## Corrección de entrega 1 (auditoría REQUEST CHANGES, 2026-09-12)
 
 La auditoría rechazó el commit `7102224` por no reproducible aislado. Correctivo
 pequeño, sin reescribir el publicado:

@@ -17,18 +17,22 @@ class DomusEsqueletoContractTests(unittest.TestCase):
 
     def test_outputs_remain_disabled_until_physical_validation(self):
         # Selección única ALFA_SENSORES: motores derivados en false, sin DRV/IR/DF/buzzer.
-        self.assertIn("PERFIL_HARDWARE = PerfilHardware::ALFA_SENSORES", self.config)
+        self.assertIn("constexpr PerfilHardware PERFIL_HARDWARE =", self.config)
+        self.assertIn("PerfilHardware::ALFA_SENSORES", self.config)
         self.assertIn("HABILITAR_MOTOR_BOMBA = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1)", self.config)
         self.assertIn("HABILITAR_MOTOR_VENTILADOR = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1)", self.config)
         self.assertRegex(self.config, r"CONTROLADOR_DOBLE_IDENTIFICADO\s*=\s*false")
-        self.assertRegex(self.config, r"IR_HABILITADO\s*=\s*false")
-        self.assertRegex(self.config, r"DFPLAYER_HABILITADO\s*=\s*false")
-        self.assertRegex(self.config, r"BUZZER_HABILITADO\s*=\s*false")
+        self.assertIn("constexpr bool IR_HABILITADO = (DOMUS_IR != 0)", self.config)
+        self.assertIn("constexpr bool DFPLAYER_HABILITADO = (DOMUS_DF != 0)", self.config)
+        self.assertIn("constexpr bool BUZZER_HABILITADO = (DOMUS_BUZZER != 0)", self.config)
         self.assertRegex(
             self.config,
             r"SALIDA_FISICA_HABILITADA\[\]\s*=\s*\{\s*HABILITAR_MOTOR_BOMBA",
         )
-        self.assertIn('PERFIL_PRUEBA[] = "ALFA_UN_COSTADO_SIN_IR"', self.config)
+        self.assertIn('PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)', self.config)
+        self.assertIn('"ALFA_UN_COSTADO_SIN_IR"', self.config)
+        self.assertIn("DOMUS_PERFIL_ALFA", self.config)
+        self.assertIn("nombrePerfil(PerfilHardware p)", self.config)
         self.assertIn("salida_sin_etapa_habilitada", self.sketch)
 
     def test_perfil_hardware_es_seleccion_unica(self):
@@ -36,9 +40,14 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         self.assertIn("ALFA_SENSORES", self.config)
         self.assertIn("ALFA_BOMBA_1", self.config)
         self.assertIn("ALFA_VENTILADOR_1", self.config)
+        # Selección por bandera con valor por defecto seguro.
+        self.assertIn("#ifndef DOMUS_PERFIL_ALFA", self.config)
+        self.assertIn("DOMUS_PERFIL_ALFA debe ser 0, 1 o 2", self.config)
         # Derivación única: habilitar un motor exige seleccionar su perfil.
         self.assertIn("PERFIL_ALFA_BOMBA_1 = (PERFIL_HARDWARE == PerfilHardware::ALFA_BOMBA_1)", self.config)
         self.assertIn("PERFIL_ALFA_VENTILADOR_1 = (PERFIL_HARDWARE == PerfilHardware::ALFA_VENTILADOR_1)", self.config)
+        # El nombre diagnosticado deriva del perfil real, no es fijo.
+        self.assertIn("PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)", self.config)
 
     def test_matriz_compilacion_casos_pasan_y_prohibidos(self):
         for predicate in ("motoresExclusivos", "alias12Ok", "dfSinAlias"):

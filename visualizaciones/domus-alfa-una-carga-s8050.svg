@@ -38,8 +38,12 @@
   <text class="pin" x="1040" y="475">+                 −</text>
   <path class="wire red" d="M1030 315 V475 H1040"/>
   <path class="wire black" d="M890 385 H940 V475 H1330"/>
-  <path class="wire red" d="M1040 475 V575 H1330 V475"/>
-  <text class="small" x="1185" y="610" text-anchor="middle">1N4007 en paralelo · RAYA hacia OUT+</text>
+  <path class="wire red" d="M1040 475 V530 H1170"/>
+  <line x1="1170" y1="502" x2="1170" y2="558" stroke="#111827" stroke-width="14"/>
+  <polygon points="1170,502 1170,558 1214,530" fill="none" stroke="#111827" stroke-width="7"/>
+  <path class="wire black" d="M1214 530 H1330 V475"/>
+  <text class="small" x="1185" y="605" text-anchor="middle">1N4007 en paralelo: RAYA (cátodo ┤) hacia OUT+ · sin raya (▷) hacia C/negativo</text>
+  <text class="small" x="1185" y="633" text-anchor="middle">El diodo NO es un cable: nunca unas + con − directamente</text>
 
   <rect class="warn" x="60" y="720" width="1380" height="165" rx="18"/>
   <text class="danger" x="750" y="765" text-anchor="middle">El S8550 queda en reserva: NO copiar este circuito con él</text>

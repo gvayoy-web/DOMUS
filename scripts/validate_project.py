@@ -92,7 +92,7 @@ def validate_current_decisions() -> list[str]:
         "Geometría v4": (decision, "800 × 520 mm"),
         "Firmware de banco": (
             config,
-            "PERFIL_HARDWARE = PerfilHardware::ALFA_SENSORES",
+            "constexpr PerfilHardware PERFIL_HARDWARE =",
         ),
         "Motor bomba deriva del perfil": (
             config,
@@ -104,10 +104,12 @@ def validate_current_decisions() -> list[str]:
         ),
         "Buzzer deshabilitado en alfa": (
             config,
-            "constexpr bool BUZZER_HABILITADO = false;",
+            "constexpr bool BUZZER_HABILITADO = (DOMUS_BUZZER != 0)",
         ),
+        "Banderas seleccionables": (config, "#ifndef DOMUS_PERFIL_ALFA"),
         "Perfil N16R8": (config, 'PERFIL_PLACA[] = "ESP32-S3-N16R8"'),
-        "Perfil alfa": (config, 'PERFIL_PRUEBA[] = "ALFA_UN_COSTADO_SIN_IR"'),
+        "Perfil alfa": (config, "PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)"),
+        "Nombre alfa por defecto": (config, '"ALFA_UN_COSTADO_SIN_IR"'),
         "Validación por funciones activas": (config, "funcionesActivasSinAlias"),
         "Ronda sin compras": (bench_guide, "B01-B05"),
     }

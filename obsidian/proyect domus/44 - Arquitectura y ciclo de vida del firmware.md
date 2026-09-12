@@ -2,11 +2,17 @@
 proyecto: PROJECT DOMUS
 tipo: arquitectura-firmware
 actualizado: 2026-09-10
-estado: vigente
+estado: superado_en_consolidacion
 placa: ESP32-S3 N16R8
 ---
 
 # Arquitectura y ciclo de vida del firmware
+
+> [!WARNING]
+> **Documento superado en consolidación (corrección 2026-09-12, nota 50).**
+> Todavía define banco IR y DRV8833; se conservan sus reglas de seguridad.
+> Autoridad vigente: [[46 - Plan maestro de consolidacion un costado]] +
+> [[50 - Ola 1 buffers Jarvis GPIO12 y validacion por perfil]].
 
 Esta nota define qué función tiene cada firmware, cuál se carga en cada fase y
 qué debe migrarse. No se mezclan pruebas destructivas, control final y pruebas

@@ -2,10 +2,16 @@
 proyecto: PROJECT DOMUS
 tipo: plano alfa de montaje
 actualizado: 2026-09-10
-estado: vigente para banco sin control IR
+estado: borrador_superado_ver_nota_50
 ---
 
 # Diagrama ASCII alfa sin control IR
+
+> [!WARNING]
+> **Borrador superado (corrección 2026-09-12, nota 50).** Usa GPIO1/2/21 del
+> lado tapado. El mapa vigente por un solo costado está en
+> [[46 - Plan maestro de consolidacion un costado]] y la guía para cablear en
+> [[47 - Guia visual principiante conexiones alfa]].
 
 > [!IMPORTANT]
 > Este plano usa solo el núcleo confirmado que ya está en mano. El control CAR
