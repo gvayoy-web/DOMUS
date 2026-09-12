@@ -52,6 +52,7 @@ Definición formal de firmware final y puertas F1-F7: [[53 - Definicion formal d
 Plan de orden del repositorio (inventario + antes→después): [[54 - Plan de orden del repositorio]].
 Corrección auditoría 5 (mapa 15/16/17/18, fuente real, driver primero): [[55 - Correccion auditoria 5 mapa fuente driver]].
 Orden fase 1 no destructiva (índice, README, ignores): [[56 - Orden fase 1 no destructiva]].
+Integración LCD final + backends + movimiento 1: [[57 - Integracion LCD backends movimiento 1]].
 Plano alfa actual sin control IR y antes de recibir el driver: [[45 - Diagrama ASCII alfa sin control IR]].
 Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 

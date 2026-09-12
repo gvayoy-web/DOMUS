@@ -55,11 +55,11 @@ deban fabricar. Solo deben marcarse suavemente a lápiz.
 
 ## Archivos principales
 
-- `plano_tecnico_domus.pdf`: juego de planos para el equipo de armado.
+- `hardware/plano_tecnico_domus.pdf`: juego de planos para el equipo de armado.
 - `lista_corte.csv`: medidas de las piezas estructurales.
 - `modelo_3d_interactivo.html`: visor offline con cotas y reservas.
-- `project_domus.obj` y `project_domus.mtl`: modelo editable.
-- `verificacion_geometria_v4.json`: validación automática de la geometría.
+- `project_domus.obj` y `hardware/project_domus.mtl`: modelo editable.
+- `hardware/verificacion_geometria_v4.json`: validación automática de la geometría.
 
 Todas las cotas, renders, el OBJ, el CSV de geometría y el visor se regeneran
 desde `generate_design.py`. No deben modificarse por separado.
