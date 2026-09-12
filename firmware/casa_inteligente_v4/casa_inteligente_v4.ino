@@ -226,6 +226,9 @@ static_assert(MAPA_CASA.bomba == 4 && MAPA_CASA.sala == 5 && MAPA_CASA.cuarto ==
               MAPA_CASA.vent == 7 && MAPA_CASA.inv == 8, "Mapa de salidas del candidato");
 static_assert(MAPA_CASA.suelo == 15 && MAPA_CASA.nivel == 16 && MAPA_CASA.sda == 17 &&
               MAPA_CASA.demo == 18 && MAPA_CASA.scl == 13, "Costado accesible autorizado");
+static_assert(MAPA_CASA.bomba == MAPA_CASA.salidas[0] && MAPA_CASA.sala == MAPA_CASA.salidas[1] &&
+              MAPA_CASA.cuarto == MAPA_CASA.salidas[2] && MAPA_CASA.vent == MAPA_CASA.salidas[3] &&
+              MAPA_CASA.inv == MAPA_CASA.salidas[4], "Campos y arreglo de salidas unidos");
 // Habilitación física derivada del perfil. Los motores quedan bloqueados en
 // los tres perfiles vigentes (ver DRIVER_MOTORES_LISTO en domus_drivers.h).
 constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {

@@ -21,6 +21,11 @@ __pycache__/
 ~$*
 .DS_Store
 Thumbs.db
+tmp/
+
+# Binarios sueltos y artefactos generados (van a Releases/LFS, nota 54)
+*.rar
+artefactos/
 
 # Renderizados usados solamente para control de calidad
 qa_docx/

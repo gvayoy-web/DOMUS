@@ -1,95 +1,78 @@
-# Casa inteligente — Jarvis local v6
+# PROJECT DOMUS — casa inteligente local (ESP32-S3 N16R8)
 
-> Estado y ruta recomendada: [`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md). Para probar
-> las piezas confirmadas usar la base modular, no los PoC de audio o pantallas.
+Maqueta de feria sin nube: sensores, automatización con histéresis, seguridad
+(PARO, nivel, timeout, rearme) y Jarvis por control IR con frases fijas.
+Estados del producto en [`obsidian/proyect domus/53`](obsidian/proyect%20domus/53%20-%20Definicion%20formal%20de%20firmware%20final%20y%20puertas.md):
+`BANCO` (vigente) → `CANDIDATO` → `FINAL` (puertas F1–F7, ninguna superada aún).
 
-Proyecto de feria basado en ESP32-S3 N16R8 confirmado: 16 MB flash y 8 MB
-PSRAM. El firmware controla cinco cargas, sensores,
-automatización local y la futura voz local de Jarvis. No hay aplicación móvil,
-BLE ni dependencia de internet para las funciones críticas. Los comandos de
-diagnóstico se aceptan localmente por USB Serial.
+## Qué abrir primero
 
-## Estado actual
+- Índice canónico: [`docs/INDICE.md`](docs/INDICE.md)
+- Bóveda técnica: [`obsidian/proyect domus/00 - Inicio.md`](obsidian/proyect%20domus/00%20-%20Inicio.md) (autoridad: nota 46)
+- Plan de orden del repo: nota `54`
 
-- Firmware: [`firmware/casa_inteligente_v4/casa_inteligente_v4.ino`](firmware/casa_inteligente_v4/casa_inteligente_v4.ino)
-- Firmware recomendado para banco: [`firmware/domus_esqueleto`](firmware/domus_esqueleto)
-- Voz local: [`firmware/JARVIS_LOCAL.md`](firmware/JARVIS_LOCAL.md)
-- Plan completo: [`PLAN_PROYECTO.md`](PLAN_PROYECTO.md)
-- Entrega consolidada: [`ENTREGA_FINAL.md`](ENTREGA_FINAL.md)
-- Diagramas de cableado: [`visualizaciones/diagrama-final.html`](visualizaciones/diagrama-final.html) y [`visualizaciones/diagrama-cableado-interactivo/index.html`](visualizaciones/diagrama-cableado-interactivo/index.html)
-- Prueba de micrófono: [`firmware/inmp441_poc`](firmware/inmp441_poc)
-- Prueba de voz española: [`firmware/picotts_poc`](firmware/picotts_poc)
-- Compilación verificada: [`firmware/COMPILACION_VALIDADA.md`](firmware/COMPILACION_VALIDADA.md)
-- Preparación de Arduino IDE: [`obsidian/proyect domus/35 - Preparacion Arduino IDE y revision documental.md`](obsidian/proyect%20domus/35%20-%20Preparacion%20Arduino%20IDE%20y%20revision%20documental.md)
-- Pruebas antes de construir: [`obsidian/proyect domus/16 - Plan de testeo antes de construccion.md`](obsidian/proyect%20domus/16%20-%20Plan%20de%20testeo%20antes%20de%20construccion.md)
-- Ronda B01-B05 sin compras: [`obsidian/proyect domus/37 - Ronda de pruebas sin compras.md`](obsidian/proyect%20domus/37%20-%20Ronda%20de%20pruebas%20sin%20compras.md)
-- Diagramas generales: [`obsidian/proyect domus/17 - Diagramas generales de conexiones.md`](obsidian/proyect%20domus/17%20-%20Diagramas%20generales%20de%20conexiones.md)
-- Cableado pin por pin: [`obsidian/proyect domus/18 - Manual maestro de conexiones pin por pin.md`](obsidian/proyect%20domus/18%20-%20Manual%20maestro%20de%20conexiones%20pin%20por%20pin.md)
-- Pruebas después de construir: [`obsidian/proyect domus/19 - Plan de testeo despues de construccion.md`](obsidian/proyect%20domus/19%20-%20Plan%20de%20testeo%20despues%20de%20construccion.md)
-- Visualización completa: [`visualizaciones/sistema-domus.html`](visualizaciones/sistema-domus.html)
-- `JARVIS_LOCAL_HABILITADO=false` hasta tener micrófono, modelos TinyML, PicoTTS y pruebas reales.
+## Qué firmware cargar
 
-## Meta de Jarvis
+| Necesidad | Firmware | Perfil |
+|---|---|---|
+| Banco: sensores, LCD, botones, LED | `firmware/domus_esqueleto` | `ALFA_UN_COSTADO_SIN_IR` (motores bloqueados; `ALFA_BOMBA_1`/`ALFA_VENTILADOR_1` solo vigilados) |
+| Candidato a producto | `firmware/casa_inteligente_v4` | `CANDIDATO_BANCO_SIN_ACTUADORES` por defecto (`-DDOMUS_PERFIL_CASA=1` LED, `=2` motor pendiente) |
+| Solo diagnóstico de placa | `firmware/domus_selftest` | — |
 
-```text
-Jarvis, apaga la luz de la sala uno
-Jarvis, desactiva la luz de la sala uno
-```
+`domus_esqueleto` está congelado (solo regresiones P0/P1). `JARVIS_LOCAL_HABILITADO=false`
+y `MICROSD_HABILITADA=false` hasta superar sus puertas. No hay app móvil, BLE
+ni dependencia de internet en funciones críticas.
 
-Ambas frases producen `LUZ_SALA_1_OFF`, apagan el relé y generan una respuesta española con PicoTTS. No se promete conversación libre ni un LLM.
+## Documentos vigentes
 
-## Hardware de voz
+- Mapa y banco por un costado: notas `46`, `47` (guía), `49` (una carga)
+- Olas y correcciones: notas `50`, `51`, `52`, `53`, `54`, `55`
+- Ronda B01-B05: nota `37` · IDE: nota `35` · Cierre SW: nota `34`
+- Históricos (no cablear/comprar): notas `43`, `44`, `45`, `18`, `PLAN_PROYECTO.md`
 
-- INMP441 a 3.3 V, I2S mono a 16 kHz.
-- MAX98357A I2S y altavoz de 4 Ω/3 W para la voz generada.
-- Tira WS2812B de 8 LEDs como indicador azul.
-- Fuente común regulada de 5 V; usar 3 A o más hasta medir el consumo real del conjunto. Probar audio primero de forma aislada.
-- 74AHCT125/74HCT14 recomendado para datos del WS2812B.
+## Diagramas vigentes
 
-Confirma el pinout de la placa antes de soldar. GPIO13 (SCL), GPIO9 (PIR) y GPIO2 (nivel de agua) son asignaciones provisionales. No alimentes altavoz o relés desde 3.3 V del ESP32.
+- Guía final pin por pin: `visualizaciones/domus-final-guia-principiantes.svg`
+- Arquitectura general: `visualizaciones/domus-arquitectura-feria.svg`
+- Banco alfa: `domus-alfa-guia-principiantes.svg` · potencia: `domus-alfa-una-carga-s8050.svg`
+- Interactivo (revisar vigencia por nota): `visualizaciones/diagrama-cableado-interactivo/index.html`
+
+## Jarvis (sin micrófono)
+
+Órdenes por control IR CAR MP3 (21 teclas, códigos del mando real) y respuestas
+fijas en español. Sin reconocimiento de voz, sin entrenamiento, sin INMP441.
+`GPIO12` reservado; audio solo tras puerta F5.
 
 ## Compilación
 
-El firmware base se compila automáticamente en GitHub Actions para un
-`ESP32S3 Dev Module`, con 16 MB de flash y PSRAM OPI. La compilación usa el
-core Arduino-ESP32 3.3.10 y mantiene `JARVIS_LOCAL_HABILITADO=false`.
-
-Para compilar localmente con Arduino CLI:
+CI (`firmware-ci.yml`) compila el candidato en 7 configuraciones, el esqueleto
+en 3 perfiles (+3 rechazos) y la base modular, con Arduino-ESP32 3.3.10:
 
 ```powershell
 arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" firmware/casa_inteligente_v4
+python scripts/check_perfil_matrix.py   # 3 perfiles alfa OK + 3 prohibidos rechazados
 ```
 
-La compilación comprueba el software; el pinout, los relés y los sensores aún
-deben validarse físicamente con la fuente regulada de 5 V. Batería y panel solar
-son decoración y permanecen desconectados.
-
-Los tamaños y perfiles vigentes están en `firmware/COMPILACION_VALIDADA.md`;
-no usar cifras históricas para seleccionar particiones.
+La compilación comprueba software; sensores, etapas y fuente se validan en
+físico (notas 33/37). Batería y solar son estética desconectada.
 
 ## Comandos locales por USB
 
-El monitor Serial debe usar 115200 baudios y enviar cada orden con salto de línea.
-Admite las órdenes ON/OFF/AUTO de las cinco cargas, además de `ESTADO`,
-`DIAGNOSTICO`, `PARO`, `REARMAR`, `RECUPERAR`, `MIC_ESTADO` y `SD_PRUEBA`.
+Monitor Serial a 115200 baudios, una orden por línea: `RIEGO_ON/OFF`,
+`LUZ1/2_ON/OFF`, `VENT_ON/OFF`, `INVER_ON/OFF`, `*_AUTO`, `ESTADO`,
+`DIAGNOSTICO` (incluye `PERFIL_CANDIDATO=`), `PARO`, `REARMAR`, `RECUPERAR`,
+`MIC_ESTADO`, `SD_PRUEBA`, `CAL_*`.
 
 ## Protección contra bloqueos
 
-El watchdog cubre bloqueos duros. Un supervisor adicional vigila memoria,
-reinicios críticos, sensores y ráfagas de comandos. Ante riesgo no intenta
-reiniciar indefinidamente: apaga las cargas, suspende automatización/voz y deja
-Serial disponible. `DIAGNOSTICO` muestra la causa y `RECUPERAR` libera el modo
-seguro únicamente con memoria suficiente; las cargas permanecen apagadas hasta
-una orden explícita. Véase el protocolo en
-[`obsidian/proyect domus/14 - Protocolo anti-colapso IA y ESP32.md`](obsidian/proyect%20domus/14%20-%20Protocolo%20anti-colapso%20IA%20y%20ESP32.md).
+Watchdog + supervisor (memoria, reinicios, sensores, ráfagas). Ante riesgo:
+apaga cargas, suspende automatización/voz y deja Serial. `DIAGNOSTICO` da la
+causa; `RECUPERAR` libera el modo seguro con memoria suficiente; las cargas
+quedan apagadas hasta orden explícita. Detalle: nota `14`.
 
-## Servicios Wi‑Fi opcionales
+## Límites honestos
 
-El núcleo offline no depende de ellos. La capa Wi‑Fi podrá integrar MQTT local, Home Assistant, Node-RED, webhooks, NTP, clima y OTA firmada. Spotify se controlará mediante un gateway local y su Web API; el ESP32 no reproducirá directamente el catálogo ni guardará tokens OAuth.
-
-## Limitaciones honestas
-
-- Los modelos Hugging Face de cientos de megabytes no caben en esta placa.
-- ESP-SR oficial ofrece comandos en inglés/chino y TTS chino, no un Jarvis español general.
-- La voz española local será TinyML de intenciones y PicoTTS. Será entendible pero sintética.
-- Riego y ventilación siguen funcionando sin Wi‑Fi.
+- Sin driver identificado no hay bomba/ventilador en banco (F1).
+- Sin mapa IR/audio no hay Jarvis hablado (F4/F5).
+- Los modelos de cientos de MB no caben en esta placa; PicoTTS/TinyML siguen en puertas.
+- Riego y ventilación funcionan sin Wi-Fi. Spotify requeriría gateway local con internet.
