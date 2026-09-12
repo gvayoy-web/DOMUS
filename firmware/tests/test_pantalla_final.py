@@ -256,6 +256,19 @@ class PantallaFinalTests(unittest.TestCase):
         ):
             self.assertNotIn(funcion_vieja, self.sketch)
 
+    def test_modo_solo_navega_y_sensores_se_inicializan_antes_de_refrescar(self):
+        controles = self.sketch.split("void revisarControlesFisicos()", 1)[1].split("\n}", 1)[0]
+        self.assertIn("pantallaFinal.siguiente();", controles)
+        self.assertIn("ACK;MODO_LCD;", controles)
+        self.assertNotIn("ejecutarOrdenActuador", controles)
+        self.assertNotIn("BOTON_LUZ_SALA", controles)
+
+        setup = self.sketch.split("void setup()", 1)[1].split("\n}", 1)[0]
+        self.assertIn("pantallaFinal.begin(lcd);", setup)
+        self.assertIn("analogReadResolution(12);", setup)
+        self.assertIn("dht.begin();", setup)
+        self.assertNotIn("refrescarPantallaFinal();", setup)
+
     def test_nativo_formato_prioridad_err_y_diferencial(self):
         compiler = shutil.which("g++") or shutil.which("clang++")
         if not compiler:

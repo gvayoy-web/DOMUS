@@ -81,15 +81,17 @@ class DriverBackendsTests(unittest.TestCase):
 
     def test_driver_motores_listo_deriva_del_backend(self):
         self.assertIn("DRIVER_MOTORES_LISTO", self.src)
-        # La definicion activa menciona NINGUNO: deriva del backend.
+        # Backend seleccionado y validación física F1 son puertas separadas.
         definiciones = re.findall(
             r"constexpr\s+bool\s+DRIVER_MOTORES_LISTO\s*=[^;]*;", self.src
         )
         self.assertTrue(definiciones, "definicion de DRIVER_MOTORES_LISTO ausente")
         self.assertTrue(
-            any("NINGUNO" in d for d in definiciones),
-            "DRIVER_MOTORES_LISTO debe derivar de backend != NINGUNO",
+            any("NINGUNO" in d and "DOMUS_DRIVER_VALIDADO" in d for d in definiciones),
+            "DRIVER_MOTORES_LISTO debe exigir backend y validación F1",
         )
+        self.assertRegex(self.src, r"#define\s+DOMUS_DRIVER_VALIDADO\s+0\b")
+        self.assertIn("DOMUS_DRIVER_VALIDADO debe ser 0 o 1", self.src)
         self.assertIn("driverMotoresListo()", self.src)
 
     def test_driver_motores_aplicar_seguro_por_defecto(self):

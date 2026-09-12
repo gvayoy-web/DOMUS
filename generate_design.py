@@ -389,9 +389,11 @@ def box_vertices(part: Part):
 
 
 FACES = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (4, 0, 3, 7)]
+HARDWARE_DIR = ROOT / "hardware"
 
 
 def write_obj(parts: list[Part]) -> None:
+    HARDWARE_DIR.mkdir(parents=True, exist_ok=True)
     obj = ["mtllib project_domus.mtl", "# PROJECT DOMUS one-storey cutaway offline model"]
     index = 1
     for part in parts:
@@ -402,13 +404,13 @@ def write_obj(parts: list[Part]) -> None:
         for face in FACES:
             obj.append("f " + " ".join(str(index + i) for i in face))
         index += 8
-    (ROOT / "project_domus.obj").write_text("\n".join(obj) + "\n", encoding="utf-8")
+    (HARDWARE_DIR / "project_domus.obj").write_text("\n".join(obj) + "\n", encoding="utf-8")
 
     mtl = []
     for name, rgba in MATERIALS.items():
         r, g, b, a = rgba
         mtl += [f"newmtl {name}", f"Kd {r:.3f} {g:.3f} {b:.3f}", f"d {a:.3f}", "illum 2", ""]
-    (ROOT / "project_domus.mtl").write_text("\n".join(mtl), encoding="utf-8")
+    (HARDWARE_DIR / "project_domus.mtl").write_text("\n".join(mtl), encoding="utf-8")
 
 
 def draw_dimension(svg, x1, y1, x2, y2, text, offset=0, vertical=False):
@@ -842,7 +844,8 @@ def write_pdf_v3() -> Path:
     for i,(a,b,q) in enumerate(cols):
         x=(25+i*62)*mm;c.setFillColor(rl_colors.HexColor('#155eef'));c.setFont('Helvetica-Bold',7);c.drawString(x,55*mm,a);c.setFillColor(rl_colors.HexColor('#10233f'));c.setFont('Helvetica',7);c.drawString(x,45*mm,b);c.drawString(x,36*mm,'Cant. '+q)
     c.save()
-    (ROOT / 'plano_tecnico_domus.pdf').write_bytes(out.read_bytes())
+    HARDWARE_DIR.mkdir(parents=True, exist_ok=True)
+    (HARDWARE_DIR / 'plano_tecnico_domus.pdf').write_bytes(out.read_bytes())
     return out
 
 
@@ -915,11 +918,12 @@ def validate_model(parts: list[Part]) -> dict:
         "cotas_clave": checks,
         "resultado": "OK" if bounds_ok and all(c["ok"] for c in checks) else "REVISAR",
     }
-    (ROOT / "verificacion_geometria_v4.json").write_text(
+    HARDWARE_DIR.mkdir(parents=True, exist_ok=True)
+    (HARDWARE_DIR / "verificacion_geometria_v4.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     if report["resultado"] != "OK":
-        raise ValueError("La geometría no coincide con las cotas clave; revisar verificacion_geometria_v4.json")
+        raise ValueError("La geometría no coincide con las cotas clave; revisar hardware/verificacion_geometria_v4.json")
     return report
 
 

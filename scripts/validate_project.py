@@ -136,13 +136,46 @@ def validate_casa_candidato() -> list[str]:
     if '"FINAL"' in source:
         errors.append("Candidato: ningún binario puede llamarse FINAL (F1-F7)")
     for token in (
-        "constexpr bool DRIVER_MOTORES_LISTO = false;",
+        "#define DOMUS_DRIVER_VALIDADO 0",
+        "BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO",
+        "DOMUS_DRIVER_VALIDADO == 1",
         "constexpr uint8_t IR_TOTAL_TECLAS = 21;",
         "constexpr bool IR_CANDIDATO_HABILITADO = false;",
         "constexpr bool AUDIO_CANDIDATO_HABILITADO = false;",
     ):
         if token not in header:
             errors.append(f"Candidato: falta {token!r} en domus_drivers.h")
+    return errors
+
+
+def validate_hardware_bundle() -> list[str]:
+    """El modelo 3D canónico debe conservar juntos OBJ y su MTL."""
+    errors: list[str] = []
+    hardware = ROOT / "hardware"
+    obj = hardware / "project_domus.obj"
+    mtl = hardware / "project_domus.mtl"
+    guide = ROOT / "GUIA_MONTAJE.md"
+    generator = ROOT / "generate_design.py"
+    for path in (obj, mtl, guide, generator):
+        if not path.is_file():
+            errors.append(f"Hardware: falta {path.relative_to(ROOT)}")
+    if errors:
+        return errors
+    if "mtllib project_domus.mtl" not in obj.read_text(encoding="utf-8", errors="replace"):
+        errors.append("Hardware: project_domus.obj no enlaza project_domus.mtl")
+    guide_text = guide.read_text(encoding="utf-8")
+    for token in ("hardware/project_domus.obj", "hardware/project_domus.mtl"):
+        if token not in guide_text:
+            errors.append(f"Hardware: GUIA_MONTAJE.md no referencia {token}")
+    generator_text = generator.read_text(encoding="utf-8")
+    for token in (
+        'HARDWARE_DIR / "project_domus.obj"',
+        'HARDWARE_DIR / "project_domus.mtl"',
+        "HARDWARE_DIR / 'plano_tecnico_domus.pdf'",
+        'HARDWARE_DIR / "verificacion_geometria_v4.json"',
+    ):
+        if token not in generator_text:
+            errors.append(f"Hardware: generador no usa ruta canónica {token}")
     return errors
 
 
@@ -260,6 +293,7 @@ def main() -> int:
         + validate_current_decisions()
         + validate_bench_contract()
         + validate_casa_candidato()
+        + validate_hardware_bundle()
         + validate_firmware_wiring_contract()
         + validate_visualization()
     )

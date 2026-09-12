@@ -1637,21 +1637,15 @@ void revisarControlesFisicos() {
     if (!paroEmergenciaActivo) activarParoEmergencia("PARO_FISICO");
   }
 
-  bool botonDemo = digitalRead(MAPA_CASA.demo);
-  if (botonDemo != ultimoBotonDemo && millis() - ultimoCambioBotonDemoMs >= 40UL) {
+  bool botonModo = digitalRead(MAPA_CASA.demo);
+  if (botonModo != ultimoBotonDemo && millis() - ultimoCambioBotonDemoMs >= 40UL) {
     ultimoCambioBotonDemoMs = millis();
-    ultimoBotonDemo = botonDemo;
-    if (botonDemo == LOW && !paroEmergenciaActivo) {
-      OrdenActuador orden = {
-        1, !estadoSalidas[1], ORIGEN_MANUAL, 1.0f, "BOTON_DEMO_LUZ_SALA"
-      };
-      ResultadoOrden resultado = ejecutarOrdenActuador(orden);
-      emitirEventoLocal(resultado.exito
-        ? String("ACK;BOTON_LUZ_SALA;") + (estadoSalidas[1] ? "1" : "0")
-        : String("NACK;BOTON_LUZ_SALA;") + resultado.motivo);
-      // Misma pulsacion y mismo antirebote: ademas de conmutar, avanza la
-      // vista de la pantalla final. La navegacion no usa pausas.
+    ultimoBotonDemo = botonModo;
+    if (botonModo == LOW && !paroEmergenciaActivo) {
+      // MODO es exclusivamente navegación del LCD. Las cargas solo cambian
+      // mediante sus órdenes dedicadas (Serial/IR futuro), nunca al navegar.
       pantallaFinal.siguiente();
+      emitirEventoLocal(String("ACK;MODO_LCD;") + pantallaFinal.indice());
     }
   }
 }
@@ -1911,7 +1905,6 @@ void setup() {
 
   detectarPantalla();
   pantallaFinal.begin(lcd);
-  refrescarPantallaFinal();
 
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);

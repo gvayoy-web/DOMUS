@@ -5,11 +5,10 @@
 // (nombre + notas de cableado futuro); no asignan GPIO ni mueven hardware.
 // Puerta F1 (validacion fisica: modulo identificado por foto + chip y tabla
 // medida): DRIVER_MOTORES_LISTO significa "backend seleccionado + F1 superada".
-// Hoy F1 no esta superada para ningun modulo, asi que en la practica el flag
-// es false porque el valor seguro predeterminado es NINGUNO. Seleccionar un
-// backend por bandera (-DDOMUS_DRIVER=1/2) sin haber superado F1 esta prohibido
-// por procedimiento; la bandera solo prepara la compilacion, no autoriza
-// cablear ni mover motores. No se adivina cual modulo llego: default NINGUNO.
+// Hoy F1 no esta superada para ningun modulo: DOMUS_DRIVER_VALIDADO vale 0.
+// Seleccionar un backend (-DDOMUS_DRIVER=1/2) solo prepara la compilacion;
+// no autoriza cablear ni mover motores. La habilitacion exige además compilar
+// con -DDOMUS_DRIVER_VALIDADO=1 después de identificar y medir el módulo.
 // El despachador de casa_inteligente_v4.ino no cambia: `driver_no_listo` se
 // revisa antes que `salida_no_instalada`.
 //
@@ -17,11 +16,15 @@
 //   -DDOMUS_DRIVER=0 -> NINGUNO (seguro, predeterminado)
 //   -DDOMUS_DRIVER=1 -> DRV8833 (preparado, inactivo hasta F1)
 //   -DDOMUS_DRIVER=2 -> MX1508  (preparado, inactivo hasta F1)
+//   -DDOMUS_DRIVER_VALIDADO=1 -> F1 acreditada físicamente (nunca por defecto)
 // Otro valor falla por static_assert.
 #include <stdint.h>
 
 #ifndef DOMUS_DRIVER
 #define DOMUS_DRIVER 0
+#endif
+#ifndef DOMUS_DRIVER_VALIDADO
+#define DOMUS_DRIVER_VALIDADO 0
 #endif
 
 // Backend de driver separado, seleccionable por bandera. NINGUNO es el valor
@@ -30,6 +33,8 @@ enum class BackendMotor : uint8_t { NINGUNO = 0, DRV8833 = 1, MX1508 = 2 };
 
 static_assert(DOMUS_DRIVER >= 0 && DOMUS_DRIVER <= 2,
               "DOMUS_DRIVER debe ser 0, 1 o 2");
+static_assert(DOMUS_DRIVER_VALIDADO == 0 || DOMUS_DRIVER_VALIDADO == 1,
+              "DOMUS_DRIVER_VALIDADO debe ser 0 o 1");
 
 constexpr BackendMotor BACKEND_MOTOR_SELECCIONADO =
     DOMUS_DRIVER == 1 ? BackendMotor::DRV8833 :
@@ -42,14 +47,11 @@ constexpr const char* nombreBackendMotor(BackendMotor b) {
 }
 
 // --- Driver de motores (puerta F1) ---
-// Deriva del backend: listo solo si hay backend seleccionado. Equivale a
-// (BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO); la rama del valor
-// seguro predeterminado se escribe como false explicito para auditoria.
-#if DOMUS_DRIVER == 0
-constexpr bool DRIVER_MOTORES_LISTO = false;
-#else
-constexpr bool DRIVER_MOTORES_LISTO = (BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO);
-#endif
+// Seleccionar el backend NO acredita F1. La segunda bandera solo se cambia
+// después de identificar físicamente el chip y medir su tabla de verdad.
+constexpr bool DRIVER_MOTORES_LISTO =
+    BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO &&
+    DOMUS_DRIVER_VALIDADO == 1;
 // Orden que el driver confirmado ejecutará. Declaración del contrato;
 // la definición vive en el driver de la placa identificada, no aquí.
 struct OrdenMotorDriver {

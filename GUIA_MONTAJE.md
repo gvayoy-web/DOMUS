@@ -58,8 +58,9 @@ deban fabricar. Solo deben marcarse suavemente a lápiz.
 - `hardware/plano_tecnico_domus.pdf`: juego de planos para el equipo de armado.
 - `lista_corte.csv`: medidas de las piezas estructurales.
 - `modelo_3d_interactivo.html`: visor offline con cotas y reservas.
-- `project_domus.obj` y `hardware/project_domus.mtl`: modelo editable.
+- `hardware/project_domus.obj` y `hardware/project_domus.mtl`: modelo editable; deben permanecer juntos.
 - `hardware/verificacion_geometria_v4.json`: validación automática de la geometría.
 
 Todas las cotas, renders, el OBJ, el CSV de geometría y el visor se regeneran
-desde `generate_design.py`. No deben modificarse por separado.
+desde `generate_design.py`, que escribe esos artefactos directamente en
+`hardware/`. No deben modificarse por separado.

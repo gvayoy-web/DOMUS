@@ -68,7 +68,9 @@ class CasaCandidatoTests(unittest.TestCase):
         self.assertNotIn('"FINAL"', self.source)
 
     def test_driver_ir_audio_preparados_pero_deshabilitados(self):
-        self.assertIn("constexpr bool DRIVER_MOTORES_LISTO = false;", self.drivers)
+        self.assertIn("#define DOMUS_DRIVER_VALIDADO 0", self.drivers)
+        self.assertIn("BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO", self.drivers)
+        self.assertIn("DOMUS_DRIVER_VALIDADO == 1", self.drivers)
         self.assertIn("struct OrdenMotorDriver", self.drivers)
         self.assertIn("constexpr uint8_t IR_TOTAL_TECLAS = 21;", self.drivers)
         self.assertIn("constexpr bool IR_CANDIDATO_HABILITADO = false;", self.drivers)
