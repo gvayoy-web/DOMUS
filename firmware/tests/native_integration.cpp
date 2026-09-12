@@ -26,6 +26,14 @@ bool estadoSalidas[5]={}, SALIDA_ACTIVA_EN_BAJO[5]={true,true,true,true,true};
 int fallosVerificacionSalida[5]={};
 const char *NOMBRES_SALIDAS[5]={"bomba","sala","cuarto","ventilador","invernadero"};
 PropietarioActuador propietarioSalidas[5]={};
+// Fake del mapa central (nota 55): mismos valores que MAPA_CASA en producción.
+struct MapaPinesCasa {
+  int suelo, nivel, ldr, bomba, sala, cuarto, vent, inv;
+  int pir, paro, micOff, demo, scl, dht, sda;
+  int salidas[5];
+};
+constexpr MapaPinesCasa MAPA_CASA = {
+  15, 16, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 13, 14, 17, {4, 5, 6, 7, 8}};
 // Fakes de perfil (nota 54): máscara con TODAS las etapas + driver validado,
 // para probar la lógica de despacho/seguridad/timeout con actuadores presentes.
 // El rechazo sin etapa y sin driver lo cubren test_casa_candidato.py, el

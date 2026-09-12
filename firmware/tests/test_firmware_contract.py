@@ -125,8 +125,8 @@ class FirmwareContractTests(unittest.TestCase):
         self.assertIn("LUCES_AUTO_BLOQUEADAS_SENSOR", self.source)
 
     def test_mic_off_and_physical_backup_are_present(self):
-        self.assertIn("PIN_MIC_OFF", self.source)
-        self.assertIn("PIN_BOTON_DEMO", self.source)
+        self.assertIn("MAPA_CASA.micOff", self.source)
+        self.assertIn("MAPA_CASA.demo", self.source)
         self.assertIn("revisarControlesFisicos();", self.source)
 
     def test_micro_sd_has_real_read_write_self_test(self):
@@ -153,17 +153,40 @@ class FirmwareContractTests(unittest.TestCase):
             "constexpr int PINES_RESERVADOS_DOMUS[] = {", 1
         )[1].split("};", 1)[0]
         for symbol in (
-            "MIC_WS_PIN",
-            "MIC_SD_PIN",
-            "MIC_SCK_PIN",
-            "MP3_RX_PIN",
-            "MP3_TX_PIN",
             "SD_SCK_PIN",
             "SD_MISO_PIN",
             "SD_MOSI_PIN",
             "SD_CS_PIN",
         ):
             self.assertIn(symbol, registry)
+
+    def test_future_buses_stay_unassigned(self):
+        import re
+        for symbol in ("MIC_WS_PIN", "MIC_SD_PIN", "MIC_SCK_PIN",
+                       "MP3_RX_PIN", "MP3_TX_PIN"):
+            match = re.search(rf"^#define\s+{symbol}\s+(-1)\b", self.source, re.M)
+            self.assertIsNotNone(match, symbol)
+        registry = self.source.split(
+            "constexpr int PINES_RESERVADOS_DOMUS[] = {", 1
+        )[1].split("};", 1)[0]
+        self.assertNotIn("MIC_WS_PIN", registry)
+        self.assertNotIn("MP3_RX_PIN", registry)
+
+    def test_map_is_the_single_pin_source(self):
+        import re
+        for token in (
+            "PIN_HUMEDAD", "PIN_NIVEL_AGUA", "PIN_LDR", "PIN_PIR",
+            "PIN_PARO_EMERGENCIA", "PIN_MIC_OFF", "PIN_BOTON_DEMO",
+            "PIN_DHT11", "I2C_SDA_PIN", "I2C_SCL_PIN", "PINES_SALIDAS",
+            "PIN_SALIDA_BOMBA",
+        ):
+            self.assertIsNone(
+                re.search(rf"^#define\s+{token}\b", self.source, re.M), token)
+        mapa = self.source.split("constexpr MapaPinesCasa MAPA_CASA = {", 1)[1].split("};", 1)[0]
+        for literal in ("15", "16", "17", "18"):
+            self.assertIn(literal, mapa)
+        self.assertIn("MAPA_CASA.sda", self.source)
+        self.assertIn("MAPA_CASA.salidas[indice]", self.source)
 
     def test_safety_threshold_order_is_checked_at_compile_time(self):
         for expression in (
@@ -175,14 +198,14 @@ class FirmwareContractTests(unittest.TestCase):
             self.assertIn(f"static_assert({expression}", self.source)
 
     def test_outputs_are_preloaded_off_before_output_mode(self):
-        preload = "digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));"
-        output = "pinMode(PINES_SALIDAS[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);"
+        preload = "digitalWrite(MAPA_CASA.salidas[i], nivelSalida(i, false));"
+        output = "pinMode(MAPA_CASA.salidas[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);"
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))
 
     def test_mic_off_rechecked_at_dispatch_and_cancels_window(self):
         dispatch = self.source.split("ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {", 1)[1].split("\n}", 1)[0]
-        self.assertIn("!micHabilitado || digitalRead(PIN_MIC_OFF) == LOW", dispatch)
+        self.assertIn("!micHabilitado || digitalRead(MAPA_CASA.micOff) == LOW", dispatch)
         self.assertIn('return {false, false, "mic_off"}', dispatch)
         self.assertIn("if (!micHabilitado) ventanaEscuchaActiva = false;", self.source)
 

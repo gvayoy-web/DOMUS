@@ -50,6 +50,7 @@ Ola 2 (cierre: casa candidata, planos canónicos, sim del esqueleto): [[51 - Ola
 Ola 3 (migración SalidaDomus + diagrama final con TBD): [[52 - Ola 3 migracion SalidaDomus y diagrama final]].
 Definición formal de firmware final y puertas F1-F7: [[53 - Definicion formal de firmware final y puertas]].
 Plan de orden del repositorio (inventario + antes→después): [[54 - Plan de orden del repositorio]].
+Corrección auditoría 5 (mapa 15/16/17/18, fuente real, driver primero): [[55 - Correccion auditoria 5 mapa fuente driver]].
 Plano alfa actual sin control IR y antes de recibir el driver: [[45 - Diagrama ASCII alfa sin control IR]].
 Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 

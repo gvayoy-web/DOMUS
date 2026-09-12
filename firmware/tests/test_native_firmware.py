@@ -66,7 +66,10 @@ class NativeFirmwareTests(unittest.TestCase):
 #include <deque>
 #include <cstdint>
 using String = std::string;
-constexpr int LOW=0, HIGH=1, TOTAL_SALIDAS=5, PIN_NIVEL_AGUA=2;
+constexpr int LOW=0, HIGH=1, TOTAL_SALIDAS=5, PIN_NIVEL_AGUA=16;
+// Fake del mapa central (nota 55): leerNivelAgua() extraída lo usa.
+struct MapaPinesCasa { int suelo, nivel, ldr; };
+constexpr MapaPinesCasa MAPA_CASA = {15, 16, 3};
 struct FakeSerial {
   std::deque<char> bytes;
   int available() { return bytes.size(); }

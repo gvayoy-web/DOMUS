@@ -1,16 +1,28 @@
-"""Pruebas específicas del candidato a producto (notas 53/54, jefatura).
+"""Pruebas específicas del candidato a producto (notas 53/54/55, jefatura).
 
-casa_inteligente_v4 como único candidato: perfiles claros, mapa GPIO central,
-máscara física por perfil, driver/IR/audio preparados pero deshabilitados y
-nombre diagnosticado sin la palabra FINAL. No toca el esqueleto (congelado).
+casa_inteligente_v4 como único candidato: perfiles claros, mapa GPIO central
+como fuente real, máscara física por perfil, driver/IR/audio preparados pero
+deshabilitados y nombre diagnosticado sin la palabra FINAL. No toca el
+esqueleto (congelado).
 """
+import shutil
+import tempfile
 import unittest
 from pathlib import Path
+from test_native_firmware import function, run_host_process
 
 
 ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
 DRIVERS = CANDIDATE.with_name("domus_drivers.h")
+TEMPLATE = Path(__file__).with_name("native_integration.cpp")
+SIGNATURES = [
+    "int nivelSalida(int indice, bool encendida)",
+    "bool verificarNivelLogicoSalida(int indice, bool estadoEsperado)",
+    "bool solicitarSalida(int indice, bool anunciarPorVoz = true)",
+    "bool desactivarSalida(int indice, bool anunciarPorVoz = true)",
+    "ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden)",
+]
 
 
 class CasaCandidatoTests(unittest.TestCase):
@@ -27,25 +39,23 @@ class CasaCandidatoTests(unittest.TestCase):
         self.assertIn("DOMUS_PERFIL_CASA debe ser 0, 1 o 2", self.source)
         self.assertIn("constexpr PerfilCasa PERFIL_CASA =", self.source)
 
-    def test_mapa_central_espeja_los_defines(self):
-        self.assertIn("struct MapaPinesCasa", self.source)
-        self.assertIn("constexpr MapaPinesCasa MAPA_CASA = {", self.source)
-        for simbolo in (
-            "PIN_HUMEDAD", "PIN_NIVEL_AGUA", "PIN_LDR",
-            "PIN_SALIDA_BOMBA", "PIN_SALIDA_LUZ_SALA", "PIN_SALIDA_LUZ_CUARTO",
-            "PIN_SALIDA_VENTILADOR", "PIN_SALIDA_LUZ_INVERNADERO",
-            "PIN_PIR", "PIN_PARO_EMERGENCIA", "PIN_MIC_OFF", "PIN_BOTON_DEMO",
-            "I2C_SCL_PIN", "PIN_DHT11", "I2C_SDA_PIN",
-        ):
-            self.assertIn(simbolo, self.source.split("constexpr MapaPinesCasa MAPA_CASA")[1].split("};", 1)[0])
-        self.assertIn("MAPA_CASA.bomba == 4", self.source)
-        self.assertIn("MAPA_CASA.sda == 21", self.source)
+    def test_mapa_central_es_fuente_unica(self):
+        # Nota 55: literales autorizados una sola vez, en el struct.
+        bloque = self.source.split("constexpr MapaPinesCasa MAPA_CASA = {", 1)[1].split("};", 1)[0]
+        for literal in ("15", "16", "17", "18"):
+            self.assertIn(literal, bloque)
+        for campo in ("suelo", "nivel", "ldr", "bomba", "sala", "cuarto",
+                      "vent", "inv", "pir", "paro", "micOff", "demo",
+                      "scl", "dht", "sda", "salidas"):
+            self.assertIn(campo, self.source.split("struct MapaPinesCasa {", 1)[1].split("};", 1)[0])
+        self.assertIn("MAPA_CASA.sda", self.source)
+        self.assertIn("MAPA_CASA.salidas[indice]", self.source)
 
     def test_mascara_fisica_bloquea_sin_etapa_y_motores(self):
         self.assertIn("constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS]", self.source)
         self.assertIn('"salida_no_instalada"', self.source)
         self.assertIn('"driver_no_listo"', self.source)
-        self.assertIn("pinMode(PINES_SALIDAS[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);", self.source)
+        self.assertIn("pinMode(MAPA_CASA.salidas[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);", self.source)
 
     def test_diagnostico_reporta_perfil_sin_final(self):
         self.assertIn("PERFIL_CANDIDATO=", self.source)
@@ -65,6 +75,55 @@ class CasaCandidatoTests(unittest.TestCase):
         self.assertIn("constexpr bool AUDIO_CANDIDATO_HABILITADO = false;", self.drivers)
         self.assertIn('#include "domus_drivers.h"', self.source)
         self.assertIn("driverMotoresListo()", self.source)
+
+    def run_dispatch(self, mask, driver):
+        """Compila el despachador real con fakes dados y devuelve motivos impresos."""
+        compiler = shutil.which("g++") or shutil.which("clang++")
+        if not compiler:
+            self.skipTest("No host C++ compiler; dispatch runs on Ubuntu CI")
+        source = self.source
+        template = TEMPLATE.read_text(encoding="utf-8")
+        head, _ = template.split("// ACTUAL_FUNCTIONS", 1)
+        head = head.replace(
+            "constexpr bool SALIDA_FISICA_CASA[5]={true,true,true,true,true};",
+            f"constexpr bool SALIDA_FISICA_CASA[5]={{{mask}}};")
+        head = head.replace(
+            "inline bool driverMotoresListo() { return true; }",
+            f"inline bool driverMotoresListo() {{ return {str(driver).lower()}; }}")
+        injected = "\n".join(function(source, s) for s in SIGNATURES)
+        body = r'''
+int main() {
+  gpio[PIN_PARO_EMERGENCIA]=HIGH; gpio[PIN_MIC_OFF]=HIGH;
+  agua=1000; sensorValido=true; micHabilitado=true;
+  heap=100000; calibracion.nivelMinimo=600;
+  ResultadoOrden bomba = ejecutarOrdenActuador({0,true,ORIGEN_MANUAL,1,"bomba"});
+  ResultadoOrden sala = ejecutarOrdenActuador({1,true,ORIGEN_MANUAL,1,"sala"});
+  std::puts(bomba.exito ? "BOMBA_OK" : bomba.motivo);
+  std::puts(sala.exito ? "SALA_OK" : sala.motivo);
+  return 0;
+}
+'''
+        with tempfile.TemporaryDirectory(prefix="domus-dispatch-") as directory:
+            cpp = Path(directory) / "test.cpp"
+            cpp.write_text(head + injected + body, encoding="utf-8")
+            binary = Path(directory) / "test.exe"
+            result = run_host_process([compiler, "-std=c++17", "-Wall", "-Wextra",
+                                       "-I", str(CANDIDATE.parent),
+                                       str(cpp), "-o", str(binary)], timeout=60)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            result = run_host_process([str(binary)], timeout=10, allow_skip=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout.decode().split()
+
+    def test_despacho_distinque_driver_de_etapa(self):
+        # Máscara presente + driver ausente: el motor cae por driver, la luz pasa.
+        motivos = self.run_dispatch("true,true,true,true,true", False)
+        self.assertEqual(motivos[0], "driver_no_listo")
+        self.assertEqual(motivos[1], "SALA_OK")
+        # Máscara ausente + driver listo: el motor cae por etapa del perfil.
+        motivos = self.run_dispatch("false,false,false,false,false", True)
+        self.assertEqual(motivos[0], "salida_no_instalada")
+        self.assertEqual(motivos[1], "salida_no_instalada")
 
 
 if __name__ == "__main__":

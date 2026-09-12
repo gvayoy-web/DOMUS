@@ -15,7 +15,7 @@ FIRMWARE_TESTS = ROOT / "firmware" / "tests"
 PLAN_TESTS = ROOT / "planos" / "tests"
 FIRMWARE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
 BENCH_CONFIG = ROOT / "firmware" / "domus_esqueleto" / "domus_config.h"
-MASTER_WIRING = VAULT / "18 - Manual maestro de conexiones pin por pin.md"
+MASTER_WIRING = VAULT / "47 - Guia visual principiante conexiones alfa.md"
 CURRENT_DECISION = VAULT / "36 - Configuracion final 1 mas 4 reles y planos v4.md"
 CURRENT_BENCH_GUIDE = VAULT / "37 - Ronda de pruebas sin compras.md"
 CURRENT_BUILD_GUIDE = ROOT / "planos" / "new" / "GUIA_MONTAJE_ULTIMATE.md"
@@ -23,23 +23,12 @@ VISUAL_SOURCE = ROOT / "visualizaciones" / "sistema-domus-fragment.html"
 VISUAL_STANDALONE = ROOT / "visualizaciones" / "sistema-domus.html"
 WIKILINK = re.compile(r"\[\[([^\]|#]+)")
 
-EXPECTED_FIRMWARE_PINS = {
-    "PIN_HUMEDAD": 1,
-    "PIN_NIVEL_AGUA": 2,
-    "PIN_LDR": 3,
-    "PIN_SALIDA_BOMBA": 4,
-    "PIN_SALIDA_LUZ_SALA": 5,
-    "PIN_SALIDA_LUZ_CUARTO": 6,
-    "PIN_SALIDA_VENTILADOR": 7,
-    "PIN_SALIDA_LUZ_INVERNADERO": 8,
-    "PIN_PIR": 9,
-    "PIN_PARO_EMERGENCIA": 10,
-    "PIN_MIC_OFF": 11,
-    "PIN_BOTON_DEMO": 12,
-    "I2C_SCL_PIN": 13,
-    "PIN_DHT11": 14,
-    "I2C_SDA_PIN": 21,
+EXPECTED_MAPA_PINS = {    "suelo": 15, "nivel": 16, "ldr": 3,
+    "bomba": 4, "sala": 5, "cuarto": 6, "vent": 7, "inv": 8,
+    "pir": 9, "paro": 10, "micOff": 11, "demo": 18,
+    "scl": 13, "dht": 14, "sda": 17,
 }
+TOTAL_SALIDAS_FIRMWARE = 5
 
 
 def run_tests(directory: Path) -> bool:
@@ -197,43 +186,45 @@ def validate_bench_contract() -> list[str]:
 
 
 def validate_firmware_wiring_contract() -> list[str]:
-    """Evita que firmware y manual de cableado diverjan silenciosamente."""
+    """Evita que firmware y guía de cableado diverjan silenciosamente."""
     errors: list[str] = []
     firmware = FIRMWARE.read_text(encoding="utf-8")
     manual = MASTER_WIRING.read_text(encoding="utf-8")
 
-    for symbol, expected_pin in EXPECTED_FIRMWARE_PINS.items():
-        match = re.search(
-            rf"^#define\s+{re.escape(symbol)}\s+(\d+)\b",
-            firmware,
-            flags=re.MULTILINE,
-        )
-        if not match:
-            errors.append(f"Firmware: no se encontró {symbol}")
-            continue
-        actual_pin = int(match.group(1))
-        if actual_pin != expected_pin:
+    block = firmware.split("constexpr MapaPinesCasa MAPA_CASA = {", 1)
+    if len(block) != 2:
+        return ["Firmware: no se encontró MAPA_CASA como fuente única"]
+    numbers = [int(n) for n in re.findall(r"\b(\d+)\b", block[1].split("};", 1)[0])]
+    fields = list(EXPECTED_MAPA_PINS)
+    if len(numbers) < len(fields) + TOTAL_SALIDAS_FIRMWARE:
+        errors.append("Firmware: MAPA_CASA incompleto frente a EXPECTED_MAPA_PINS")
+    else:
+        for campo, esperado in EXPECTED_MAPA_PINS.items():
+            actual = numbers[fields.index(campo)]
+            if actual != esperado:
+                errors.append(
+                    f"Firmware: MAPA_CASA.{campo}=GPIO{actual}; contrato esperado GPIO{esperado}"
+                )
+        salidas = numbers[len(fields):len(fields) + TOTAL_SALIDAS_FIRMWARE]
+        if salidas != [4, 5, 6, 7, 8]:
+            errors.append(f"Firmware: MAPA_CASA.salidas={salidas}; esperado [4, 5, 6, 7, 8]")
+    for campo, esperado in EXPECTED_MAPA_PINS.items():
+        if campo in ("bomba", "vent"):
+            continue  # Motores fuera de la guía alfa (nota 49, prueba separada)
+        if f"GPIO{esperado}" not in manual:
             errors.append(
-                f"Firmware: {symbol}=GPIO{actual_pin}; contrato esperado GPIO{expected_pin}"
-            )
-        if f"`GPIO{actual_pin}`" not in manual and f"GPIO{actual_pin}" not in manual:
-            errors.append(
-                f"Manual maestro: no documenta {symbol} en GPIO{actual_pin}"
+                f"Guía alfa: no documenta {campo} en GPIO{esperado}"
             )
 
     required_manual_terms = (
-        "LCD1602 con backpack I2C de cuatro pines",
-        "TP4056 y una celda 1S",
-        "INMP441, seis pines",
-        "MAX98357A y altavoz",
-        "Lector microSD SPI",
-        "WS2812 y adaptación de nivel",
-        "No unir directamente fuente USB,",
-        "no conectar a GND",
+        "GPIO12 reservado",
+        "3V3",
+        "GND",
+        "10 k",
     )
     for term in required_manual_terms:
         if term not in manual:
-            errors.append(f"Manual maestro: falta requisito {term!r}")
+            errors.append(f"Guía alfa: falta requisito {term!r}")
     return errors
 
 

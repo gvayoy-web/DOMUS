@@ -81,7 +81,7 @@
 */
 
 // MIGRACIÓN FASE E PASO 1 (nota 46, nota 52): la abstracción de relés se
-// sustituye por SalidaDomus (TOTAL_SALIDAS, PINES_SALIDAS, estadoSalidas,
+// sustituye por SalidaDomus (TOTAL_SALIDAS, MAPA_CASA.salidas, estadoSalidas,
 // propietarioSalidas, solicitar/desactivarSalida, verificarNivelLogicoSalida).
 // Renombre mecánico, cero cambios de comportamiento: reglas de seguridad,
 // histéresis, propiedad manual y protocolo quedan intactos. Pasos pendientes:
@@ -136,40 +136,33 @@
 // Los sensores analógicos permanecen en ADC1 para reducir conflictos.
 
 // --- Bus I2C compartido (pantalla, sea cual sea) ---
-#define I2C_SDA_PIN     21   // GPIO21
-#define I2C_SCL_PIN     13   // GPIO13 provisional: confirmar que está expuesto antes de cablear
 // Direcciones esperadas (se detectan automáticamente, no hace falta tocarlas):
 #define DIR_LCD_1       0x27
 #define DIR_LCD_2       0x3F
 
-// --- Micrófono I2S (INMP441) ---
-#define MIC_WS_PIN      15   // WS  (Word Select)
-#define MIC_SD_PIN      16   // SD  (Serial Data / audio)
-#define MIC_SCK_PIN     17   // SCK (bit clock)
+// --- Micrófono I2S (INMP441, FUTURO sin pines asignados) ---
+// SIN ASIGNAR en el candidato: el mapa autorizado 15/16/17 ya los usa para
+// suelo/nivel/SDA (nota 46/47/55). Se asignan con F4, nunca antes.
+#define MIC_WS_PIN      -1
+#define MIC_SD_PIN      -1
+#define MIC_SCK_PIN     -1
 #define TTS_BCLK_PIN    40   // provisional: confirmar exposición en placa
 #define TTS_WS_PIN      41
 #define TTS_DOUT_PIN    42
 // Fijos en el módulo (no son GPIO configurables):
 //   VDD -> 3.3V (¡JAMÁS 5V, se quema el chip!)   GND -> GND   L/R -> GND
 
-// --- Sensores analógicos (ADC1) ---
-#define PIN_HUMEDAD     1    // GPIO1 - ADC1_CH0 (humedad de TIERRA, sensor resistivo)
-#define PIN_NIVEL_AGUA  2    // GPIO2 - ADC1_CH1 (salida analogica del sensor de nivel)
-#define PIN_LDR         3    // GPIO3 - ADC1_CH2 (fotoresistor / luz ambiental)
-#define PIN_PIR         9    // GPIO9 - salida digital del sensor de presencia
-#define PIN_PARO_EMERGENCIA 10 // pulsador a GND, INPUT_PULLUP
-#define PIN_MIC_OFF          11 // switch a GND: LOW = microfono bloqueado
-#define PIN_BOTON_DEMO       12 // pulsador a GND: alterna la luz de sala
+// --- Sensores y controles: VALORES SOLO EN MAPA_CASA (abajo) ---
+// Costado accesible autorizado (nota 46/47/55). No existen #define de pines
+// del candidato fuera de MAPA_CASA: cualquier GPIO nuevo entra por el struct.
 // RECORDATORIO FÍSICO (LDR): el fotoresistor va en divisor de voltaje con
-// una resistencia fija (típicamente 10k) entre 3.3V y GND; PIN_LDR lee el
+// una resistencia fija (típicamente 10k) entre 3.3V y GND; MAPA_CASA.ldr lee el
 // punto medio del divisor, nunca el LDR solo contra 3.3V.
 
 // --- Sensor de temperatura/humedad AMBIENTAL (DHT11) ---
-// Distinto del sensor de humedad de TIERRA (PIN_HUMEDAD): el DHT11 mide el
+// Distinto del sensor de humedad de TIERRA (suelo): el DHT11 mide el
 // aire alrededor de la maceta/casa, no la tierra dentro de ella.
-#define PIN_DHT11       14   // GPIO14 - pin de datos del DHT11
 #define TIPO_DHT        DHT11
-DHT dht(PIN_DHT11, TIPO_DHT);
 
 // --- Cinco salidas con su etapa física según perfil (nota 53/54) ---
 // Bomba y ventilador exigen driver confirmado (F1) y permanecen bloqueados en
@@ -178,16 +171,7 @@ DHT dht(PIN_DHT11, TIPO_DHT);
 // Si se instala una etapa distinta, calibrar esta tabla y el perfil.
 #define TOTAL_SALIDAS 5
 
-#define PIN_SALIDA_BOMBA           4
-#define PIN_SALIDA_LUZ_SALA        5
-#define PIN_SALIDA_LUZ_CUARTO      6
-#define PIN_SALIDA_VENTILADOR      7
-#define PIN_SALIDA_LUZ_INVERNADERO 8
-const int PINES_SALIDAS[TOTAL_SALIDAS] = {
-  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO, PIN_SALIDA_VENTILADOR,
-  PIN_SALIDA_LUZ_INVERNADERO
-};
-// Mantener 0 para el cableado original de relés. Seleccionar 1 únicamente
+// Mantener 0 para el cableado original. Seleccionar 1 únicamente
 // después de montar la alternativa descrita en la nota 21 de Obsidian.
 #ifndef DOMUS_SALIDAS_ECONOMICAS
 #define DOMUS_SALIDAS_ECONOMICAS 0
@@ -222,23 +206,26 @@ constexpr const char* nombrePerfilCasa(PerfilCasa p) {
          p == PerfilCasa::MOTOR_PENDIENTE_DRIVER ? "CANDIDATO_MOTOR_PENDIENTE_DRIVER" :
          "CANDIDATO_BANCO_SIN_ACTUADORES";
 }
-// Mapa GPIO central: cada #define de pines de arriba se verifica aquí, que es
-// la única fuente que el resto del firmware consulta para validar perfiles.
+// Mapa GPIO central: ÚNICA fuente de pines del candidato (nota 55).
+// Costado accesible autorizado (nota 46/47): suelo 15, nivel 16, SDA 17,
+// demo/modo 18. Todo el firmware lee MAPA_CASA; no existen #define de pines.
 struct MapaPinesCasa {
   int suelo, nivel, ldr;
   int bomba, sala, cuarto, vent, inv;
   int pir, paro, micOff, demo, scl, dht, sda;
+  int salidas[TOTAL_SALIDAS];
 };
 constexpr MapaPinesCasa MAPA_CASA = {
-  PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR,
-  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO,
-  PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO,
-  PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
-  I2C_SCL_PIN, PIN_DHT11, I2C_SDA_PIN
+  15, 16, 3,
+  4, 5, 6, 7, 8,
+  9, 10, 11, 18, 13, 14, 17,
+  {4, 5, 6, 7, 8}
 };
+DHT dht(MAPA_CASA.dht, TIPO_DHT);
 static_assert(MAPA_CASA.bomba == 4 && MAPA_CASA.sala == 5 && MAPA_CASA.cuarto == 6 &&
               MAPA_CASA.vent == 7 && MAPA_CASA.inv == 8, "Mapa de salidas del candidato");
-static_assert(MAPA_CASA.sda == 21 && MAPA_CASA.scl == 13, "Bus I2C del candidato");
+static_assert(MAPA_CASA.suelo == 15 && MAPA_CASA.nivel == 16 && MAPA_CASA.sda == 17 &&
+              MAPA_CASA.demo == 18 && MAPA_CASA.scl == 13, "Costado accesible autorizado");
 // Habilitación física derivada del perfil. Los motores quedan bloqueados en
 // los tres perfiles vigentes (ver DRIVER_MOTORES_LISTO en domus_drivers.h).
 constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {
@@ -249,10 +236,11 @@ constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {
   PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES
 };
 
-// --- Módulo MP3 (DFPlayer / TF-16P) - respuestas habladas, OPCIONAL ---
-// Se conecta por UART. Usamos Serial1 del ESP32-S3 en pines libres.
-#define MP3_RX_PIN      18   // hacia TX del módulo MP3
-#define MP3_TX_PIN      19   // hacia RX del módulo MP3
+// --- Módulo MP3 (DFPlayer / TF-16P) - SIN ASIGNAR (FINAL-ONLY) ---
+// Sin pines en el candidato: GPIO18 es el botón demo/modo del costado
+// autorizado. Se asigna UART con F5, nunca antes.
+#define MP3_RX_PIN      -1
+#define MP3_TX_PIN      -1
 #define MP3_HABILITADO  false // legado opcional; Jarvis final usará PicoTTS + MAX98357A
 // Pistas sugeridas a grabar en la microSD del módulo (archivos 0001.mp3, etc):
 //   0001.mp3 = "Regando ahora"      0002.mp3 = "Riego detenido"
@@ -354,12 +342,11 @@ constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {
 // pines activos y los reservados para módulos opcionales para impedir que una
 // ampliación futura reutilice silenciosamente una señal ya ocupada.
 constexpr int PINES_RESERVADOS_DOMUS[] = {
-  PIN_HUMEDAD, PIN_NIVEL_AGUA, PIN_LDR,
-  PIN_SALIDA_BOMBA, PIN_SALIDA_LUZ_SALA, PIN_SALIDA_LUZ_CUARTO,
-  PIN_SALIDA_VENTILADOR, PIN_SALIDA_LUZ_INVERNADERO,
-  PIN_PIR, PIN_PARO_EMERGENCIA, PIN_MIC_OFF, PIN_BOTON_DEMO,
-  I2C_SCL_PIN, PIN_DHT11, MIC_WS_PIN, MIC_SD_PIN, MIC_SCK_PIN,
-  MP3_RX_PIN, MP3_TX_PIN, I2C_SDA_PIN,
+  MAPA_CASA.suelo, MAPA_CASA.nivel, MAPA_CASA.ldr,
+  MAPA_CASA.bomba, MAPA_CASA.sala, MAPA_CASA.cuarto,
+  MAPA_CASA.vent, MAPA_CASA.inv,
+  MAPA_CASA.pir, MAPA_CASA.paro, MAPA_CASA.micOff, MAPA_CASA.demo,
+  MAPA_CASA.scl, MAPA_CASA.dht, MAPA_CASA.sda,
   SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN,
   TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN
 };
@@ -679,7 +666,7 @@ bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd) {
 }
 
 void detectarPantalla() {
-  if (!Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN)) {
+  if (!Wire.begin(MAPA_CASA.sda, MAPA_CASA.scl)) {
     registrarError("I2C", "No se pudo iniciar; sin pantalla");
     return;
   }
@@ -825,7 +812,7 @@ int nivelSalida(int indice, bool encendida) {
 
 bool verificarNivelLogicoSalida(int indice, bool estadoEsperado) {
   int nivelEsperado = nivelSalida(indice, estadoEsperado);
-  int nivelReal = digitalRead(PINES_SALIDAS[indice]);
+  int nivelReal = digitalRead(MAPA_CASA.salidas[indice]);
   return nivelReal == nivelEsperado;
 }
 
@@ -839,7 +826,7 @@ bool solicitarSalida(int indice, bool anunciarPorVoz = true) {
   }
   if (estadoSalidas[indice]) return true; // ya encendido, se considera éxito idempotente
 
-  digitalWrite(PINES_SALIDAS[indice], nivelSalida(indice, true));
+  digitalWrite(MAPA_CASA.salidas[indice], nivelSalida(indice, true));
   delay(5); // pequeña espera para que el relé mecánico termine de conmutar antes de releer
 
   if (!verificarNivelLogicoSalida(indice, true)) {
@@ -870,7 +857,7 @@ bool desactivarSalida(int indice, bool anunciarPorVoz = true) {
   }
   if (!estadoSalidas[indice]) return true; // ya apagado, éxito idempotente
 
-  digitalWrite(PINES_SALIDAS[indice], nivelSalida(indice, false));
+  digitalWrite(MAPA_CASA.salidas[indice], nivelSalida(indice, false));
   delay(5);
 
   if (!verificarNivelLogicoSalida(indice, false)) {
@@ -923,7 +910,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
 
   // Revalidar al ejecutar: MIC OFF también invalida resultados ya calculados.
   if (orden.origen == ORIGEN_VOZ &&
-      (!micHabilitado || digitalRead(PIN_MIC_OFF) == LOW)) {
+      (!micHabilitado || digitalRead(MAPA_CASA.micOff) == LOW)) {
     return {false, false, "mic_off"};
   }
 
@@ -946,16 +933,19 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     return {false, false, "modo_seguro"};
   }
 
-  // Habilitación física del perfil: ninguna fuente enciende una salida sin
-  // etapa instalada (nota 53/54). Los motores exigen además driver (F1).
-  if (orden.encender && !SALIDA_FISICA_CASA[orden.indiceRele]) {
-    log("SEGURIDAD", "Encendido rechazado: salida sin etapa en este perfil");
-    return {false, false, "salida_no_instalada"};
-  }
+  // Motores primero por driver (F1) y después por etapa del perfil: el motivo
+  // reportado distingue "sin driver validado" de "sin etapa instalada".
   if (orden.encender && (orden.indiceRele == 0 || orden.indiceRele == 3) &&
       !driverMotoresListo()) {
     log("SEGURIDAD", "Encendido rechazado: driver de motores no validado (F1)");
     return {false, false, "driver_no_listo"};
+  }
+
+  // Habilitación física del perfil: ninguna fuente enciende una salida sin
+  // etapa instalada (nota 53/54/55).
+  if (orden.encender && !SALIDA_FISICA_CASA[orden.indiceRele]) {
+    log("SEGURIDAD", "Encendido rechazado: salida sin etapa en este perfil");
+    return {false, false, "salida_no_instalada"};
   }
 
   // El nivel del depósito es una interlock física: ninguna fuente puede
@@ -1051,7 +1041,7 @@ int convertirHumedadAPorcentaje(int lecturaCruda) {
 }
 
 bool leerHumedad(int &crudoSalida, int &pctSalida) {
-  int lectura = leerSensorPromediado(PIN_HUMEDAD);
+  int lectura = leerSensorPromediado(MAPA_CASA.suelo);
   if (lectura < HUMEDAD_MIN_VALIDA || lectura > HUMEDAD_MAX_VALIDA) {
     fallosConsecutivosHumedad++;
     if (fallosConsecutivosHumedad >= MAX_FALLOS_ANTES_DE_REGISTRAR) {
@@ -1069,7 +1059,7 @@ bool leerHumedad(int &crudoSalida, int &pctSalida) {
 }
 
 bool leerNivelAgua(int &valorSalida) {
-  int lectura = leerSensorPromediado(PIN_NIVEL_AGUA);
+  int lectura = leerSensorPromediado(MAPA_CASA.nivel);
   if (lectura < NIVEL_AGUA_MIN_VALIDO || lectura > NIVEL_AGUA_MAX_VALIDO) {
     muestrasNivelAguaValidasConsecutivas = 0;
     fallosConsecutivosNivelAgua++;
@@ -1104,7 +1094,7 @@ int convertirLdrAPorcentaje(int lecturaCruda) {
 }
 
 bool leerLuz(int &crudoSalida, int &pctSalida) {
-  int lectura = leerSensorPromediado(PIN_LDR);
+  int lectura = leerSensorPromediado(MAPA_CASA.ldr);
   if (lectura < LDR_MIN_VALIDO || lectura > LDR_MAX_VALIDO) {
     fallosConsecutivosLdr++;
     if (fallosConsecutivosLdr >= MAX_FALLOS_ANTES_DE_REGISTRAR) {
@@ -1214,7 +1204,7 @@ void verificarRiegoAutomatico() {
 
 // Misma filosofía que verificarRiegoAutomatico(): solo actúa si el estado
 // actual del relé fue decisión del propio modo automático, para no pisar
-// una decisión manual del usuario (índice 3 = Ventilador, ver PINES_SALIDAS).
+// una decisión manual del usuario (índice 3 = Ventilador, ver MAPA_CASA.salidas).
 unsigned long ultimaVerificacionVentilador = 0;
 
 void verificarVentiladorAutomatico() {
@@ -1256,7 +1246,7 @@ void verificarLucesAutomaticas() {
   if (millis() - ultimaVerificacionLuces < 500UL) return;
   ultimaVerificacionLuces = millis();
 
-  ultimaPresenciaValida = digitalRead(PIN_PIR) == HIGH;
+  ultimaPresenciaValida = digitalRead(MAPA_CASA.pir) == HIGH;
   if (ultimaPresenciaValida) ultimaPresenciaMs = millis();
 
   int ldrCrudo = 0, luzPct = 0;
@@ -1436,7 +1426,7 @@ bool recuperarModoSeguro() {
 }
 
 bool rearmarSistema() {
-  if (digitalRead(PIN_PARO_EMERGENCIA) == LOW) {
+  if (digitalRead(MAPA_CASA.paro) == LOW) {
     emitirEventoLocal("NACK;REARMAR;boton_emergencia_presionado");
     return false;
   }
@@ -1618,18 +1608,18 @@ void revisarComandosSerial() {
 }
 
 void revisarControlesFisicos() {
-  bool nuevoMicHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
+  bool nuevoMicHabilitado = digitalRead(MAPA_CASA.micOff) != LOW;
   if (nuevoMicHabilitado != micHabilitado) {
     micHabilitado = nuevoMicHabilitado;
     if (!micHabilitado) ventanaEscuchaActiva = false;
     emitirEventoLocal(String("EVENTO;MIC;") + (micHabilitado ? "ON" : "OFF"));
   }
 
-  if (digitalRead(PIN_PARO_EMERGENCIA) == LOW) {
+  if (digitalRead(MAPA_CASA.paro) == LOW) {
     if (!paroEmergenciaActivo) activarParoEmergencia("PARO_FISICO");
   }
 
-  bool botonDemo = digitalRead(PIN_BOTON_DEMO);
+  bool botonDemo = digitalRead(MAPA_CASA.demo);
   if (botonDemo != ultimoBotonDemo && millis() - ultimoCambioBotonDemoMs >= 40UL) {
     ultimoCambioBotonDemoMs = millis();
     ultimoBotonDemo = botonDemo;
@@ -1874,17 +1864,17 @@ void setup() {
   // fragmentación del heap durante una sesión larga de diagnóstico.
   bufferComandoSerial.reserve(41);
 
-  pinMode(PIN_PARO_EMERGENCIA, INPUT_PULLUP);
-  pinMode(PIN_MIC_OFF, INPUT_PULLUP);
-  pinMode(PIN_BOTON_DEMO, INPUT_PULLUP);
-  micHabilitado = digitalRead(PIN_MIC_OFF) != LOW;
+  pinMode(MAPA_CASA.paro, INPUT_PULLUP);
+  pinMode(MAPA_CASA.micOff, INPUT_PULLUP);
+  pinMode(MAPA_CASA.demo, INPUT_PULLUP);
+  micHabilitado = digitalRead(MAPA_CASA.micOff) != LOW;
 
   for (int i = 0; i < TOTAL_SALIDAS; i++) {
     // Precarga el nivel inactivo antes de habilitar la salida para reducir
     // pulsos breves durante el arranque en módulos activos en LOW.
     // Arranque OFF: las salidas sin etapa quedan en INPUT (nota 53/54).
-    digitalWrite(PINES_SALIDAS[i], nivelSalida(i, false));
-    pinMode(PINES_SALIDAS[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);
+    digitalWrite(MAPA_CASA.salidas[i], nivelSalida(i, false));
+    pinMode(MAPA_CASA.salidas[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);
     propietarioSalidas[i] = PROPIETARIO_NINGUNO;
   }
   log("SISTEMA", "Salidas inicializadas (todas apagadas)");
@@ -1902,7 +1892,7 @@ void setup() {
 
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);
-  pinMode(PIN_PIR, INPUT);
+  pinMode(MAPA_CASA.pir, INPUT);
   inicializarMicroSD();
 
   dht.begin();
