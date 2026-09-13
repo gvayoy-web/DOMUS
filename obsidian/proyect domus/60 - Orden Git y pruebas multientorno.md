@@ -30,6 +30,12 @@ autoridad: pruebas_y_repositorio
 | Diagnóstico LCD+IR+DRV8833 | PASS de compilación | 369,361 B programa; 25,140 B RAM global |
 | HIL físico | NO EJECUTADO | COM3/COM4 aparecen como puertos desconocidos; falta identificar placa, `pyserial` y banco conectado |
 
+Ubuntu CI reveló dos desajustes de harness y una dependencia de planos no
+declarada. Se sincronizaron `DOMUS_PERFIL_CASA`, `BOMBA_DIRECTA_S8050` y el
+conteo del escaneo I2C de 112 direcciones; además se añadió el requirements
+canónico de Pillow/ReportLab al job remoto. El resultado verde se registra
+únicamente cuando termine la ejecución del commit corregido.
+
 La campaña semirreal no certifica voltajes, corriente, polaridad ni temperatura.
 Las mediciones eléctricas se mantienen marcadas como `SKIP por decisión del dueño`;
 no deben presentarse como PASS. Tampoco se cargó firmware ni se accionó una bomba
