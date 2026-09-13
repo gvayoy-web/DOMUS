@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = ROOT / "firmware" / "domus_esqueleto"
+BASE = ROOT / "firmware" / "legacy" / "domus_esqueleto"
 
 
 class DomusEsqueletoContractTests(unittest.TestCase):

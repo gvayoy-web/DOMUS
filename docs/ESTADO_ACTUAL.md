@@ -1,6 +1,6 @@
 # Estado actual de PROJECT DOMUS
 
-Actualizado: 7 de septiembre de 2026.
+Actualizado: 13 de septiembre de 2026.
 
 Esta es la fuente breve para saber que ejecutar. El inventario fisico sigue en
 `obsidian/proyect domus/01 - Inventario confirmado.md` y el cableado detallado
@@ -8,18 +8,15 @@ en la nota 18.
 
 ## Firmware recomendado para banco
 
-Usar `firmware/domus_esqueleto/domus_esqueleto.ino`. Integra el hardware
-confirmado: sensores de suelo, nivel y luz, PIR, DHT11/22, LCD1602 I2C, boton
-y PARO. La bomba de 3-6 V usa S8050, resistencia de 1 kOhm y diodo 1N4007;
-no se conecta directamente al GPIO. El rele azul queda reservado.
-GPIO5-8 no tienen etapa fisica y permanecen bloqueados.
+Usar `firmware/domus_esqueleto/domus_esqueleto.ino`. Es un envoltorio que
+incluye literalmente `casa_inteligente_v4.ino` con el perfil 3
+`BANCO_COMPLETO_S8050_IR`; banco y producto ya no tienen lógicas independientes.
+Integra suelo, nivel, LDR, PIR, DHT11, LCD, botones, tres LED, IR y bomba por
+S8050. Ventilador, driver doble y audio quedan bloqueados.
 
-Compila correctamente para el ESP32-S3 N16R8 confirmado (16 MB flash + 8 MB
-PSRAM): 373,694 bytes de programa y 24,388
-bytes globales. Las salidas permanecen deshabilitadas
-por defecto porque todavia no se han verificado polaridades, fuente y etapas en
-el montaje real. La ronda B01-B05 se hace sin motores ni cargas y sin cambiar esa
-protección; seguir las notas 33 y 37.
+Para códigos IR crudos y muestras de calibración sin tocar ninguna salida usar
+`firmware/diagnosticos/domus_banco_integracion`. El antiguo esqueleto modular
+se conserva solamente en `firmware/legacy/domus_esqueleto` para regresión.
 
 ## Cierre de software local
 
@@ -32,12 +29,15 @@ estan en `obsidian/proyect domus/34 - Cierre de software y matriz de verificacio
 ## Referencias conservadas
 
 - `firmware/casa_inteligente_v4`: referencia funcional completa y establecida.
-- `firmware/domus_selftest`: diagnostico amplio; no es el firmware operativo.
+- `firmware/diagnosticos/domus_banco_integracion`: diagnóstico vigente IR,
+  LCD, DHT y ADC con GPIO4-8 sin configurar.
+- `firmware/domus_selftest`: diagnóstico histórico de mapa antiguo; no usar
+  para cablear el banco actual.
 - `firmware/domus_anim`: demostracion de pantallas; no controla la casa.
 - `firmware/inmp441_poc` y `firmware/picotts_poc`: pruebas aisladas de audio.
 
-No copiar logica nueva al firmware principal y a la base a la vez. Toda funcion
-nueva debe entrar primero en la base modular y tener una prueba o contrato.
+Toda función nueva entra únicamente en `casa_inteligente_v4`; el esqueleto la
+recibe automáticamente mediante inclusión y debe tener una prueba o contrato.
 
 ## Pendiente exclusivamente físico
 

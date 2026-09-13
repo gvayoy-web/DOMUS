@@ -5,6 +5,8 @@ on:
     paths:
       - "firmware/casa_inteligente_v4/**"
       - "firmware/domus_esqueleto/**"
+      - "firmware/legacy/domus_esqueleto/**"
+      - "firmware/diagnosticos/**"
       - "firmware/domus_selftest/**"
       - "firmware/domus_anim/**"
       - "firmware/tests/**"
@@ -17,6 +19,8 @@ on:
     paths:
       - "firmware/casa_inteligente_v4/**"
       - "firmware/domus_esqueleto/**"
+      - "firmware/legacy/domus_esqueleto/**"
+      - "firmware/diagnosticos/**"
       - "firmware/domus_selftest/**"
       - "firmware/domus_anim/**"
       - "firmware/tests/**"
@@ -154,7 +158,7 @@ jobs:
             --build-property "compiler.cpp.extra_flags=-DDOMUS_PERFIL_ALFA=${{ matrix.perfil }}" \
             --warnings all \
             --output-dir build/esqueleto-perfil-${{ matrix.perfil }} \
-            firmware/domus_esqueleto
+            firmware/legacy/domus_esqueleto
       - uses: actions/upload-artifact@v4
         with:
           name: project-domus-esqueleto-perfil-${{ matrix.perfil }}
@@ -227,5 +231,38 @@ jobs:
         with:
           name: project-domus-${{ matrix.sketch }}
           path: build/${{ matrix.sketch }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  compilar-diagnostico-banco:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: "1.x"
+      - name: Instalar ESP32 y bibliotecas del diagnóstico
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.10
+          arduino-cli lib install "LiquidCrystal I2C@1.1.2"
+          arduino-cli lib install "DHT sensor library@1.4.7"
+          arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+          arduino-cli lib install "IRremote@4.7.1"
+      - name: Compilar lector IR y calibración sin salidas
+        run: |
+          arduino-cli compile \
+            --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1" \
+            --warnings all \
+            --output-dir build/domus-banco-integracion \
+            firmware/diagnosticos/domus_banco_integracion
+      - uses: actions/upload-artifact@v4
+        with:
+          name: project-domus-diagnostico-ir-calibracion
+          path: build/domus-banco-integracion/
           if-no-files-found: error
           retention-days: 14

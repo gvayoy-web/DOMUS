@@ -21,7 +21,9 @@
 |---|---|
 | Candidato | `firmware/casa_inteligente_v4/casa_inteligente_v4.ino` |
 | Interfaces futuras (driver/IR/audio) | `firmware/casa_inteligente_v4/domus_drivers.h` |
-| Banco congelado (P0/P1) | `firmware/domus_esqueleto/` |
+| Esqueleto actual (misma fuente del producto, perfil 3) | `firmware/domus_esqueleto/` |
+| Esqueleto v2 archivado para regresión | `firmware/legacy/domus_esqueleto/` |
+| Lector seguro IR + calibración | `firmware/diagnosticos/domus_banco_integracion/` |
 | Diagnóstico de placa | `firmware/domus_selftest/` |
 | Pruebas firmware | `firmware/tests/` (contratos, sim, nativas, HIL) |
 | PoCs de audio | `firmware/inmp441_poc/`, `firmware/picotts_poc/` |

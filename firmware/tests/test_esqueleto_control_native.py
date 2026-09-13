@@ -12,7 +12,7 @@ from pathlib import Path
 from test_native_firmware import run_host_process
 
 
-BASE = Path(__file__).resolve().parents[1] / "domus_esqueleto"
+BASE = Path(__file__).resolve().parents[1] / "legacy" / "domus_esqueleto"
 
 
 class EsqueletoControlNativeTests(unittest.TestCase):

@@ -14,7 +14,7 @@ SIMULATOR = ROOT / "assets" / "new" / "deliverables" / "execute" / "01_FINAL_V2"
 FIRMWARE_TESTS = ROOT / "firmware" / "tests"
 PLAN_TESTS = ROOT / "hardware" / "planos" / "tests"
 FIRMWARE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
-BENCH_CONFIG = ROOT / "firmware" / "domus_esqueleto" / "domus_config.h"
+BENCH_CONFIG = ROOT / "firmware" / "legacy" / "domus_esqueleto" / "domus_config.h"
 MASTER_WIRING = VAULT / "47 - Guia visual principiante conexiones alfa.md"
 CURRENT_DECISION = VAULT / "36 - Configuracion final 1 mas 4 reles y planos v4.md"
 CURRENT_BENCH_GUIDE = VAULT / "37 - Ronda de pruebas sin compras.md"
@@ -183,9 +183,10 @@ def validate_bench_contract() -> list[str]:
     """Contrato del esqueleto alfa vigente (ola 1, notas 46/47/50)."""
     errors: list[str] = []
     config = BENCH_CONFIG.read_text(encoding="utf-8")
-    sketch = (ROOT / "firmware" / "domus_esqueleto" / "domus_esqueleto.ino").read_text(encoding="utf-8")
-    lcd = (ROOT / "firmware" / "domus_esqueleto" / "domus_lcd.h").read_text(encoding="utf-8")
-    voice = (ROOT / "firmware" / "domus_esqueleto" / "domus_voice.h").read_text(encoding="utf-8")
+    legacy = ROOT / "firmware" / "legacy" / "domus_esqueleto"
+    sketch = (legacy / "domus_esqueleto.ino").read_text(encoding="utf-8")
+    lcd = (legacy / "domus_lcd.h").read_text(encoding="utf-8")
+    voice = (legacy / "domus_voice.h").read_text(encoding="utf-8")
     for token in (
         "PIN_SUELO = 15", "PIN_NIVEL = 16", "PIN_LCD_SDA = 17",
         "PIN_LCD_SCL = 13", "PIN_BOTON = 18",

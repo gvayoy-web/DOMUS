@@ -16,10 +16,12 @@ Estados del producto en [`obsidian/proyect domus/53`](obsidian/proyect%20domus/5
 | Necesidad | Firmware | Perfil |
 |---|---|---|
 | Banco actual: sensores, LCD, botones, LED, bomba S8050 e IR | `firmware/casa_inteligente_v4` | `BANCO_COMPLETO_S8050_IR` (GPIO4 bomba; GPIO7 ventilador bloqueado) |
+| El mismo banco, abierto como “esqueleto” | `firmware/domus_esqueleto` | Incluye literalmente el producto con el perfil anterior |
 | Candidato a producto | `firmware/casa_inteligente_v4` | `CANDIDATO_BANCO_SIN_ACTUADORES` por defecto (`-DDOMUS_PERFIL_CASA=1` LED, `=2` motor pendiente) |
-| Solo diagnóstico de placa | `firmware/domus_selftest` | — |
+| Leer códigos IR y tomar calibraciones, sin salidas | `firmware/diagnosticos/domus_banco_integracion` | Mapa actual, GPIO4-8 sin configurar |
 
-`domus_esqueleto` está congelado (solo regresiones P0/P1). `JARVIS_LOCAL_HABILITADO=false`
+El esqueleto modular anterior vive en `firmware/legacy/domus_esqueleto` sólo
+para regresiones. `JARVIS_LOCAL_HABILITADO=false`
 y `MICROSD_HABILITADA=false` hasta superar sus puertas. No hay app móvil, BLE
 ni dependencia de internet en funciones críticas.
 
@@ -45,8 +47,9 @@ fijas en español. Sin reconocimiento de voz, sin entrenamiento, sin INMP441.
 
 ## Compilación
 
-CI (`firmware-ci.yml`) compila el candidato en 7 configuraciones, el esqueleto
-en 3 perfiles (+3 rechazos) y la base modular, con Arduino-ESP32 3.3.10:
+CI (`firmware-ci.yml`) compila el producto en 7 configuraciones, su envoltorio
+de esqueleto, el diagnóstico seguro y los 3 perfiles históricos (+3 rechazos),
+con Arduino-ESP32 3.3.10:
 
 ```powershell
 arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" firmware/casa_inteligente_v4

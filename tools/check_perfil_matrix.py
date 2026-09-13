@@ -1,4 +1,4 @@
-"""Matriz de perfiles compilable del esqueleto alfa (nota 50).
+"""Matriz histórica de perfiles del esqueleto alfa v2 (nota 50).
 
 Compila firmware/domus_esqueleto con arduino-cli (local o del PATH):
   PASS esperado: DOMUS_PERFIL_ALFA=0/1/2 (sensores, bomba, ventilador).
@@ -50,7 +50,7 @@ def compile_case(name: str, flags: list[str]) -> tuple[int, str]:
         "--build-property", f"compiler.cpp.extra_flags={' '.join(flags)}",
         "--build-path", str(build),
         "--output-dir", str(build) + "-out",
-        "firmware/domus_esqueleto",
+        "firmware/legacy/domus_esqueleto",
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
     return proc.returncode, proc.stdout + proc.stderr

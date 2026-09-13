@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 
-BASE = Path(__file__).resolve().parents[1] / "domus_esqueleto"
+BASE = Path(__file__).resolve().parents[1] / "legacy" / "domus_esqueleto"
 CONTROL = (BASE / "domus_control.h").read_text(encoding="utf-8")
 SKETCH = (BASE / "domus_esqueleto.ino").read_text(encoding="utf-8")
 

@@ -1,13 +1,13 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: indice
-actualizado: 2026-09-10
+actualizado: 2026-09-13
 ---
 
 # PROJECT DOMUS — bóveda técnica
 
 > [!IMPORTANT]
-> Estado operativo: [[58 - Estado vigente firmware sensores control y documentos]]. La decisión más reciente de firmware y cableado de banco es [[59 - Firmware unico y perfil banco S8050 IR]] y prevalece en bomba, IR y fuente de código.
+> Estado operativo: [[58 - Estado vigente firmware sensores control y documentos]]. La decisión más reciente de firmware y cableado de banco es [[59 - Firmware unico y perfil banco S8050 IR]]; [[61 - Esqueleto literal y diagnostico IR calibracion]] define el esqueleto y el diagnóstico de hoy.
 
 > [!IMPORTANT]
 > La autoridad durante la consolidación es [[46 - Plan maestro de consolidacion un costado]].
