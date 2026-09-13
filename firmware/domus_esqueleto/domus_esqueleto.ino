@@ -10,6 +10,7 @@
 #include <Wire.h>
 #include <esp_heap_caps.h>
 #include <esp_task_wdt.h>
+#include <new>
 #include "domus_config.h"
 #include "domus_control.h"
 #include "domus_protocol.h"
@@ -31,8 +32,8 @@ uint16_t ultimoIR = 0;
 Sensores sensores;
 Calibracion calibracion, calibracionPendiente;
 DHT dht(PIN_DHT, DHT_TIPO);
-LiquidCrystal_I2C lcd27(0x27, 16, 2), lcd3f(0x3F, 16, 2);
 LiquidCrystal_I2C *lcd = nullptr;
+uint8_t direccionLcd = 0;
 PantallaBonita pantalla;
 IRDOMUS::GestorIR ir;
 VozJarvis voz;
@@ -183,19 +184,22 @@ bool detectarI2C(uint8_t direccion) { Wire.beginTransmission(direccion); return 
 void inicializarPantalla() {
   if (!LCD_HABILITADO) return;
   Wire.begin(PIN_LCD_SDA,PIN_LCD_SCL); Wire.setTimeOut(20);
-  uint8_t halladas = 0;
+  uint8_t halladas = 0, unica = 0, preferida = 0;
   for (uint8_t direccion = 0x08; direccion <= 0x77; ++direccion) {
     if (!detectarI2C(direccion)) continue;
-    ++halladas;
+    ++halladas; unica = direccion;
     notificarFormato("I2C;ENCONTRADO=0x%02X", direccion);
-    if (direccion == 0x27) lcd = &lcd27;
-    else if (direccion == 0x3F) lcd = &lcd3f;
+    if (direccion == 0x27 || direccion == 0x3F) preferida = direccion;
   }
   if (!halladas) { notificar("EVENTO;I2C_SIN_DISPOSITIVOS"); return; }
-  if (!lcd) { notificar("EVENTO;LCD_DIRECCION_NO_COMPATIBLE"); return; }
+  direccionLcd = preferida ? preferida : (halladas == 1 ? unica : 0);
+  if (!direccionLcd) { notificar("EVENTO;LCD_DIRECCION_AMBIGUA;DESCONECTA_OTROS_I2C"); return; }
+  lcd = new (std::nothrow) LiquidCrystal_I2C(direccionLcd, 16, 2);
+  if (!lcd) { notificar("EVENTO;LCD_SIN_MEMORIA"); return; }
   lcd->init(); lcd->backlight();
   pantalla.begin(lcd);
   lcdDisponible=true;
+  notificarFormato("LCD;DIRECCION=0x%02X;LISTO=1", direccionLcd);
 }
 void actualizarPantalla() {
   if (!lcdDisponible) return;
@@ -266,6 +270,20 @@ void informarEstado(bool diagnostico) {
   if (diagnostico) notificarFormato("BANCO;PLACA=%s;PERFIL=%s;ADC=15,16,3;PIR=9;IR=OFF;BTN=18;I2C=17,13;MOTORES=%d%d",
     PERFIL_PLACA,PERFIL_PRUEBA,HABILITAR_MOTOR_BOMBA,HABILITAR_MOTOR_VENTILADOR);
   if (diagnostico) Serial.flush();
+}
+
+void informarPruebaGuiada() {
+  notificar("PRUEBA;INICIO;COPIA_TODO_ESTE_BLOQUE"); Serial.flush();
+  notificarFormato("PRUEBA;LCD=%d;DIR=0x%02X;DHT=%d;CAL=%d;PARO=%d;SEGURO=%d",
+    lcdDisponible,direccionLcd,sensores.ambienteValido,calibracionGuardada,paro,modoSeguro); Serial.flush();
+  notificarFormato("PRUEBA;SUELO=%d;VS=%d;NIVEL=%d;VN=%d;LUZ=%d;VL=%d;PIR=%d",
+    sensores.suelo,sensores.sueloValido,sensores.nivel,sensores.nivelValido,
+    sensores.luz,sensores.luzValida,sensores.presencia); Serial.flush();
+  notificarFormato("PRUEBA;TEMP=%.1f;HUM_AIRE=%.1f;VA=%d;OUT=%d%d%d%d%d",
+    sensores.temperatura,sensores.humedadAire,sensores.ambienteValido,
+    encendida[0],encendida[1],encendida[2],encendida[3],encendida[4]); Serial.flush();
+  notificar("PRUEBA;ACCIONES=TAPA_LDR,MUEVE_PIR,PULSA_MODO,PULSA_STOP,ENVIA_PRUEBA"); Serial.flush();
+  notificar("PRUEBA;FIN");
 }
 
 // Alterna una salida por IR/botón con feedback. NO emite Jarvis aquí:
@@ -484,6 +502,7 @@ void procesarLinea(const char *texto) {
     else { modoSeguro=false; motivoSeguro="ninguno"; notificar("ACK;RECUPERAR;SALIDAS_OFF"); }
   } else if (comando.tipo==TipoComando::ESTADO) informarEstado(false);
   else if (comando.tipo==TipoComando::DIAGNOSTICO) informarEstado(true);
+  else if (comando.tipo==TipoComando::PRUEBA) informarPruebaGuiada();
   else if (comando.tipo==TipoComando::MODO_AUTO) { setModoAuto(true); notificar("ACK;MODO;AUTO"); }
   else if (comando.tipo==TipoComando::MODO_MANUAL) { setModoAuto(false); notificar("ACK;MODO;MANUAL"); }
   else if (comando.tipo==TipoComando::VOL_MAS) { voz.subir(); notificarFormato("ACK;VOL=%u", voz.volumen()); }
@@ -553,6 +572,7 @@ void setup() {
     PERFIL_PLACA,PERFIL_PRUEBA,CONTROLADOR_DOBLE_IDENTIFICADO,HABILITAR_MOTOR_BOMBA,
     HABILITAR_MOTOR_VENTILADOR,IR_HABILITADO,BUZZER_HABILITADO,PIN_BOTON);
   notificar("USA: DIAGNOSTICO para revisar I2C, sensores y salidas bloqueadas");
+  notificar("USA: PRUEBA y copia el bloque completo para registrar el banco");
 }
 void loop() {
   if (watchdogActivo && esp_task_wdt_reset()!=ESP_OK) { watchdogActivo=false; entrarModoSeguro("watchdog_reset"); }

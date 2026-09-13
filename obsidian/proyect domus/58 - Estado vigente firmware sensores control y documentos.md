@@ -56,7 +56,7 @@ quedan **SKIP por decisión del propietario (2026-09-12)**, no `PASS`; por tanto
 la capacidad de 3 A o 5 A no se declara validada.
 
 Banco mínimo para capturar evidencia restante:
-`firmware/domus_banco_integracion/` y
+`firmware/diagnosticos/domus_banco_integracion/` y
 `visualizaciones/domus-banco-lcd-ir-drv8833.svg`.
 
 ## GPIO del costado accesible

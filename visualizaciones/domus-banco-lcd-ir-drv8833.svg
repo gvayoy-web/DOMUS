@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980">
+  <style>
+    .bg{fill:#f6f8fb}.box{fill:#fff;stroke:#17365d;stroke-width:3}.safe{fill:#e8fff2;stroke:#16834b;stroke-width:3}.warn{fill:#fff3d6;stroke:#d27a00;stroke-width:3}.t{font:700 25px Arial;fill:#10233f}.s{font:19px Arial;fill:#263b55}.pin{font:700 20px Consolas;fill:#075985}.wire{fill:none;stroke-width:5}.g{stroke:#111}.v{stroke:#e11d48}.sig{stroke:#0284c7}.mot{stroke:#7c3aed}.dash{stroke-dasharray:11 8}
+  </style>
+  <rect class="bg" width="1400" height="980"/>
+  <text class="t" x="55" y="55">DOMUS · BANCO MÍNIMO LCD + IR + DRV8833</text>
+  <text class="s" x="55" y="88">Carga: firmware/diagnosticos/domus_banco_integracion · Serial 115200 · arranque OFF · pulsos 500 ms</text>
+
+  <rect class="box" x="70" y="150" width="310" height="610" rx="20"/>
+  <text class="t" x="120" y="195">ESP32-S3</text>
+  <text class="pin" x="110" y="260">3V3</text><text class="pin" x="110" y="315">GND</text>
+  <text class="pin" x="110" y="390">GPIO17 SDA</text><text class="pin" x="110" y="445">GPIO13 SCL</text>
+  <text class="pin" x="110" y="520">GPIO12 IR</text><text class="pin" x="110" y="595">GPIO4 AIN1</text>
+  <text class="pin" x="110" y="650">GPIO7 BIN1</text>
+
+  <rect class="safe" x="520" y="125" width="360" height="245" rx="18"/>
+  <text class="t" x="560" y="170">LCD1602 + I2C</text>
+  <text class="s" x="560" y="220">VCC → 3V3</text><text class="s" x="560" y="260">GND → GND</text>
+  <text class="s" x="560" y="300">SDA → GPIO17</text><text class="s" x="560" y="340">SCL → GPIO13</text>
+
+  <rect class="safe" x="955" y="125" width="365" height="245" rx="18"/>
+  <text class="t" x="995" y="170">Receptor IR</text>
+  <text class="s" x="995" y="220">VCC → 3V3</text><text class="s" x="995" y="260">GND → GND</text>
+  <text class="s" x="995" y="300">OUT / S → GPIO12</text>
+  <text class="s" x="995" y="340">Comprueba etiquetas; no adivines patas</text>
+
+  <rect class="warn" x="520" y="460" width="800" height="370" rx="18"/>
+  <text class="t" x="560" y="505">DRV8833 — conectar solo si la placa recibida coincide</text>
+  <text class="s" x="560" y="555">VM → +5V de fuente externa · GND → GND común</text>
+  <text class="s" x="560" y="600">nSLEEP → 3V3 · AIN1 → GPIO4 · AIN2 → GND</text>
+  <text class="s" x="560" y="645">BIN1 → GPIO7 · BIN2 → GND</text>
+  <text class="s" x="560" y="700">AOUT1/AOUT2 → los dos cables de la BOMBA</text>
+  <text class="s" x="560" y="745">BOUT1/BOUT2 → los dos cables del VENTILADOR</text>
+  <text class="t" x="560" y="800">NO conectes VM a 3V3/5V del ESP32 · GND sí debe ser común</text>
+
+  <path class="wire sig" d="M380 390 H470 V300 H520"/><path class="wire sig" d="M380 445 H490 V340 H520"/>
+  <path class="wire sig" d="M380 520 H925 V300 H955"/>
+  <path class="wire sig" d="M380 595 H460 V600 H520"/><path class="wire sig" d="M380 650 H470 V645 H520"/>
+  <path class="wire v dash" d="M380 260 H455 V220 H520"/><path class="wire g dash" d="M380 315 H475 V260 H520"/>
+  <text class="s" x="65" y="900">Secuencia: 1) LCD + IR → anotar dirección y 21 códigos. 2) Apagar. 3) Añadir DRV. 4) A_PULSE. 5) B_PULSE. 6) STOP.</text>
+  <text class="s" x="65" y="940">Mediciones eléctricas: SKIP solicitado; esto reduce evidencia de seguridad, no impide usar el banco bajo supervisión.</text>
+</svg>

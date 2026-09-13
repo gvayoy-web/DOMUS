@@ -136,6 +136,17 @@ class DomusEsqueletoContractTests(unittest.TestCase):
         self.assertIn("direccion = 0x08", self.sketch)
         self.assertIn("direccion <= 0x77", self.sketch)
         self.assertIn("I2C;ENCONTRADO=0x%02X", self.sketch)
+        self.assertIn("halladas == 1 ? unica : 0", self.sketch)
+        self.assertIn("LCD;DIRECCION=0x%02X;LISTO=1", self.sketch)
+
+    def test_reporte_guiado_de_banco(self):
+        self.assertIn('iguales(texto, "PRUEBA")', self.protocol)
+        self.assertIn("void informarPruebaGuiada()", self.sketch)
+        for token in (
+            "PRUEBA;INICIO", "PRUEBA;LCD=", "PRUEBA;SUELO=",
+            "PRUEBA;TEMP=", "PRUEBA;ACCIONES=", "PRUEBA;FIN",
+        ):
+            self.assertIn(token, self.sketch)
 
     def test_safety_is_independent_of_automation(self):
         safety = self.sketch.split("void revisarSeguridad()", 1)[1].split("void revisarSalud()", 1)[0]

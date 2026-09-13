@@ -4,7 +4,7 @@
 #include <string.h>
 
 enum Salida : uint8_t { BOMBA, SALA, CUARTO, VENTILADOR, INVERNADERO, TOTAL };
-enum class TipoComando : uint8_t { INVALIDO, SALIDA, AUTO, PARO, REARMAR, RECUPERAR, ESTADO, DIAGNOSTICO, CAL_VER,
+enum class TipoComando : uint8_t { INVALIDO, SALIDA, AUTO, PARO, REARMAR, RECUPERAR, ESTADO, DIAGNOSTICO, PRUEBA, CAL_VER,
   MODO_AUTO, MODO_MANUAL, VOL_MAS, VOL_MENOS, MUTE, VOZ, PAGINA, IR_LEER, IR_LISTA, IR_BORRAR };
 struct Comando { TipoComando tipo; Salida salida; bool activar; int valor; };
 
@@ -18,6 +18,7 @@ constexpr Comando interpretar(const char* texto) {
   if (iguales(texto, "RECUPERAR")) return {TipoComando::RECUPERAR, BOMBA, false, 0};
   if (iguales(texto, "ESTADO")) return {TipoComando::ESTADO, BOMBA, false, 0};
   if (iguales(texto, "DIAGNOSTICO")) return {TipoComando::DIAGNOSTICO, BOMBA, false, 0};
+  if (iguales(texto, "PRUEBA")) return {TipoComando::PRUEBA, BOMBA, false, 0};
   if (iguales(texto, "CAL VER")) return {TipoComando::CAL_VER, BOMBA, false, 0};
   if (iguales(texto, "MODO AUTO")) return {TipoComando::MODO_AUTO, BOMBA, false, 0};
   if (iguales(texto, "MODO MANUAL")) return {TipoComando::MODO_MANUAL, BOMBA, false, 0};

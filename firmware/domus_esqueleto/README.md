@@ -121,12 +121,28 @@ ESTADO / DIAGNOSTICO / PARO / REARMAR
 IR LEER / IR LISTA / IR GRABAR <0-20> / IR BORRAR
 ```
 
+## Primera prueba guiada
+
+Conecta primero únicamente sensores, LCD, botones y LEDs según
+`visualizaciones/domus-alfa-guia-principiantes.svg`. Abre Serial a 115200,
+espera al menos tres segundos y envía:
+
+```text
+PRUEBA
+```
+
+Copia desde `PRUEBA;INICIO` hasta `PRUEBA;FIN` y entrégalo para registrar el
+resultado. Después repite tras tapar el LDR, mover una mano frente al PIR,
+pulsar MODO y pulsar/liberar STOP. La línea `LCD;DIRECCION=0x..;LISTO=1`
+registra automáticamente la dirección real. Si hay varios dispositivos I2C y
+ninguno está en 0x27/0x3F, el firmware pide desconectarlos para evitar adivinar.
+
 ## Órdenes serie (mayúsculas, LF/CRLF)
 
 ```text
 SALA ON / CUARTO ON / INVERNADERO ON / VENTILADOR ON / BOMBA ON
 ... OFF / ... AUTO
-ESTADO / DIAGNOSTICO / PARO / REARMAR / RECUPERAR
+ESTADO / DIAGNOSTICO / PRUEBA / PARO / REARMAR / RECUPERAR
 ```
 
 `!` enclava PARO sin esperar fin de línea. ON limitado a 1/250 ms.
