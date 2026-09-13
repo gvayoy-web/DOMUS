@@ -133,5 +133,8 @@ int main() {
             for profile in (0, 1):
                 with self.subTest(economical=profile):
                     executable = Path(directory) / f"test-{profile}.exe"
-                    run_host_process([compiler, "-std=c++17", "-Wall", "-Wextra", f"-DDOMUS_SALIDAS_ECONOMICAS={profile}", str(cpp), "-o", str(executable)], timeout=60)
+                    run_host_process([compiler, "-std=c++17", "-Wall", "-Wextra",
+                                      "-DDOMUS_PERFIL_CASA=0",
+                                      f"-DDOMUS_SALIDAS_ECONOMICAS={profile}",
+                                      str(cpp), "-o", str(executable)], timeout=60)
                     run_host_process([str(executable)], timeout=10, allow_skip=True)

@@ -90,11 +90,11 @@ struct Bus {
         code += r'''
 int main() {
   bool found=true; uint8_t address=0;
-  assert(!escanearBusI2C(found,address)); assert(!found && Wire.calls==2);
+  assert(!escanearBusI2C(found,address)); assert(!found && Wire.calls==112);
   Wire.calls=0; Wire.responding=0x27;
-  assert(escanearBusI2C(found,address)); assert(found && address==0x27 && Wire.calls==2);
+  assert(escanearBusI2C(found,address)); assert(found && address==0x27 && Wire.calls==112);
   Wire.calls=0; Wire.responding=0x3f;
-  assert(escanearBusI2C(found,address)); assert(found && address==0x3f && Wire.calls==2);
+  assert(escanearBusI2C(found,address)); assert(found && address==0x3f && Wire.calls==112);
 }
 '''
         self.run_cpp(code)

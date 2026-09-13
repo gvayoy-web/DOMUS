@@ -39,6 +39,7 @@ constexpr MapaPinesCasa MAPA_CASA = {
 // El rechazo sin etapa y sin driver lo cubren test_casa_candidato.py, el
 // contrato de compilación y la matriz (all-false/all-disabled reales).
 constexpr bool SALIDA_FISICA_CASA[5]={true,true,true,true,true};
+constexpr bool BOMBA_DIRECTA_S8050=false;
 inline bool driverMotoresListo() { return true; }
 bool paroEmergenciaActivo=false, modoSeguroActivo=false, watchdogActivo=true, ventanaEscuchaActiva=false;
 char motivoModoSeguro[48]="ninguno";
