@@ -269,8 +269,8 @@ siguen en `SKIP` por decisión del dueño, no en PASS.
 
 La prueba física inmediata no utiliza ningún artículo de la compra pendiente.
 La lista real aún no recibida es: fuente 5 V/2 A, DRV8833, MAX98306 estéreo,
-parlante 4 Ω/3 W, baquelita perforada 100 × 220 mm, portafusible anunciado
-6 × 20 mm, fusibles cerámicos 250 V/4 A anunciados 5 × 20 mm y cinco
+parlante 4 Ω/3 W, baquelita perforada 100 × 220 mm, portafusible
+5 × 20 mm, fusibles cerámicos 250 V/4 A de 5 × 20 mm y cinco
 capacitores electrolíticos 100 µF/25 V.
 
 Hasta su llegada, fuente externa, driver, fusible, capacitores, parlante y
@@ -278,6 +278,5 @@ amplificador quedan físicamente fuera del banco y no pueden recibir PASS. Hoy
 se prueban sólo ESP32, sensores, LCD, botones, LED, IR y la minibomba mediante
 el S8050/TP4056 ya disponibles. El ventilador y el audio quedan desconectados.
 
-Existe además una comprobación de compra pendiente: confirmar si el
-portafusible es realmente 6 × 20 mm, porque los fusibles fueron descritos como
-5 × 20 mm. Si las dimensiones son correctas, no son el mismo formato.
+Portafusible y fusibles coinciden en formato 5 × 20 mm. La mención anterior de
+6 × 20 mm fue corregida por el dueño.

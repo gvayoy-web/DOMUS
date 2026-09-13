@@ -27,7 +27,7 @@ probado en esta sesión:
 - amplificador estéreo MAX98306;
 - parlante de 4 ohmios / 3 W;
 - baquelita perforada de 100 × 220 mm;
-- portafusible con cable anunciado como 6 × 20 mm;
+- portafusible con cable de 5 × 20 mm;
 - fusibles cerámicos de 250 V, 4 A, formato anunciado 5 × 20 mm;
 - cinco capacitores electrolíticos de 100 µF / 25 V.
 
@@ -36,9 +36,8 @@ mano: sensores, LCD, botones, LED, receptor IR y, sólo en la prueba manual
 final, un S8050 con TP4056 y la minibomba. El ventilador y todas las funciones
 de audio permanecen desconectados.
 
-Antes del montaje futuro hay que confirmar una posible incompatibilidad de
-tamaño: el portafusible fue descrito como 6 × 20 mm y los fusibles como
-5 × 20 mm. No se deben forzar si esas medidas físicas son reales.
+El portafusible y los fusibles son del mismo formato 5 × 20 mm; la medida
+anterior de 6 × 20 mm fue una anotación equivocada del dueño.
 
 ## Cargar el firmware
 
