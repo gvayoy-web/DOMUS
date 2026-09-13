@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 
-NEW_ROOT = Path(__file__).resolve().parents[1] / "new"
+NEW_ROOT = Path(__file__).resolve().parents[1]
 class NewDesignTests(unittest.TestCase):
     def test_v4_generator_is_valid_python_and_report_is_current(self):
         source = (NEW_ROOT / "generate_design.py").read_text(encoding="utf-8")
