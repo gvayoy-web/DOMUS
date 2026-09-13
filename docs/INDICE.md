@@ -11,7 +11,7 @@
 | Montar el banco alfa | Nota `47` + `visualizaciones/domus-final-guia-principiantes.svg` |
 | Probar una carga | Nota `49` + `visualizaciones/domus-alfa-una-carga-s8050.svg` |
 | Ver la arquitectura y el guion demo | `visualizaciones/domus-arquitectura-feria.svg` |
-| Cargar firmware de banco | `firmware/domus_esqueleto` (`ALFA_UN_COSTADO_SIN_IR`) |
+| Cargar firmware de banco | `firmware/casa_inteligente_v4` (`BANCO_COMPLETO_S8050_IR`) |
 | Cargar candidato | `firmware/casa_inteligente_v4` (`CANDIDATO_*`, nota 53) |
 | Ordenar el repo | Nota `54` (plan) + nota `56` (fase 1) |
 
@@ -31,7 +31,7 @@
 
 | Pieza | Ruta |
 |---|---|
-| Planos canónicos | `planos/new/` (base 800 × 520, familia Ultimate) |
+| Planos canónicos | `hardware/planos/` (base 800 × 520, familia Ultimate) |
 | Guías y SVG fuente | `visualizaciones/` |
 | Manuales impresos generados | `output/pdf/` (se regeneran; futuro: `artefactos/`) |
 

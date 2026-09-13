@@ -12,13 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 VAULT = ROOT / "obsidian" / "proyect domus"
 SIMULATOR = ROOT / "assets" / "new" / "deliverables" / "execute" / "01_FINAL_V2" / "simulator"
 FIRMWARE_TESTS = ROOT / "firmware" / "tests"
-PLAN_TESTS = ROOT / "planos" / "tests"
+PLAN_TESTS = ROOT / "hardware" / "planos" / "tests"
 FIRMWARE = ROOT / "firmware" / "casa_inteligente_v4" / "casa_inteligente_v4.ino"
 BENCH_CONFIG = ROOT / "firmware" / "domus_esqueleto" / "domus_config.h"
 MASTER_WIRING = VAULT / "47 - Guia visual principiante conexiones alfa.md"
 CURRENT_DECISION = VAULT / "36 - Configuracion final 1 mas 4 reles y planos v4.md"
 CURRENT_BENCH_GUIDE = VAULT / "37 - Ronda de pruebas sin compras.md"
-CURRENT_BUILD_GUIDE = ROOT / "planos" / "new" / "GUIA_MONTAJE_ULTIMATE.md"
+CURRENT_BUILD_GUIDE = ROOT / "hardware" / "planos" / "GUIA_MONTAJE_ULTIMATE.md"
 VISUAL_SOURCE = ROOT / "visualizaciones" / "sistema-domus-fragment.html"
 VISUAL_STANDALONE = ROOT / "visualizaciones" / "sistema-domus.html"
 WIKILINK = re.compile(r"\[\[([^\]|#]+)")
@@ -26,7 +26,7 @@ WIKILINK = re.compile(r"\[\[([^\]|#]+)")
 EXPECTED_MAPA_PINS = {    "suelo": 15, "nivel": 16, "ldr": 3,
     "bomba": 4, "sala": 5, "cuarto": 6, "vent": 7, "inv": 8,
     "pir": 9, "paro": 10, "micOff": 11, "demo": 18,
-    "scl": 13, "dht": 14, "sda": 17,
+    "scl": 13, "dht": 14, "sda": 17, "ir": 12,
 }
 TOTAL_SALIDAS_FIRMWARE = 5
 
@@ -70,9 +70,8 @@ def validate_current_decisions() -> list[str]:
     decision = CURRENT_DECISION.read_text(encoding="utf-8")
     config = BENCH_CONFIG.read_text(encoding="utf-8")
     bench_guide = CURRENT_BENCH_GUIDE.read_text(encoding="utf-8")
-    # Guía Ultimate canónica bajo planos/new (nota 51): si falta en el árbol
-    # (p. ej. limpieza sin commitear), su chequeo se omite sin bloquear;
-    # planos/tests la exigen cuando existe. planos/planos/ no es canónico.
+    # Guía Ultimate canónica bajo hardware/planos (nota 54). Sus pruebas viven
+    # junto al paquete para que la validación no acepte otra copia divergente.
     if CURRENT_BUILD_GUIDE.is_file():
         guide = CURRENT_BUILD_GUIDE.read_text(encoding="utf-8")
     else:
@@ -139,12 +138,13 @@ def validate_casa_candidato() -> list[str]:
         "#define DOMUS_DRIVER_VALIDADO 0",
         "BACKEND_MOTOR_SELECCIONADO != BackendMotor::NINGUNO",
         "DOMUS_DRIVER_VALIDADO == 1",
-        "constexpr uint8_t IR_TOTAL_TECLAS = 21;",
-        "constexpr bool IR_CANDIDATO_HABILITADO = false;",
         "constexpr bool AUDIO_CANDIDATO_HABILITADO = false;",
     ):
         if token not in header:
             errors.append(f"Candidato: falta {token!r} en domus_drivers.h")
+    for token in ('#include "domus_ir_casa.h"', "constexpr bool IR_CASA_HABILITADO"):
+        if token not in source:
+            errors.append(f"Candidato: falta IR activo {token!r} en casa_inteligente_v4.ino")
     return errors
 
 

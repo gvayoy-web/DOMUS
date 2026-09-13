@@ -91,11 +91,9 @@ constexpr const DescriptorBackendMotor& descriptorBackendMotor(BackendMotor b) {
          b == BackendMotor::MX1508 ? DESCRIPTOR_MX1508 : DESCRIPTOR_NINGUNO;
 }
 
-// --- IR CAR MP3 (puerta F4) ---
-// 21 teclas del mando real. La tabla protocolo/dirección/comando se registra
-// del control físico; copiar códigos de internet está prohibido (nota 46).
-constexpr uint8_t IR_TOTAL_TECLAS = 21;
-constexpr bool IR_CANDIDATO_HABILITADO = false;
+// El IR ya no pertenece a este archivo de drivers de motor. Su implementación
+// y tabla aprendible viven en domus_ir_casa.h; el perfil activo decide si usa
+// GPIO12. Esto evita mantener dos banderas contradictorias.
 
 // --- Audio Jarvis (puerta F5) ---
 // Frases fijas en español vía responderJarvis() cuando exista MAX98357A en

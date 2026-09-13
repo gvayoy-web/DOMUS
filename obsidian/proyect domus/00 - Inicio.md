@@ -7,6 +7,9 @@ actualizado: 2026-09-10
 # PROJECT DOMUS — bóveda técnica
 
 > [!IMPORTANT]
+> Estado operativo: [[58 - Estado vigente firmware sensores control y documentos]]. La decisión más reciente de firmware y cableado de banco es [[59 - Firmware unico y perfil banco S8050 IR]] y prevalece en bomba, IR y fuente de código.
+
+> [!IMPORTANT]
 > La autoridad durante la consolidación es [[46 - Plan maestro de consolidacion un costado]].
 > El manual 43 y los diagramas 44-45 quedan superados hasta publicar el manual
 > consolidado. Las notas 02-45 conservan historia, pero no autorizan cableado.
@@ -14,6 +17,10 @@ actualizado: 2026-09-10
 Esta bóveda usa como inventario oficial **únicamente la lista confirmada por Isaac el 1 de septiembre de 2026**. Si una pieza aparece en un documento antiguo pero no en [[01 - Inventario confirmado]], se considera no disponible.
 
 ## Respuesta rápida
+
+- **Firmware y banco actuales:** `casa_inteligente_v4` es la única base. Usar
+  `BANCO_COMPLETO_S8050_IR`: bomba S8050 en GPIO4, IR en GPIO12, LEDs en
+  GPIO5/6/8 y ventilador GPIO7 bloqueado. Ver [[59 - Firmware unico y perfil banco S8050 IR]].
 
 - **Pantalla:** ya existe LCD1602 con interfaz I2C. No comprar OLED.
 - **Motores:** probar uno por vez con S8050; no asumir DRV8833 hasta identificar el módulo pedido.
@@ -23,11 +30,11 @@ Esta bóveda usa como inventario oficial **únicamente la lista confirmada por I
   INMP441 ni entrenar reconocimiento de voz.
 - **Energía de feria:** fuente cerrada regulada de 5 V/5 A, fusible principal de 4 A y distribución común. El módulo de protoboard y el TP4056 no forman parte de la alimentación final.
 - **Batería y solar:** quedan como estética, eléctricamente desconectados. La casa funciona con una fuente común regulada de 5 V.
-- **Software:** el esqueleto conserva sensores y salidas seguras. Faltan los
-  firmwares de aprendizaje IR, prueba del DRV8833, prueba de audio e integracion
-  final; seguir [[44 - Arquitectura y ciclo de vida del firmware]].
-- **Ronda inmediata:** usar `ALFA_UN_COSTADO_SIN_IR`; conectar sensores, LCD,
-  botones y LED por el único costado accesible. IR, relé y módulo pedido quedan fuera.
+- **Software:** `firmware/casa_inteligente_v4` es la única base. El perfil
+  `BANCO_COMPLETO_S8050_IR` habilita sensores, LCD, LED, una bomba S8050 e IR;
+  audio, ventilador y driver doble permanecen fuera.
+- **Ronda inmediata:** cablear desde [[59 - Firmware unico y perfil banco S8050 IR]],
+  abrir Serial a 115200 y enviar `PRUEBA`. La bomba comienza bloqueada en OFF.
 
 ## Navegación
 
@@ -53,7 +60,9 @@ Plan de orden del repositorio (inventario + antes→después): [[54 - Plan de or
 Corrección auditoría 5 (mapa 15/16/17/18, fuente real, driver primero): [[55 - Correccion auditoria 5 mapa fuente driver]].
 Orden fase 1 no destructiva (índice, README, ignores): [[56 - Orden fase 1 no destructiva]].
 Integración LCD final + backends + movimiento 1: [[57 - Integracion LCD backends movimiento 1]].
-Plano alfa actual sin control IR y antes de recibir el driver: [[45 - Diagrama ASCII alfa sin control IR]].
+Estado vigente consolidado de firmware, sensores y control: [[58 - Estado vigente firmware sensores control y documentos]].
+Decisión vigente de firmware único y perfil de banco S8050 + IR: [[59 - Firmware unico y perfil banco S8050 IR]].
+Plano alfa anterior sin IR, conservado solo como historia: [[45 - Diagrama ASCII alfa sin control IR]].
 Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 
 1. [[01 - Inventario confirmado]]

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050">
+  <style>
+    .bg{fill:#f7fafc}.card{fill:#fff;stroke:#263238;stroke-width:3;rx:18}
+    .title{font:700 34px Arial;fill:#102a43}.h{font:700 23px Arial;fill:#0b7285}
+    .t{font:19px Arial;fill:#243b53}.small{font:16px Arial;fill:#486581}
+    .wire{stroke:#1971c2;stroke-width:4;fill:none}.power{stroke:#e03131;stroke-width:4;fill:none}
+    .gnd{stroke:#212529;stroke-width:4;fill:none}.safe{fill:#e6fcf5;stroke:#099268;stroke-width:3;rx:14}
+    .warn{fill:#fff3bf;stroke:#f08c00;stroke-width:3;rx:14}
+  </style>
+  <rect class="bg" width="1600" height="1050"/>
+  <text class="title" x="800" y="55" text-anchor="middle">DOMUS · BANCO CON FIRMWARE FINAL · S8050 + IR</text>
+  <text class="small" x="800" y="88" text-anchor="middle">Perfil predeterminado: BANCO_COMPLETO_S8050_IR · una sola bomba · ventilador y audio deshabilitados</text>
+
+  <rect class="card" x="610" y="125" width="380" height="735"/>
+  <text class="h" x="800" y="165" text-anchor="middle">ESP32-S3 N16R8</text>
+  <text class="t" x="650" y="215">GPIO3  ← LDR (punto medio)</text>
+  <text class="t" x="650" y="255">GPIO4  → 1 kΩ → Base S8050</text>
+  <text class="t" x="650" y="295">GPIO5  → 330 Ω → LED sala</text>
+  <text class="t" x="650" y="335">GPIO6  → 330 Ω → LED cuarto</text>
+  <text class="t" x="650" y="375">GPIO7  · SIN CONECTAR</text>
+  <text class="t" x="650" y="415">GPIO8  → 1 kΩ → LED cultivo</text>
+  <text class="t" x="650" y="455">GPIO9  ← PIR OUT/S</text>
+  <text class="t" x="650" y="495">GPIO10 ← botón PARO → GND</text>
+  <text class="t" x="650" y="535">GPIO11 ← botón SILENCIO → GND</text>
+  <text class="t" x="650" y="575">GPIO12 ← receptor IR OUT/S</text>
+  <text class="t" x="650" y="615">GPIO13 → LCD SCL</text>
+  <text class="t" x="650" y="655">GPIO14 ← DHT11 DATA</text>
+  <text class="t" x="650" y="695">GPIO15 ← suelo AO</text>
+  <text class="t" x="650" y="735">GPIO16 ← nivel S</text>
+  <text class="t" x="650" y="775">GPIO17 ↔ LCD SDA</text>
+  <text class="t" x="650" y="815">GPIO18 ← botón MODO → GND</text>
+
+  <rect class="card" x="45" y="125" width="500" height="445"/>
+  <text class="h" x="295" y="165" text-anchor="middle">Sensores y LCD · todos a 3V3</text>
+  <text class="t" x="80" y="210">DHT11 de frente/rejilla hacia ti:</text>
+  <text class="t" x="105" y="242">1 VCC→3V3 · 2 DATA→14 · 3 NC · 4 GND</text>
+  <text class="small" x="105" y="270">10 kΩ entre pin 1 y pin 2</text>
+  <text class="t" x="80" y="312">LCD backpack: GND·VCC·SDA17·SCL13</text>
+  <text class="t" x="80" y="352">Suelo: VCC·GND·AO15 (DO libre)</text>
+  <text class="t" x="80" y="392">Nivel: +→3V3 · −→GND · S→GPIO16</text>
+  <text class="t" x="80" y="432">PIR: VCC→3V3 · GND · OUT→GPIO9</text>
+  <text class="t" x="80" y="472">IR: VCC→3V3 · GND · OUT/S→GPIO12</text>
+  <text class="t" x="80" y="512">LDR: 3V3—LDR—●—10 kΩ—GND; ●→GPIO3</text>
+
+  <rect class="card" x="1055" y="125" width="500" height="570"/>
+  <text class="h" x="1305" y="165" text-anchor="middle">Único S8050 · solo minibomba</text>
+  <text class="t" x="1090" y="215">GPIO4 → resistencia 1 kΩ → Base B</text>
+  <text class="t" x="1090" y="255">Base B → resistencia 10 kΩ → GND</text>
+  <text class="t" x="1090" y="295">Emisor E → GND común</text>
+  <text class="t" x="1090" y="335">Colector C → negativo de la bomba</text>
+  <text class="t" x="1090" y="375">TP4056 OUT+ → positivo de la bomba</text>
+  <text class="t" x="1090" y="415">TP4056 OUT− → GND común → ESP32 GND</text>
+  <text class="t" x="1090" y="465">1N4007 en paralelo con la bomba:</text>
+  <text class="t" x="1115" y="500">raya plateada → OUT+ / positivo</text>
+  <text class="t" x="1115" y="535">sin raya → colector / negativo</text>
+  <rect class="warn" x="1090" y="565" width="430" height="95"/>
+  <text class="t" x="1305" y="600" text-anchor="middle">Confirma E/B/C de TU S8050.</text>
+  <text class="small" x="1305" y="632" text-anchor="middle">No se determina solo mirando la cara plana.</text>
+
+  <rect class="safe" x="45" y="610" width="500" height="250"/>
+  <text class="h" x="295" y="650" text-anchor="middle">Qué puedes probar ahora</text>
+  <text class="t" x="80" y="695">✓ DHT11, suelo, nivel, LDR y PIR</text>
+  <text class="t" x="80" y="735">✓ LCD bonito y botón MODO</text>
+  <text class="t" x="80" y="775">✓ IR aprendible (21 teclas)</text>
+  <text class="t" x="80" y="815">✓ LEDs y bomba manual/automática</text>
+
+  <rect class="warn" x="45" y="900" width="1510" height="105"/>
+  <text class="h" x="800" y="940" text-anchor="middle">NO CONECTAR TODAVÍA</text>
+  <text class="t" x="800" y="975" text-anchor="middle">GPIO7/ventilador · driver doble · micrófono · microSD · bocinas de 1–2 Ω directas al ESP32</text>
+</svg>

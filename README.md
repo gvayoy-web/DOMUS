@@ -15,7 +15,7 @@ Estados del producto en [`obsidian/proyect domus/53`](obsidian/proyect%20domus/5
 
 | Necesidad | Firmware | Perfil |
 |---|---|---|
-| Banco: sensores, LCD, botones, LED | `firmware/domus_esqueleto` | `ALFA_UN_COSTADO_SIN_IR` (motores bloqueados; `ALFA_BOMBA_1`/`ALFA_VENTILADOR_1` solo vigilados) |
+| Banco actual: sensores, LCD, botones, LED, bomba S8050 e IR | `firmware/casa_inteligente_v4` | `BANCO_COMPLETO_S8050_IR` (GPIO4 bomba; GPIO7 ventilador bloqueado) |
 | Candidato a producto | `firmware/casa_inteligente_v4` | `CANDIDATO_BANCO_SIN_ACTUADORES` por defecto (`-DDOMUS_PERFIL_CASA=1` LED, `=2` motor pendiente) |
 | Solo diagnóstico de placa | `firmware/domus_selftest` | — |
 
@@ -74,5 +74,6 @@ quedan apagadas hasta orden explícita. Detalle: nota `14`.
 
 - Sin driver identificado no hay bomba/ventilador en banco (F1).
 - Sin mapa IR/audio no hay Jarvis hablado (F4/F5).
-- Los modelos de cientos de MB no caben en esta placa; PicoTTS/TinyML siguen en puertas.
+- IA/TinyML y reconocimiento por micrófono están fuera del alcance aprobado.
+  Jarvis significa mando IR y respuestas fijas; el audio sigue aplazado (F5).
 - Riego y ventilación funcionan sin Wi-Fi. Spotify requeriría gateway local con internet.

@@ -112,6 +112,7 @@
 #include "domus_calibration.h"
 #include "domus_voice_contract.h"
 #include "domus_drivers.h"
+#include "domus_ir_casa.h"
 #include "esp_heap_caps.h"
 #if JARVIS_LOCAL_HABILITADO
 #include "esp_afe_sr_iface.h"
@@ -172,14 +173,24 @@
 // Si se instala una etapa distinta, calibrar esta tabla y el perfil.
 #define TOTAL_SALIDAS 5
 
+// Perfil 3 es el banco actual: usa el mismo firmware de producto con una
+// bomba por S8050, luces LED e infrarrojo; el driver doble y el audio quedan
+// fuera hasta que llegue el hardware. Cambiar a 0 restaura banco sin salidas.
+#ifndef DOMUS_PERFIL_CASA
+#define DOMUS_PERFIL_CASA 3
+#endif
+
 // Mantener 0 para el cableado original. Seleccionar 1 únicamente
 // después de montar la alternativa descrita en la nota 21 de Obsidian.
 #ifndef DOMUS_SALIDAS_ECONOMICAS
 #define DOMUS_SALIDAS_ECONOMICAS 0
 #endif
 const bool SALIDA_ACTIVA_EN_BAJO[TOTAL_SALIDAS] = {
-  true, !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS,
-  !DOMUS_SALIDAS_ECONOMICAS, !DOMUS_SALIDAS_ECONOMICAS
+  DOMUS_PERFIL_CASA == 3 ? false : true,
+  DOMUS_PERFIL_CASA == 3 ? false : !DOMUS_SALIDAS_ECONOMICAS,
+  DOMUS_PERFIL_CASA == 3 ? false : !DOMUS_SALIDAS_ECONOMICAS,
+  !DOMUS_SALIDAS_ECONOMICAS,
+  DOMUS_PERFIL_CASA == 3 ? false : !DOMUS_SALIDAS_ECONOMICAS
 };
 const char* NOMBRES_SALIDAS[TOTAL_SALIDAS] = {
   "Bomba", "Luz Sala", "Luz Cuarto", "Ventilador",
@@ -192,18 +203,20 @@ const char* NOMBRES_SALIDAS[TOTAL_SALIDAS] = {
 // intención del cableado futuro, no habilita nada hoy). El nombre de producto
 // final no se usa en ningún binario (ver puertas F1-F7). Selección por
 // bandera -DDOMUS_PERFIL_CASA=N.
-#ifndef DOMUS_PERFIL_CASA
-#define DOMUS_PERFIL_CASA 0
-#endif
-enum class PerfilCasa : uint8_t { BANCO_SIN_ACTUADORES, LED_SIN_MOTORES, MOTOR_PENDIENTE_DRIVER };
-static_assert(DOMUS_PERFIL_CASA >= 0 && DOMUS_PERFIL_CASA <= 2,
-              "DOMUS_PERFIL_CASA debe ser 0, 1 o 2");
+enum class PerfilCasa : uint8_t {
+  BANCO_SIN_ACTUADORES, LED_SIN_MOTORES, MOTOR_PENDIENTE_DRIVER,
+  BANCO_COMPLETO_S8050_IR
+};
+static_assert(DOMUS_PERFIL_CASA >= 0 && DOMUS_PERFIL_CASA <= 3,
+              "DOMUS_PERFIL_CASA debe ser 0, 1, 2 o 3");
 constexpr PerfilCasa PERFIL_CASA =
     DOMUS_PERFIL_CASA == 1 ? PerfilCasa::LED_SIN_MOTORES :
     DOMUS_PERFIL_CASA == 2 ? PerfilCasa::MOTOR_PENDIENTE_DRIVER :
+    DOMUS_PERFIL_CASA == 3 ? PerfilCasa::BANCO_COMPLETO_S8050_IR :
                              PerfilCasa::BANCO_SIN_ACTUADORES;
 constexpr const char* nombrePerfilCasa(PerfilCasa p) {
-  return p == PerfilCasa::LED_SIN_MOTORES ? "CANDIDATO_LED_SIN_MOTORES" :
+  return p == PerfilCasa::BANCO_COMPLETO_S8050_IR ? "BANCO_COMPLETO_S8050_IR" :
+         p == PerfilCasa::LED_SIN_MOTORES ? "CANDIDATO_LED_SIN_MOTORES" :
          p == PerfilCasa::MOTOR_PENDIENTE_DRIVER ? "CANDIDATO_MOTOR_PENDIENTE_DRIVER" :
          "CANDIDATO_BANCO_SIN_ACTUADORES";
 }
@@ -213,32 +226,39 @@ constexpr const char* nombrePerfilCasa(PerfilCasa p) {
 struct MapaPinesCasa {
   int suelo, nivel, ldr;
   int bomba, sala, cuarto, vent, inv;
-  int pir, paro, micOff, demo, scl, dht, sda;
+  int pir, paro, micOff, demo, scl, dht, sda, ir;
   int salidas[TOTAL_SALIDAS];
 };
 constexpr MapaPinesCasa MAPA_CASA = {
   15, 16, 3,
   4, 5, 6, 7, 8,
-  9, 10, 11, 18, 13, 14, 17,
+  9, 10, 11, 18, 13, 14, 17, 12,
   {4, 5, 6, 7, 8}
 };
 DHT dht(MAPA_CASA.dht, TIPO_DHT);
 static_assert(MAPA_CASA.bomba == 4 && MAPA_CASA.sala == 5 && MAPA_CASA.cuarto == 6 &&
               MAPA_CASA.vent == 7 && MAPA_CASA.inv == 8, "Mapa de salidas del candidato");
 static_assert(MAPA_CASA.suelo == 15 && MAPA_CASA.nivel == 16 && MAPA_CASA.sda == 17 &&
-              MAPA_CASA.demo == 18 && MAPA_CASA.scl == 13, "Costado accesible autorizado");
+              MAPA_CASA.demo == 18 && MAPA_CASA.scl == 13 && MAPA_CASA.ir == 12,
+              "Costado accesible autorizado");
 static_assert(MAPA_CASA.bomba == MAPA_CASA.salidas[0] && MAPA_CASA.sala == MAPA_CASA.salidas[1] &&
               MAPA_CASA.cuarto == MAPA_CASA.salidas[2] && MAPA_CASA.vent == MAPA_CASA.salidas[3] &&
               MAPA_CASA.inv == MAPA_CASA.salidas[4], "Campos y arreglo de salidas unidos");
 // Habilitación física derivada del perfil. Los motores quedan bloqueados en
 // los tres perfiles vigentes (ver DRIVER_MOTORES_LISTO en domus_drivers.h).
 constexpr bool SALIDA_FISICA_CASA[TOTAL_SALIDAS] = {
-  false,
+  PERFIL_CASA == PerfilCasa::BANCO_COMPLETO_S8050_IR,
   PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES,
   PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES,
   false,
   PERFIL_CASA != PerfilCasa::BANCO_SIN_ACTUADORES
 };
+constexpr bool BOMBA_DIRECTA_S8050 =
+  PERFIL_CASA == PerfilCasa::BANCO_COMPLETO_S8050_IR;
+constexpr bool IR_CASA_HABILITADO =
+  PERFIL_CASA == PerfilCasa::BANCO_COMPLETO_S8050_IR;
+static_assert(!(BOMBA_DIRECTA_S8050 && SALIDA_FISICA_CASA[3]),
+              "Un solo S8050: bomba y ventilador no pueden habilitarse juntos");
 
 // --- Módulo MP3 (DFPlayer / TF-16P) - SIN ASIGNAR (FINAL-ONLY) ---
 // Sin pines en el candidato: GPIO18 es el botón demo/modo del costado
@@ -349,7 +369,7 @@ constexpr int PINES_RESERVADOS_DOMUS[] = {
   MAPA_CASA.suelo, MAPA_CASA.nivel, MAPA_CASA.ldr,
   MAPA_CASA.bomba, MAPA_CASA.sala, MAPA_CASA.cuarto,
   MAPA_CASA.vent, MAPA_CASA.inv,
-  MAPA_CASA.pir, MAPA_CASA.paro, MAPA_CASA.micOff, MAPA_CASA.demo,
+  MAPA_CASA.pir, MAPA_CASA.paro, MAPA_CASA.micOff, MAPA_CASA.ir, MAPA_CASA.demo,
   MAPA_CASA.scl, MAPA_CASA.dht, MAPA_CASA.sda,
   SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN,
   TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN
@@ -417,6 +437,8 @@ LiquidCrystal_I2C* lcd = nullptr;
 // Pantalla final 16x2: el objeto vive siempre; si el LCD no responde, el
 // puntero queda nulo y la clase lo tolera sin detener el resto del sistema.
 PantallaFinal pantallaFinal;
+IRCasa::Receptor receptorIR;
+int8_t teclaIrPendiente = -1;
 
 // Estado de las cinco cargas físicas del diseño vigente.
 bool estadoSalidas[TOTAL_SALIDAS] = {false, false, false, false, false};
@@ -530,6 +552,9 @@ String construirReporteDiagnostico() {
   r += "REINICIOS_CRITICOS=" + String(reiniciosCriticosConsecutivos) + ";";
   r += "WATCHDOG=" + String(watchdogActivo ? "ON" : "FALLO") + ";";
   r += "CALIBRACION=" + String(calibracionGuardada ? "NVS" : "PROVISIONAL") + ";";
+  r += "IR=" + String(IR_CASA_HABILITADO ? "ON" : "OFF") + ";";
+  r += "IR_ULTIMO=0x" + String(receptorIR.ultimoCodigo(), HEX) + ";";
+  r += "BOMBA_ETAPA=" + String(BOMBA_DIRECTA_S8050 ? "S8050_GPIO4" : "DRIVER") + ";";
   r += "SD_DESCARTADOS=" + String(sdDescartados.load()) + ";";
   r += "SD_ERRORES=" + String(sdErrores.load()) + ";";
   r += "SD_PRUEBA=" + String(sdUltimaPrueba.load()) + ";";
@@ -659,17 +684,24 @@ void inicializarMicroSD() {
 bool escanearBusI2C(bool &hayLcd, uint8_t &dirLcd) {
   hayLcd = false;
   int dispositivosEncontrados = 0;
+  uint8_t direccionUnica = 0;
+  uint8_t direccionPreferida = 0;
 
-  const uint8_t direcciones[] = {DIR_LCD_1, DIR_LCD_2};
-  for (uint8_t dir : direcciones) {
+  for (uint8_t dir = 0x08; dir <= 0x77; ++dir) {
     Wire.beginTransmission(dir);
     uint8_t error = Wire.endTransmission();
     if (error == 0) {
       dispositivosEncontrados++;
+      direccionUnica = dir;
       log("I2C", "Dispositivo encontrado en 0x" + String(dir, HEX));
-      if (dir == DIR_LCD_1  || dir == DIR_LCD_2)  { hayLcd = true;  dirLcd  = dir; }
+      if (dir == DIR_LCD_1 || dir == DIR_LCD_2) direccionPreferida = dir;
     }
   }
+  dirLcd = direccionPreferida != 0 ? direccionPreferida :
+           (dispositivosEncontrados == 1 ? direccionUnica : 0);
+  hayLcd = dirLcd != 0;
+  if (dispositivosEncontrados > 1 && direccionPreferida == 0)
+    log("I2C", "Direccion LCD ambigua: desconecta otros dispositivos I2C");
   return dispositivosEncontrados > 0;
 }
 
@@ -773,31 +805,31 @@ bool verificarNivelLogicoSalida(int indice, bool estadoEsperado) {
   return nivelReal == nivelEsperado;
 }
 
-// Devuelve true si el cambio de GPIO se aplicó y quedó confirmado. Los
+// Devuelve true si el nivel lógico solicitado se leyó de vuelta en el GPIO. Los
 // llamadores (Serial, botones y voz) usan este valor de retorno para construir un
-// ACK o NACK real, en vez de asumir éxito silenciosamente.
+// ACK o NACK del controlador. Esto no confirma el movimiento de un actuador:
+// esa evidencia requiere realimentación física que el montaje aún no incorpora.
 bool solicitarSalida(int indice, bool anunciarPorVoz = true) {
   if (indice < 0 || indice >= TOTAL_SALIDAS) {
-    registrarError("RELE", "Indice invalido solicitado: " + String(indice));
+    registrarError("SALIDA", "Indice invalido solicitado: " + String(indice));
     return false;
   }
   if (estadoSalidas[indice]) return true; // ya encendido, se considera éxito idempotente
 
   digitalWrite(MAPA_CASA.salidas[indice], nivelSalida(indice, true));
-  delay(5); // pequeña espera para que el relé mecánico termine de conmutar antes de releer
 
   if (!verificarNivelLogicoSalida(indice, true)) {
     fallosVerificacionSalida[indice]++;
-    registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " no confirmo encendido en GPIO (revisar cableado)");
+    registrarError("SALIDA", String(NOMBRES_SALIDAS[indice]) + " no confirmo nivel de encendido en GPIO");
     if (fallosVerificacionSalida[indice] >= MAX_FALLOS_ANTES_DE_ALERTA_PERSISTENTE) {
-      registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " fallo repetido, revisar hardware");
+      registrarError("SALIDA", String(NOMBRES_SALIDAS[indice]) + " fallo logico repetido, revisar GPIO");
     }
     return false;
   }
 
   fallosVerificacionSalida[indice] = 0;
   estadoSalidas[indice] = true;
-  log("RELE", String(NOMBRES_SALIDAS[indice]) + " -> ENCENDIDO (GPIO confirmado)");
+  log("SALIDA", String(NOMBRES_SALIDAS[indice]) + " -> ENCENDIDO (nivel GPIO verificado)");
 
   if (anunciarPorVoz && MP3_HABILITADO) {
     if (indice == 0) reproducirPista(1);       // "Regando ahora"
@@ -809,23 +841,22 @@ bool solicitarSalida(int indice, bool anunciarPorVoz = true) {
 
 bool desactivarSalida(int indice, bool anunciarPorVoz = true) {
   if (indice < 0 || indice >= TOTAL_SALIDAS) {
-    registrarError("RELE", "Indice invalido solicitado: " + String(indice));
+    registrarError("SALIDA", "Indice invalido solicitado: " + String(indice));
     return false;
   }
   if (!estadoSalidas[indice]) return true; // ya apagado, éxito idempotente
 
   digitalWrite(MAPA_CASA.salidas[indice], nivelSalida(indice, false));
-  delay(5);
 
   if (!verificarNivelLogicoSalida(indice, false)) {
     fallosVerificacionSalida[indice]++;
-    registrarError("RELE", String(NOMBRES_SALIDAS[indice]) + " no confirmo apagado en GPIO (posible rele pegado)");
+    registrarError("SALIDA", String(NOMBRES_SALIDAS[indice]) + " no confirmo nivel de apagado en GPIO");
     return false;
   }
 
   fallosVerificacionSalida[indice] = 0;
   estadoSalidas[indice] = false;
-  log("RELE", String(NOMBRES_SALIDAS[indice]) + " -> APAGADO (GPIO confirmado)");
+  log("SALIDA", String(NOMBRES_SALIDAS[indice]) + " -> APAGADO (nivel GPIO verificado)");
 
   if (anunciarPorVoz && MP3_HABILITADO) {
     if (indice == 0) reproducirPista(2);       // "Riego detenido"
@@ -892,7 +923,8 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
 
   // Motores primero por driver (F1) y después por etapa del perfil: el motivo
   // reportado distingue "sin driver validado" de "sin etapa instalada".
-  if (orden.encender && (orden.indiceRele == 0 || orden.indiceRele == 3) &&
+  if (orden.encender &&
+      ((orden.indiceRele == 0 && !BOMBA_DIRECTA_S8050) || orden.indiceRele == 3) &&
       !driverMotoresListo()) {
     log("SEGURIDAD", "Encendido rechazado: driver de motores no validado (F1)");
     return {false, false, "driver_no_listo"};
@@ -1341,11 +1373,24 @@ String construirReporteEstado() {
   return r;
 }
 
+void emitirPruebaGuiada() {
+  emitirEventoLocal("PRUEBA;INICIO;COPIA_HASTA_FIN");
+  emitirEventoLocal("PRUEBA;LCD=" + String(pantallaActiva == PANTALLA_LCD ? 1 : 0) +
+    ";DIR=0x" + String(direccionLcdActiva, HEX) +
+    ";IR=" + String(IR_CASA_HABILITADO ? 1 : 0) +
+    ";IR_ULTIMO=0x" + String(receptorIR.ultimoCodigo(), HEX));
+  emitirEventoLocal(construirReporteEstado());
+  emitirEventoLocal(construirReporteDiagnostico());
+  emitirEventoLocal("PRUEBA;ACCIONES=TAPA_LDR,MUEVE_PIR,PULSA_MODO,PRUEBA_IR,PULSA_STOP");
+  emitirEventoLocal("PRUEBA;BOMBA=SUMERGIDA_Y_RIEGO_ON;AUTO=RIEGO_AUTO");
+  emitirEventoLocal("PRUEBA;FIN");
+}
+
 const char* COMANDOS_VALIDOS[] = {
   "RIEGO_ON", "RIEGO_OFF", "LUZ1_ON", "LUZ1_OFF", "LUZ2_ON", "LUZ2_OFF",
   "VENT_ON", "VENT_OFF", "INVER_ON", "INVER_OFF",
   "RIEGO_AUTO", "LUZ1_AUTO", "LUZ2_AUTO", "VENT_AUTO", "INVER_AUTO",
-  "ESTADO", "DIAGNOSTICO", "PARO", "REARMAR", "RECUPERAR",
+  "ESTADO", "DIAGNOSTICO", "PRUEBA", "PARO", "REARMAR", "RECUPERAR",
   "MIC_ESTADO", "SD_PRUEBA"
 };
 const int CANTIDAD_COMANDOS_VALIDOS =
@@ -1380,6 +1425,95 @@ void ejecutarComandoRele(const String &comando, int indice, bool encender,
   } else {
     emitirEventoLocal("NACK;" + comando + ";" + String(resultado.motivo));
   }
+}
+
+void alternarSalidaIR(int indice, const char* nombre) {
+  String comando = String("IR_") + nombre + (estadoSalidas[indice] ? "_OFF" : "_ON");
+  ejecutarComandoRele(comando, indice, !estadoSalidas[indice]);
+}
+
+void ejecutarTeclaIRCasa(IRCasa::Tecla tecla) {
+  using namespace IRCasa;
+  switch (tecla) {
+    case CH_MENOS: pantallaFinal.anterior(); emitirEventoLocal("ACK;IR;PANTALLA_ANTERIOR"); break;
+    case CH: pantallaFinal.siguiente(); emitirEventoLocal("ACK;IR;PANTALLA_SIGUIENTE"); break;
+    case CH_MAS: emitirEventoLocal(construirReporteEstado()); break;
+    case ANTERIOR: case N_1: alternarSalidaIR(1, "LUZ1"); break;
+    case SIGUIENTE: case N_2: alternarSalidaIR(2, "LUZ2"); break;
+    case N_3: alternarSalidaIR(4, "INVER"); break;
+    case N_4: alternarSalidaIR(3, "VENT"); break;
+    case N_5: ejecutarComandoRele("IR_RIEGO_ON", 0, true); break;
+    case N_0:
+      for (int i = 0; i < TOTAL_SALIDAS; ++i)
+        ejecutarComandoRele("IR_TODO_OFF", i, false);
+      break;
+    case N_200_MAS: rearmarSistema(); break;
+    case EQ: emitirEventoLocal(construirReporteDiagnostico()); break;
+    case N_6: case N_7: case N_8: case N_9:
+      emitirEventoLocal(construirReporteEstado()); break;
+    case PLAY: case VOL_MENOS: case VOL_MAS: case N_100_MAS:
+      emitirEventoLocal("NACK;IR;AUDIO_DESHABILITADO_EN_BANCO"); break;
+    default: break;
+  }
+}
+
+bool procesarComandoIR(const String &comando) {
+  if (!comando.startsWith("IR")) return false;
+  if (!IR_CASA_HABILITADO) {
+    emitirEventoLocal("NACK;IR;DESHABILITADO_EN_PERFIL");
+    return true;
+  }
+  if (comando == "IR_LEER") {
+    emitirEventoLocal("IR;ULTIMO=0x" + String(receptorIR.ultimoCodigo(), HEX));
+    return true;
+  }
+  if (comando == "IR_LISTA") {
+    for (uint8_t i = 0; i < IRCasa::TOTAL; ++i)
+      emitirEventoLocal("IR;INDICE=" + String(i) + ";TECLA=" +
+        IRCasa::Receptor::nombre(i) + ";CMD=0x" + String(receptorIR.codigo(i), HEX));
+    return true;
+  }
+  if (comando == "IR_BORRAR") {
+    receptorIR.borrar();
+    emitirEventoLocal("ACK;IR_BORRAR;MAPA_INICIAL_RESTAURADO");
+    return true;
+  }
+  if (comando.startsWith("IR_GRABAR_")) {
+    String numero = comando.substring(10);
+    for (unsigned int i = 0; i < numero.length(); ++i)
+      if (!isDigit(numero[i])) { emitirEventoLocal("NACK;IR_GRABAR;INDICE_0_20"); return true; }
+    int indice = numero.toInt();
+    if (numero.length() == 0 || indice < 0 || indice >= IRCasa::TOTAL) {
+      emitirEventoLocal("NACK;IR_GRABAR;INDICE_0_20");
+      return true;
+    }
+    teclaIrPendiente = static_cast<int8_t>(indice);
+    emitirEventoLocal("ACK;IR_GRABAR;PULSA=" + String(IRCasa::Receptor::nombre(indice)));
+    return true;
+  }
+  emitirEventoLocal("NACK;IR;USA_IR_LEER_LISTA_GRABAR_N_O_BORRAR");
+  return true;
+}
+
+void revisarIRCasa() {
+  if (!IR_CASA_HABILITADO) return;
+  IRCasa::Evento evento = receptorIR.actualizar();
+  if (!evento.hay) return;
+  emitirEventoLocal("IR;CMD=0x" + String(evento.codigo, HEX) + ";TECLA=" +
+    String(IRCasa::Receptor::nombre(evento.tecla)) + ";REP=" + String(evento.repeticion ? 1 : 0));
+  if (teclaIrPendiente >= 0) {
+    const int indice = teclaIrPendiente;
+    teclaIrPendiente = -1;
+    bool guardada = receptorIR.grabar(indice, evento.codigo);
+    emitirEventoLocal(String(guardada ? "ACK" : "NACK") + ";IR_GRABAR;" +
+      IRCasa::Receptor::nombre(indice) + ";CMD=0x" + String(evento.codigo, HEX));
+    return;
+  }
+  if (evento.tecla == IRCasa::NINGUNA) {
+    emitirEventoLocal("NACK;IR;TECLA_DESCONOCIDA");
+    return;
+  }
+  ejecutarTeclaIRCasa(evento.tecla);
 }
 
 void restaurarModoAutomatico(const String &comando, int indice) {
@@ -1560,6 +1694,7 @@ void procesarComandoTexto(String comando) {
   }
 
   if (procesarCalibracion(comando)) return;
+  if (procesarComandoIR(comando)) return;
   if (!esComandoValido(comando)) {
     registrarError("COMANDO", "No reconocido: " + comando);
     emitirEventoLocal("NACK;" + comando + ";no_reconocido");
@@ -1585,6 +1720,7 @@ void procesarComandoTexto(String comando) {
   else if (comando == "INVER_AUTO") restaurarModoAutomatico(comando, 4);
   else if (comando == "ESTADO")    emitirEventoLocal(construirReporteEstado());
   else if (comando == "DIAGNOSTICO") emitirEventoLocal(construirReporteDiagnostico());
+  else if (comando == "PRUEBA") emitirPruebaGuiada();
   else if (comando == "PARO") activarParoEmergencia("PARO_SERIAL");
   else if (comando == "REARMAR") rearmarSistema();
   else if (comando == "RECUPERAR") recuperarModoSeguro();
@@ -1893,6 +2029,10 @@ void setup() {
     pinMode(MAPA_CASA.salidas[i], SALIDA_FISICA_CASA[i] ? OUTPUT : INPUT);
     propietarioSalidas[i] = PROPIETARIO_NINGUNO;
   }
+  // El perfil con S8050 arranca con la bomba en manual OFF. Así una lectura
+  // provisional de suelo no inicia riego al conectar la alimentación. Para
+  // probar automatización el operador debe enviar RIEGO_AUTO explícitamente.
+  if (BOMBA_DIRECTA_S8050) propietarioSalidas[0] = PROPIETARIO_MANUAL_OFF;
   log("SISTEMA", "Salidas inicializadas (todas apagadas)");
   watchdogActivo = inicializarWatchdog();
   if (!watchdogActivo) entrarModoSeguro("watchdog_no_disponible");
@@ -1913,6 +2053,13 @@ void setup() {
 
   dht.begin();
   log("SISTEMA", "DHT11 inicializado (temperatura/humedad ambiental)");
+
+  if (IR_CASA_HABILITADO) {
+    receptorIR.begin(MAPA_CASA.ir);
+    log("IR", "HX1838 iniciado en GPIO12; usa IR_GRABAR_0 hasta IR_GRABAR_20");
+  }
+  if (BOMBA_DIRECTA_S8050)
+    log("BANCO", "Bomba S8050 bloqueada al arrancar; usa RIEGO_ON o RIEGO_AUTO con la bomba sumergida");
 
   if (MP3_HABILITADO) {
     SerialMP3.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN);
@@ -1945,6 +2092,7 @@ void loop() {
   // 1. Seguridad y controles físicos tienen prioridad máxima.
   revisarControlesFisicos();
   supervisarSalud();
+  revisarIRCasa();
 
   // 2. Voz local: nunca escucha con MIC OFF o emergencia activa.
   #if JARVIS_LOCAL_HABILITADO
