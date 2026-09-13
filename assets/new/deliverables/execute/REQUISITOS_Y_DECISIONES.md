@@ -2,7 +2,7 @@
 
 > Snapshot histórico de requisitos visuales. La decisión vigente usa fuente
 > común de 5 V; batería y solar son estética desconectada. Véase
-> `../../../../ESTADO_ACTUAL.md`.
+> `../../../../docs/ESTADO_ACTUAL.md`.
 
 ## Regla principal
 

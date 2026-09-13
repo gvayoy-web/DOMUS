@@ -69,7 +69,7 @@ Las cuatro compilaciones reales de firmware fallaron.
 | P1 | El firmware no compila; no existe binario vigente utilizable | `casa_inteligente_v4.ino:741`, `:766` |
 | P1 | Los rangos ADC no detectan varios cortos/cables abiertos | `casa_inteligente_v4.ino:192-207`, `:882-940` |
 | P1 | Un comando sobredimensionado puede hacer que su sufijo se procese como una orden nueva | `casa_inteligente_v4.ino:1326-1342` |
-| P1 | Documentación afirma una compilación vigente que hoy es falsa | `COMPILACION_VALIDADA.md:32,45`; `ENTREGA_FINAL.md:23`; `PLAN_PROYECTO.md:18-20,65` |
+| P1 | Documentación afirma una compilación vigente que hoy es falsa | `COMPILACION_VALIDADA.md:32,45`; `docs/ENTREGA_FINAL.md:23`; `docs/PLAN_PROYECTO.md:18-20,65` |
 | P1 | Jarvis, MAX98357A, WS2812 y microSD no forman un sistema final integrado | banderas y planes de firmware/audio |
 | P2 | El registro de GPIO omite 40/41/42 del MAX98357A y no asigna WS2812 | `casa_inteligente_v4.ino:269-277`; manual 18 |
 | P2 | GPIO3 es pin de strapping y está unido al divisor LDR sin prueba de arranque | mapa de pines y manual 18 |

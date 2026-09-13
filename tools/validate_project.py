@@ -154,8 +154,8 @@ def validate_hardware_bundle() -> list[str]:
     hardware = ROOT / "hardware"
     obj = hardware / "project_domus.obj"
     mtl = hardware / "project_domus.mtl"
-    guide = ROOT / "GUIA_MONTAJE.md"
-    generator = ROOT / "generate_design.py"
+    guide = ROOT / "hardware" / "GUIA_MONTAJE.md"
+    generator = ROOT / "tools" / "generate_design.py"
     for path in (obj, mtl, guide, generator):
         if not path.is_file():
             errors.append(f"Hardware: falta {path.relative_to(ROOT)}")

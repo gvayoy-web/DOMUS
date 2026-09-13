@@ -62,5 +62,5 @@ deban fabricar. Solo deben marcarse suavemente a lápiz.
 - `hardware/verificacion_geometria_v4.json`: validación automática de la geometría.
 
 Todas las cotas, renders, el OBJ, el CSV de geometría y el visor se regeneran
-desde `generate_design.py`, que escribe esos artefactos directamente en
+desde `tools/generate_design.py`, que escribe esos artefactos directamente en
 `hardware/`. No deben modificarse por separado.

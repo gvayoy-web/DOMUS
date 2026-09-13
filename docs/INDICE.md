@@ -39,7 +39,7 @@
 
 `00` (índice) · `46` (autoridad) · `47` (guía) · `49` (una carga) ·
 `50`–`56` (olas y correcciones) · `34` (cierre SW) · `35` (IDE) · `37` (B01-B05).
-Históricos, no cablear/comprar: `43`, `44`, `45`, `18`, `PLAN_PROYECTO.md`.
+Históricos, no cablear/comprar: `43`, `44`, `45`, `18`, `docs/PLAN_PROYECTO.md`.
 
 ## Validar antes de commitear
 

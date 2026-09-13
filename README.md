@@ -28,7 +28,7 @@ ni dependencia de internet en funciones críticas.
 - Mapa y banco por un costado: notas `46`, `47` (guía), `49` (una carga)
 - Olas y correcciones: notas `50`, `51`, `52`, `53`, `54`, `55`
 - Ronda B01-B05: nota `37` · IDE: nota `35` · Cierre SW: nota `34`
-- Históricos (no cablear/comprar): notas `43`, `44`, `45`, `18`, `PLAN_PROYECTO.md`
+- Históricos (no cablear/comprar): notas `43`, `44`, `45`, `18`, `docs/PLAN_PROYECTO.md`
 
 ## Diagramas vigentes
 

@@ -25,9 +25,9 @@ Referencias a los 20 sueltos de raíz que condicionan los movimientos:
 
 | Origen | Destino referenciado | Efecto al mover |
 |---|---|---|
-| `GUIA_MONTAJE.md` (6) | `plano_tecnico_domus.pdf`, `lista_corte.csv`, `modelo_3d_interactivo.html`, `project_domus.obj/mtl`, `verificacion_geometria_v4.json`, `generate_design.py` | Mover el bloque junto a `docs/` o reescribir 6 líneas |
-| `ENTREGA_FINAL.md` (2) | `modelo_3d_interactivo.html`, `plano_tecnico_domus.svg` | Ídem |
-| Nota `33` (frontmatter) | `../../ESTADO_ACTUAL.md` | Actualizar a nueva ruta de `ESTADO_ACTUAL.md` |
+| `hardware/GUIA_MONTAJE.md` (6) | Artefactos canónicos en `hardware/` y `hardware/planos/`; generador en `tools/generate_design.py` | Ejecutado |
+| `docs/ENTREGA_FINAL.md` (2) | Artefactos canónicos en `hardware/planos/` | Ejecutado |
+| Nota `33` (frontmatter) | `../../docs/ESTADO_ACTUAL.md` | Ejecutado |
 | `tools/build_project_domus_docs.py` | `assets/*opcion_*.png`, `arquitectura_*.png` | No toca raíz; sin efecto |
 | `tools/validate_project.py` | `hardware/planos/GUIA_MONTAJE_ULTIMATE.md` | Ruta actualizada en el movimiento canónico |
 | `README.md` (nuevo) | `docs/INDICE.md` | Creado en esta fase, existe |

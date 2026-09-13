@@ -1,7 +1,7 @@
 # PROJECT DOMUS — paquete offline de simulación y maqueta v2
 
 > Paquete visual estable, no registro del firmware vigente. Consultar
-> `../../../../../ESTADO_ACTUAL.md` para dependencias, pruebas y alimentación.
+> `../../../../../docs/ESTADO_ACTUAL.md` para dependencias, pruebas y alimentación.
 
 Este paquete reemplaza cualquier idea anterior de aplicación móvil o conexión inalámbrica.
 El sistema definitivo usa un único ESP32-S3 N16R8 y funciona localmente mediante sensores,

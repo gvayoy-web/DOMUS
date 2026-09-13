@@ -35,7 +35,7 @@ assert. `test_driver_backends.py` 7/7.
 `verificacion_geometria_v4.json` (los presentes en árbol; resto borrado por el
 propietario, sin tocar). El generador escribe PDF, OBJ/MTL y verificación
 directamente en `hardware/`; OBJ y MTL permanecen juntos. Enlaces
-`GUIA_MONTAJE.md` actualizados en el mismo commit.
+`hardware/GUIA_MONTAJE.md` actualizados en el mismo commit.
 
 ## Relaciones
 

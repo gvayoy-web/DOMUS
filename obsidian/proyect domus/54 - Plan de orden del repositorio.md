@@ -57,7 +57,7 @@ artefactos/ (ignorada)          PDF/ZIP/renders generados (hoy en output/, raíz
 
 | Antes | Después | Notas |
 |---|---|---|
-| 20 sueltos de raíz | `docs/` (md), `hardware/` (csv/obj/png/pdf/html), `tools/` (`generate_design.py`) | Raíz queda con README + gitconfigs |
+| 20 sueltos de raíz | `docs/` (md), `hardware/` (csv/obj/png/pdf/html), `tools/` (`generate_design.py`) | Ejecutado: raíz queda con README + gitconfigs |
 | `planos/new/*` y copia `planos/planos/` | `hardware/planos/` | **EJECUTADO 2026-09-12**; única ruta canónica, con pruebas incluidas |
 | `assets/*.zip` 100 MB + 6 docx + renders | Releases/LFS o `artefactos/` ignorada | `.git` hoy 199 MB |
 | `output/*.pdf` generados | `artefactos/` o Releases | Se regeneran desde fuente |

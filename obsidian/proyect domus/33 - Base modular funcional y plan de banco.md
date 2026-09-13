@@ -1,7 +1,7 @@
 ---
 fecha: 2026-09-06
 estado: software_compilado_banco_pendiente
-fuente_estado: ../../ESTADO_ACTUAL.md
+fuente_estado: ../../docs/ESTADO_ACTUAL.md
 ---
 
 # Base modular funcional y plan de banco

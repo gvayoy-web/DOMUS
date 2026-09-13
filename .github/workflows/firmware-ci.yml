@@ -12,7 +12,7 @@ on:
       - "obsidian/proyect domus/**"
       - "tools/validate_project.py"
       - "README.md"
-      - "PLAN_PROYECTO.md"
+      - "docs/PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
   pull_request:
     paths:
@@ -25,7 +25,7 @@ on:
       - "obsidian/proyect domus/**"
       - "tools/validate_project.py"
       - "README.md"
-      - "PLAN_PROYECTO.md"
+      - "docs/PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
   workflow_dispatch:
 
