@@ -215,6 +215,9 @@ jobs:
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
           arduino-cli lib install "IRremote@4.7.1"
+          arduino-cli lib install "Adafruit GFX Library@1.12.6"
+          arduino-cli lib install "Adafruit SSD1306@2.5.17"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library@1.11.0"
       - name: Compilar ${{ matrix.sketch }}
         run: |
           arduino-cli compile \

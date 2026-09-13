@@ -71,7 +71,8 @@ class FirmwareContractTests(unittest.TestCase):
         self.assertIn("LiquidCrystal_I2C", self.source)
         self.assertNotIn("Adafruit_SSD1306", self.source)
         self.assertNotIn("PANTALLA_OLED", self.source)
-        self.assertNotIn("Adafruit SSD1306", self.workflow)
+        product_job = self.workflow.split("compilar-perfiles-alfa:", 1)[0]
+        self.assertNotIn("Adafruit SSD1306", product_job)
 
     def test_pump_has_level_and_timeout_interlocks(self):
         self.assertIn("nivel_agua_bajo", self.source)

@@ -41,6 +41,10 @@ jobs Arduino instalaban LCD y DHT sin declarar `IRremote`, aunque el producto
 ya incluye `domus_ir_casa.h`. CI instala ahora `IRremote@4.7.1` en todas las
 familias de compilación.
 
+El sketch auxiliar histórico `domus_anim` requería además GFX, SSD1306 y
+ST7789. Esas dependencias quedaron fijadas únicamente en su familia de CI;
+no se añadieron al firmware de producto.
+
 La campaña semirreal no certifica voltajes, corriente, polaridad ni temperatura.
 Las mediciones eléctricas se mantienen marcadas como `SKIP por decisión del dueño`;
 no deben presentarse como PASS. Tampoco se cargó firmware ni se accionó una bomba
