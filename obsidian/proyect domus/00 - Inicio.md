@@ -62,6 +62,7 @@ Orden fase 1 no destructiva (índice, README, ignores): [[56 - Orden fase 1 no d
 Integración LCD final + backends + movimiento 1: [[57 - Integracion LCD backends movimiento 1]].
 Estado vigente consolidado de firmware, sensores y control: [[58 - Estado vigente firmware sensores control y documentos]].
 Decisión vigente de firmware único y perfil de banco S8050 + IR: [[59 - Firmware unico y perfil banco S8050 IR]].
+Ordenamiento Git y pruebas multientorno vigentes: [[60 - Orden Git y pruebas multientorno]].
 Plano alfa anterior sin IR, conservado solo como historia: [[45 - Diagrama ASCII alfa sin control IR]].
 Plan maestro vigente por un solo costado: [[46 - Plan maestro de consolidacion un costado]].
 
