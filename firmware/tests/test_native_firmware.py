@@ -26,6 +26,13 @@ def run_host_process(argv, timeout, allow_skip=False):
     for _ in range(5):
         try:
             return subprocess.run(argv, check=True, capture_output=True, timeout=timeout)
+        except subprocess.CalledProcessError as error:
+            stdout = error.stdout.decode(errors="replace") if isinstance(error.stdout, bytes) else (error.stdout or "")
+            stderr = error.stderr.decode(errors="replace") if isinstance(error.stderr, bytes) else (error.stderr or "")
+            raise RuntimeError(
+                f"Proceso fallo con rc={error.returncode}: {' '.join(map(str, argv))}\n"
+                f"STDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+            ) from error
         except OSError as error:
             last = error
             time.sleep(0.5)
