@@ -10,6 +10,12 @@ class EsqueletoUnicoYDiagnosticoTests(unittest.TestCase):
         source = (ROOT / "firmware/domus_esqueleto/domus_esqueleto.ino").read_text(encoding="utf-8")
         self.assertIn("#define DOMUS_PERFIL_CASA 3", source)
         self.assertIn('#include "../casa_inteligente_v4/casa_inteligente_v4.ino"', source)
+        for prototype in (
+            "bool leerHumedad(int &crudoSalida, int &pctSalida);",
+            "bool leerLuz(int &crudoSalida, int &pctSalida);",
+            "bool leerAmbiente(float &tempCSalida, float &humAireSalida);",
+        ):
+            self.assertIn(prototype, source)
         self.assertNotIn("void setup()", source)
         self.assertNotIn("void loop()", source)
 
