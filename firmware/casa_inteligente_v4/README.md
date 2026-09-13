@@ -44,6 +44,24 @@ provisional la enciende al conectar la alimentación. Abre Serial a 115200,
 espera unos segundos y envía `PRUEBA`. Copia desde `PRUEBA;INICIO` hasta
 `PRUEBA;FIN`.
 
+### Ejecutor automático seguro (Windows)
+
+El HIL vigente prueba este firmware, no el esqueleto legado. No flashea y no
+enciende bomba ni ventilador; sólo consulta el banco, conmuta los tres LED y
+comprueba PARO/rearme. Desde la raíz del repositorio:
+
+```powershell
+python -m pip install -r firmware/tests/requirements-hil.txt
+arduino-cli board list
+$env:DOMUS_PORT = "COM3" # sustituir por el puerto que muestre tu ESP32
+python -m unittest firmware.tests.test_hil_producto -v
+```
+
+Si aparece más de un puerto, desconecta la placa, ejecuta `arduino-cli board
+list`, vuelve a conectarla y repite: el puerto nuevo es el que debes escribir.
+Un `SKIP` significa que falta puerto, placa, dependencia o perfil 3 cargado; no
+significa PASS. Al terminar, el ejecutor ordena apagar las cinco salidas.
+
 Para probar la bomba manualmente, colócala primero dentro del agua y envía
 `RIEGO_ON`; apágala con `RIEGO_OFF`. Para permitir que humedad y nivel gobiernen
 el riego envía `RIEGO_AUTO`. El LCD escanea todo el rango I2C `0x08–0x77` y

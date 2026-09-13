@@ -239,3 +239,28 @@ Estado de mediciones eléctricas: **SKIP por decisión del dueño**.
 No hay un error de software conocido que impida comenzar el banco. Lo que falta
 es evidencia física: conectar, cargar, registrar `PRUEBA`, calibrar y ejecutar
 HIL con supervisión.
+
+## Addendum 2026-09-13 — banco listo para probar hoy
+
+- El HIL histórico `test_hil_esqueleto.py`, atado a COM9 y al protocolo viejo,
+  fue sustituido por `firmware/tests/test_hil_producto.py`.
+- El ejecutor vigente identifica el perfil 3 `BANCO_COMPLETO_S8050_IR`, puede
+  descubrir un único puerto USB compatible y exige `DOMUS_PORT` si hay duda.
+- Sus 8 pruebas nunca encienden bomba ni ventilador. Comprueban diagnóstico,
+  sensores, bloque `PRUEBA`, comandos inválidos, tres LED, 21 entradas IR y
+  PARO/rearme, dejando todo apagado al salir.
+- `firmware/tests/requirements-hil.txt` declara `pyserial`; ya no es una
+  dependencia implícita.
+- `firmware/PRUEBA_HOY.md` contiene los comandos exactos de compilación, carga
+  y ejecución para Windows.
+
+El esqueleto funcional de hoy es el perfil 3 del firmware de producto. El
+directorio `firmware/domus_esqueleto` permanece compilable como regresión
+histórica, pero no recibe funciones nuevas ni se presenta como firmware de
+montaje. Así se conserva un solo cerebro y se evita probar por error el mapa
+antiguo.
+
+Todo lo cerrable sin hardware queda cerrado. Lo restante requiere observación
+física: puerto real, salida del LCD/sensores/botones/IR y bomba sumergida. El
+DRV8833, ventilador y audio esperan sus módulos. Las mediciones eléctricas
+siguen en `SKIP` por decisión del dueño, no en PASS.
