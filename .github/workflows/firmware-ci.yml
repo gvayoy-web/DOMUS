@@ -107,6 +107,7 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+          arduino-cli lib install "IRremote@4.7.1"
 
       - name: Compilar perfil ${{ matrix.name }}
         run: |
@@ -147,6 +148,7 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+          arduino-cli lib install "IRremote@4.7.1"
       - name: Compilar esqueleto perfil ${{ matrix.perfil }}
         run: |
           arduino-cli compile \
@@ -183,6 +185,7 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+          arduino-cli lib install "IRremote@4.7.1"
       - name: Matriz 3 perfiles OK + 3 prohibidos rechazados
         run: python tools/check_perfil_matrix.py
 
@@ -211,6 +214,7 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C@1.1.2"
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
+          arduino-cli lib install "IRremote@4.7.1"
       - name: Compilar ${{ matrix.sketch }}
         run: |
           arduino-cli compile \
