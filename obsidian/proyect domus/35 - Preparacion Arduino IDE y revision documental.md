@@ -70,7 +70,7 @@ conservan como snapshots históricos y remiten a las notas 34 y 35; no deben
 interpretarse como instrucciones actuales. El validador automático comprueba
 Wikilinks, planes requeridos, mapa de pines y contratos del firmware.
 
-La revisión global se reproduce con `python scripts/validate_markdown.py`; exige
+La revisión global se reproduce con `python tools/validate_markdown.py`; exige
 título H1, contenido no vacío y destinos existentes para enlaces locales y
 Wikilinks de todos los Markdown fuera de carpetas de herramientas/compilación.
 

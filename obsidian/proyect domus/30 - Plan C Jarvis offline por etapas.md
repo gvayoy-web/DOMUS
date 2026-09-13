@@ -69,7 +69,7 @@ $env:TF_NUM_INTRAOP_THREADS='1'
 $env:TF_NUM_INTEROP_THREADS='1'
 $env:OMP_NUM_THREADS='1'
 .venv-ia/Scripts/python.exe -m unittest discover -s ai/tests -v
-.venv-ia/Scripts/python.exe scripts/validate_project.py
+.venv-ia/Scripts/python.exe tools/validate_project.py
 ```
 
 La aceptación requiere métricas reales y pruebas 24 h/1000 ciclos del plan 25.

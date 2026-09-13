@@ -45,7 +45,7 @@ Históricos, no cablear/comprar: `43`, `44`, `45`, `18`, `PLAN_PROYECTO.md`.
 
 ```powershell
 python -m pytest firmware/tests/ ai/tests/ -q
-python scripts/validate_project.py
-python scripts/validate_markdown.py
-python scripts/check_perfil_matrix.py
+python tools/validate_project.py
+python tools/validate_markdown.py
+python tools/check_perfil_matrix.py
 ```

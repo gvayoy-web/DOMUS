@@ -42,7 +42,7 @@ función**. Cada cambio debe conservar el comportamiento actual y superar las
 2. Elegir un solo cuello de botella medido.
 3. Añadir primero una prueba que reproduzca el problema.
 4. Realizar el cambio mínimo.
-5. Ejecutar `python scripts/validate_project.py`.
+5. Ejecutar `python tools/validate_project.py`.
 6. Compilar para ESP32-S3 N16R8.
 7. Repetir la misma medición y comparar.
 8. Revertir el cambio si empeora memoria, tiempo o seguridad.

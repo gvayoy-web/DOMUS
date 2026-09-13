@@ -25,7 +25,7 @@ de esa fase.
 - 50 pruebas locales PASS y 5 pruebas C++ nativas omitidas localmente, ejecutables en CI.
 - Campaña semirreal: 10,000 pasos y 40,027 invariantes PASS.
 - 16 pruebas de IA PASS; el modelo generado sigue siendo candidato, no validado en ESP32.
-- El conteo vigente se obtiene con `scripts/validate_project.py`; no conservar
+- El conteo vigente se obtiene con `tools/validate_project.py`; no conservar
   un total historico como criterio de aprobacion.
 - Compilación Arduino completa corregida; evidencia vigente en `firmware/COMPILACION_VALIDADA.md`.
 - Validación de planes, Wikilinks, mapa de pines y visualización central.
@@ -34,7 +34,7 @@ de esa fase.
 Comando único:
 
 ```powershell
-python scripts/validate_project.py
+python tools/validate_project.py
 ```
 
 ## Planes terminados

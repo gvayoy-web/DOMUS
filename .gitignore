@@ -37,6 +37,10 @@ deploy/
 # Editores
 .vscode/
 .idea/
+obsidian/**/.obsidian/workspace.json
+obsidian/**/.obsidian/graph.json
+.boss/
+.codex-remote-attachments/
 
 # Voces privadas y ejecuciones de entrenamiento
 ai/data/

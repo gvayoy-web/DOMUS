@@ -10,7 +10,7 @@ on:
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
-      - "scripts/validate_project.py"
+      - "tools/validate_project.py"
       - "README.md"
       - "PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
@@ -23,7 +23,7 @@ on:
       - "firmware/tests/**"
       - "assets/new/deliverables/execute/01_FINAL_V2/simulator/**"
       - "obsidian/proyect domus/**"
-      - "scripts/validate_project.py"
+      - "tools/validate_project.py"
       - "README.md"
       - "PLAN_PROYECTO.md"
       - ".github/workflows/firmware-ci.yml"
@@ -47,7 +47,7 @@ jobs:
           python-version: "3.12"
 
       - name: Probar simulador y contratos del firmware
-        run: python scripts/validate_project.py
+        run: python tools/validate_project.py
 
   compilar:
     needs: pruebas
@@ -181,7 +181,7 @@ jobs:
           arduino-cli lib install "DHT sensor library@1.4.7"
           arduino-cli lib install "Adafruit Unified Sensor@1.1.15"
       - name: Matriz 3 perfiles OK + 3 prohibidos rechazados
-        run: python scripts/check_perfil_matrix.py
+        run: python tools/check_perfil_matrix.py
 
   compilar-base-modular:
     needs: pruebas

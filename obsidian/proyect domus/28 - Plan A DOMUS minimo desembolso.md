@@ -43,7 +43,7 @@ el ahorro del relé queda sin aprobar: cotizar etapa MOSFET apta para lógica
 
 ```powershell
 .local-tools/arduino-cli/bin/arduino-cli.exe compile --config-file .arduino-local/arduino-cli.yaml --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CPUFreq=240,LoopCore=1 --build-property build.extra_flags=-DDOMUS_SALIDAS_ECONOMICAS=1 --output-dir build/plan_a firmware/casa_inteligente_v4
-.venv-ia/Scripts/python.exe scripts/validate_project.py
+.venv-ia/Scripts/python.exe tools/validate_project.py
 ```
 
 5. Comprobar arranque/reset sin pulsos de carga, cinco ON/OFF, PARO y rearme,

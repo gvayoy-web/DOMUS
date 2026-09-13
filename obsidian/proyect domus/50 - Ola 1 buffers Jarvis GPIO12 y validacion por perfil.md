@@ -94,7 +94,7 @@ Sin reescribir lo publicado; commits pequeños nuevos:
 3. Notas 43/44/45: banner + metadata histórico/superado, autoridad 46/47/49/50.
 4-5. Selección compilable: `-DDOMUS_PERFIL_ALFA=0/1/2`,
    `-DDOMUS_BUZZER/-DDOMUS_IR/-DDOMUS_DF`; CI (`firmware-ci.yml`) construye
-   los 3 perfiles; `scripts/check_perfil_matrix.py` verifica 3 OK + 3 rechazos.
+   los 3 perfiles; `tools/check_perfil_matrix.py` verifica 3 OK + 3 rechazos.
 6. Rechazos probados por compilación real (no solo booleanos): perfil 3,
    IR+buzzer en GPIO12, DFPlayer en 17/18.
 7. `PERFIL_PRUEBA = nombrePerfil(PERFIL_HARDWARE)`: DIAGNOSTICO/BANCO/LISTO

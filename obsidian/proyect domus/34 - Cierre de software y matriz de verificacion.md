@@ -41,7 +41,7 @@ fallos de sensor. Resultado: PASS, con registro de eventos limitado a 250.
 
 Esta campaña aproxima cambios ambientales y fallos lógicos, pero no reproduce
 ruido ADC, rebote eléctrico, consumo, caídas de 5 V, calor ni comportamiento
-real del relé/motor. Se reproduce con `python scripts/run_semireal_campaign.py`.
+real del relé/motor. Se reproduce con `python tools/run_semireal_campaign.py`.
 
 ## Qué quedó funcional en el esqueleto
 

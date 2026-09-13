@@ -13,7 +13,7 @@ Base: [[01 - Inventario confirmado]], [[21 - Simplificacion y reduccion de costo
 [[25 - Plan ejecutable Jarvis offline fiable y entrenado]] y [[26 - Avance Jarvis contrato entrenamiento y pruebas]].
 Compatibilidad: conservar PARO, MIC OFF, nivel, timeout de bomba y control manual.
 TDD: no aplicable a esta entrega documental; implementación futura requiere regresión.
-Verificación documental: `.venv-ia/Scripts/python.exe scripts/validate_project.py`.
+Verificación documental: `.venv-ia/Scripts/python.exe tools/validate_project.py`.
 
 ## Tres configuraciones, una casa
 

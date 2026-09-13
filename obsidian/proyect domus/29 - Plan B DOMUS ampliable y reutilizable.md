@@ -45,7 +45,7 @@ pruebas nuevas antes de usarlo. Versatilidad no significa compatibilidad univers
    pines reservados para micrófono/audio/SD sin revisión conjunta del firmware.
 4. Compilar el perfil elegido con el comando del plan A cambiando únicamente
    `DOMUS_SALIDAS_ECONOMICAS=0` y carpeta `build/plan_b` para B relés.
-5. Ejecutar `.venv-ia/Scripts/python.exe scripts/validate_project.py`.
+5. Ejecutar `.venv-ia/Scripts/python.exe tools/validate_project.py`.
 6. Repetir las pruebas de nota 19 tras cada cambio: desconectar módulo opcional,
    comprobar funcionamiento doméstico, arranque OFF, PARO y recuperación.
 7. En nota 12 registrar módulo/cableado/perfil/binario aprobado como conjunto.

@@ -50,7 +50,7 @@ en 3 perfiles (+3 rechazos) y la base modular, con Arduino-ESP32 3.3.10:
 
 ```powershell
 arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" firmware/casa_inteligente_v4
-python scripts/check_perfil_matrix.py   # 3 perfiles alfa OK + 3 prohibidos rechazados
+python tools/check_perfil_matrix.py   # 3 perfiles alfa OK + 3 prohibidos rechazados
 ```
 
 La compilación comprueba software; sensores, etapas y fuente se validan en

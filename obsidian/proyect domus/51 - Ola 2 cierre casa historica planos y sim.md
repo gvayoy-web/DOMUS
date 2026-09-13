@@ -24,9 +24,11 @@ quedan como historia donde contradigan a esta nota.
 
 ## 2. Planos canónicos (dualidad resuelta)
 
-* **Canónico:** `planos/new/` (trackeado, probado por `planos/tests/`,
+* **Histórico en esta fecha:** `planos/new/`. Su contenido fue consolidado el
+  2026-09-12 en `hardware/planos/`, probado por `hardware/planos/tests/`,
   verde en checkout limpio). Base 800 × 520 y familia Ultimate mandan.
-* **No canónico:** `planos/planos/` (sin seguimiento, duplicado sin autoridad).
+* **Retirado:** `planos/planos/`; fue la copia transitoria usada para recuperar
+  el paquete y ya no constituye otra fuente de verdad.
   Ningún script, workflow o nota vigente puede referenciarlo (verificado por
   búsqueda: cero referencias). Pendiente: borrarlo del disco cuando Isaac lo
   autorice; no se commitea ni se restaura nada desde ahí.

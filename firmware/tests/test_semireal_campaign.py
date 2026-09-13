@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = importlib.util.spec_from_file_location("semireal", ROOT / "scripts/run_semireal_campaign.py")
+SPEC = importlib.util.spec_from_file_location("semireal", ROOT / "tools/run_semireal_campaign.py")
 semireal = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 sys.modules[SPEC.name] = semireal

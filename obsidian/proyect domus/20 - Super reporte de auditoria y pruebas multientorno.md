@@ -248,7 +248,7 @@ Aspectos positivos:
 
 Mejoras necesarias:
 
-1. Hacer que `scripts/validate_project.py` invoque también una compilación real
+1. Hacer que `tools/validate_project.py` invoque también una compilación real
    o separar claramente `VALIDACION_LOGICA_OK` de `FIRMWARE_COMPILADO_OK`.
 2. Dejar de usar `assertIn()` como prueba principal de seguridad: comprueba que
    existe una palabra, no que la ruta funcione.

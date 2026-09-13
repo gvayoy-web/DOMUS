@@ -2,7 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: plan-orden-repositorio
 actualizado: 2026-09-12
-estado: plan_para_ejecutar
+estado: estructura_canonica_en_ejecucion
 ---
 
 # Plan de orden del repositorio (inventario 2026-09-12)
@@ -22,7 +22,7 @@ ejecuta desde checkout limpio; los cambios del propietario se reportan aparte.
 | `firmware/` | 43+4 | 5 firmwares + headers + 9 tests + PoCs + docs |
 | `ai/` | 9 | Entrenador + evaluador + 3 tests |
 | `visualizaciones/` | 12 | 6 SVG/HTML fuente + interactivos |
-| `scripts/` | 10 | Validadores + generadores PDF + matriz |
+| `tools/` | 10 | Validadores + generadores PDF + matriz |
 | `documentos/` | 6 | 6 `.docx` (3 pares actual/original duplicados) |
 | `docs/` | 4 | Bitácora aegis 2026-09-06 |
 | `output/` | 4 | 2 PDF generados + 1 md + 1 png |
@@ -35,7 +35,7 @@ Ignorados grandes (bien): `build/`, `firmware/**/build/`, toolchains,
 
 Árbol sucio del propietario (NO TOCAR aquí, solo reportar): ~40 md de
 obsidian modificados, `planos/*` + raíz suelta borrados sin commitear,
-`scripts/build_ronda_banco_pdf.py` modificado, `build_domus_final_pdf.py` +
+`tools/build_ronda_banco_pdf.py` modificado, `build_domus_final_pdf.py` +
 `domus_esqueleto.rar` + `tmp/` + PDFs nuevos sin seguimiento.
 
 ## 2. Estructura canónica propuesta
@@ -46,24 +46,23 @@ firmware/domus_esqueleto/       banco congelado (P0/P1)
 firmware/domus_selftest|anim|*_poc/  diagnóstico y experimentos
 firmware/tests/                 pruebas de firmware (incl. sim + nativas)
 docs/                           bóveda publicada: inicio, manuales, olas, actas
-hardware/                       planos/new canónico + guías + SVG fuente
+hardware/planos/                paquete canónico + pruebas + guías + fuentes
 visualizaciones/                solo fuente web/SVG (ya está bien)
 tests/  → NO crear: cada suite vive con su código (firmware/ai/planos)
-tools/ (renombrar scripts/)     validadores + matriz + generadores
+tools/                          validadores + matriz + generadores
 artefactos/ (ignorada)          PDF/ZIP/renders generados (hoy en output/, raíz, assets)
 ```
 
-## 3. Tabla antes → después (EJECUTAR en siguiente entrega, no aquí)
+## 3. Tabla antes → después
 
 | Antes | Después | Notas |
 |---|---|---|
 | 20 sueltos de raíz | `docs/` (md), `hardware/` (csv/obj/png/pdf/html), `tools/` (`generate_design.py`) | Raíz queda con README + gitconfigs |
-| `planos/new/*` | `hardware/planos/` | Única ruta canónica; `planos/` raíz se retira |
-| `planos/planos/` (untracked) | eliminar del disco (autorización) | No commitear |
+| `planos/new/*` y copia `planos/planos/` | `hardware/planos/` | **EJECUTADO 2026-09-12**; única ruta canónica, con pruebas incluidas |
 | `assets/*.zip` 100 MB + 6 docx + renders | Releases/LFS o `artefactos/` ignorada | `.git` hoy 199 MB |
 | `output/*.pdf` generados | `artefactos/` o Releases | Se regeneran desde fuente |
 | `obsidian/proyect domus/` | se queda (fuente); `docs/` publica índice | `.obsidian/*.json` fuera del repo |
-| `scripts/` | `tools/` (+ `.gitignore`: `*.rar`, `tmp/`, artefactos) | Corregir imports/links |
+| `scripts/` | `tools/` | **EJECUTADO 2026-09-12**; CI, imports y documentación actualizados |
 
 ## 4. Reglas de ejecución
 
