@@ -10,6 +10,8 @@ Casa inteligente local para una maqueta con ESP32-S3 N16R8. El firmware reúne s
 
 Si necesitas identificar físicamente cada cable, abre la [guía paso a paso de los seis firmware](docs/DIAGRAMAS_CADA_FIRMWARE.md).
 
+Para probar el mando y la casa real con el único S8050, sigue la [sesión IR + bomba por etapas](docs/SESION_REAL_IR_S8050.md).
+
 El producto vive únicamente en firmware/casa_inteligente_v4/. firmware/legacy/ conserva el esqueleto anterior para regresiones. Jarvis es el mando IR con respuestas fijas de texto; no hay reconocimiento de voz ni IA en el producto.
 
 ## Organización

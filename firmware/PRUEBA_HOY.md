@@ -2,12 +2,13 @@
 
 ## Qué cargar
 
-Carga `firmware/domus_esqueleto/domus_esqueleto.ino`: este archivo incluye
-literalmente `firmware/casa_inteligente_v4/casa_inteligente_v4.ino` sin cambiar
-banderas. Su valor predeterminado es el perfil 3
-`BANCO_COMPLETO_S8050_IR`: éste es el esqueleto funcional actual y comparte el
-mismo código que el producto. La carpeta `domus_esqueleto` queda como banco
-histórico de regresión está ahora en `firmware/legacy/domus_esqueleto`.
+Carga `firmware/domus_esqueleto/domus_esqueleto.ino`: este archivo define el
+perfil 3 `BANCO_COMPLETO_S8050_IR` e incluye literalmente
+`firmware/casa_inteligente_v4/casa_inteligente_v4.ino`. El esqueleto anterior
+de regresión está en `firmware/legacy/domus_esqueleto`.
+
+Para aprender las 21 teclas y probar sensores y bomba por etapas, sigue la
+[sesión real IR + S8050](../docs/SESION_REAL_IR_S8050.md).
 
 Para averiguar los códigos exactos del mando y obtener números crudos de
 calibración sin posibilidad de accionar salidas, carga temporalmente
