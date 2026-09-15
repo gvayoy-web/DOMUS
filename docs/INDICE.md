@@ -6,6 +6,7 @@ La [nota 63](../obsidian/proyect%20domus/63%20-%20Auditoria%20total%20de%20Obsid
 |---|---|
 | Entender estado y alcance | [Inicio](../obsidian/proyect%20domus/00%20-%20Inicio.md) y [auditoría 63](../obsidian/proyect%20domus/63%20-%20Auditoria%20total%20de%20Obsidian%20y%20estado%20real.md) |
 | Preparar el banco | [Prueba de hoy](../firmware/PRUEBA_HOY.md), nota 61 y SVG del banco |
+| Ver DHT11, PIR, IR y cada sketch pin por pin | [Diagramas de todos los firmware](DIAGRAMAS_CADA_FIRMWARE.md) |
 | Cargar el firmware | firmware/domus_esqueleto/ para banco; firmware/casa_inteligente_v4/ para producto |
 | Consultar pruebas y límites | Nota 60 y [estado breve](ESTADO_ACTUAL.md) |
 | Construir la maqueta | hardware/planos/ y hardware/GUIA_MONTAJE.md; confirmar antes el perfil físico |

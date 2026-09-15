@@ -8,6 +8,8 @@ Casa inteligente local para una maqueta con ESP32-S3 N16R8. El firmware reúne s
 2. Para el banco actual, abrir [firmware/domus_esqueleto](firmware/domus_esqueleto/README.md). Es un envoltorio literal del [firmware de producto](firmware/casa_inteligente_v4/README.md) con el perfil BANCO_COMPLETO_S8050_IR.
 3. Seguir la [prueba de hoy](firmware/PRUEBA_HOY.md) y el [diagrama vigente del banco](visualizaciones/domus-banco-final-s8050-ir.svg). Para capturar códigos IR y calibraciones sin activar salidas, usar firmware/diagnosticos/domus_banco_integracion/.
 
+Si necesitas identificar físicamente cada cable, abre la [guía paso a paso de los seis firmware](docs/DIAGRAMAS_CADA_FIRMWARE.md).
+
 El producto vive únicamente en firmware/casa_inteligente_v4/. firmware/legacy/ conserva el esqueleto anterior para regresiones. Jarvis es el mando IR con respuestas fijas de texto; no hay reconocimiento de voz ni IA en el producto.
 
 ## Organización
