@@ -81,6 +81,18 @@ class CasaCandidatoTests(unittest.TestCase):
         self.assertIn("!(BOMBA_DIRECTA_S8050 && SALIDA_FISICA_CASA[3])", self.source)
         self.assertIn("AUDIO_CANDIDATO_HABILITADO = false", self.drivers)
 
+    def test_ir_solo_acciona_teclas_aprendidas_y_rechaza_duplicados(self):
+        ir = CANDIDATE.with_name("domus_ir_casa.h").read_text(encoding="utf-8")
+        self.assertIn('getUInt("mask", 0)', ir)
+        self.assertIn("aprendida(i) && tabla_[i] == codigo", ir)
+        self.assertIn('ultimoError_ = "codigo_duplicado"', ir)
+        self.assertIn("bool mapaCompleto() const", ir)
+        self.assertIn("IR;APRENDIDAS=", self.source)
+        self.assertIn("MAPA_SIN_APRENDER;SALIDAS_IR_BLOQUEADAS", self.source)
+        self.assertIn("ORIGEN_IR", self.source)
+        self.assertIn("if (orden.origen == ORIGEN_IR)", self.source)
+        self.assertIn("responderJarvis(construirRespuestaJarvis", self.source)
+
     def test_prueba_guiada_y_arranque_seguro_de_bomba(self):
         self.assertIn("void emitirPruebaGuiada()", self.source)
         for token in ("PRUEBA;INICIO", "PRUEBA;LCD=", "PRUEBA;ACCIONES=", "PRUEBA;FIN"):

@@ -1,3 +1,8 @@
+---
+estado: historico_alternativa_no_elegida
+fecha: 2026-09-14
+---
+
 # Plan A: DOMUS con mínimo desembolso
 
 > [!WARNING]

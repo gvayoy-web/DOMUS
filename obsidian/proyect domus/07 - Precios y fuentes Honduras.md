@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: fuentes
 actualizado: 2026-09-01
+estado: historico_precios
 ---
 
 # Precios y fuentes en Honduras

@@ -2,12 +2,17 @@
 proyecto: PROJECT DOMUS
 tipo: guia-visual-principiante
 actualizado: 2026-09-10
-estado: VIGENTE_PARA_BANCO_ALFA_SIN_MOTORES
+estado: historico_banco_alfa_sin_motores
 perfil: ALFA_UN_COSTADO_SIN_IR
 autoridad: deriva de 46
 ---
 
 # Guía visual para conectar el banco alfa
+
+> [!WARNING]
+> HISTÓRICO: describe el alfa sin motores. El banco actual añade IR y permite
+> una bomba con S8050. Usa `visualizaciones/domus-banco-final-s8050-ir.svg` y
+> [[59 - Firmware unico y perfil banco S8050 IR]].
 
 > [!DANGER]
 > Esta guía es solamente para sensores, LCD, botones y LED. **No conectes todavía

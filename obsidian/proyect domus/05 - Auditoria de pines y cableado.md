@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: firmware-hardware
 actualizado: 2026-09-04
+estado: historico_no_cablear
 ---
 
 # Auditoría de pines y cableado

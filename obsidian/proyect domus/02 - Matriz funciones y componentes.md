@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: matriz
 actualizado: 2026-09-07
+estado: historico
 ---
 
 # Matriz de funciones y componentes

@@ -6,9 +6,9 @@
   Autor: Isaac | Proyecto de feria de ciencias
 
   NOTA DE MIGRACIÓN:
-  Este firmware es ahora la única fuente de control. La voz local se mantiene
-  protegida por una bandera hasta
-  que exista un modelo español entrenado y validado con el micrófono real.
+  Este firmware es ahora la única fuente de control. DOMUS no usa micrófono,
+  reconocimiento de voz, IA ni TinyML. "Jarvis" es la personalidad de las
+  respuestas fijas disparadas por mando IR; el audio se integrará después.
 
   ============================================================================
   POR QUÉ CAMBIÓ TODO ESTE ARCHIVO RESPECTO A v3
@@ -31,11 +31,6 @@
       firmware ahora expone HUM_PCT (0-100%) usando dos constantes de
       calibración (tierra seca / tierra húmeda) en vez de mostrar un
       número crudo como "2437" sin significado para el usuario.
-    - VOZ CORREGIDA: la condición "afe_data != NULL" que hacía que MultiNet
-      corriera siempre (sin importar el wake word) se reemplazó por una
-      máquina de estados explícita con ventana de escucha real.
-    - VOZ: agregado el comando de invernadero, que existía por Bluetooth
-      pero no por voz.
     - COLA DE COMANDOS NO APLICA AQUÍ: el firmware siempre fue un simple
       receptor/ejecutor, la cola con TTL vive del lado de la app (ver
       La cola de comandos no vive en el firmware: este archivo recibe y ejecuta,
@@ -64,19 +59,16 @@
     Board: "ESP32S3 Dev Module"
     PSRAM: "OPI PSRAM"
     Flash Size: "16MB"
-    Partition Scheme: seleccionar después de medir modelos y PicoTTS; no usar
-    un esquema OTA hasta definir una tabla compatible con los 16 MB de flash.
+    Partition Scheme: app3M_fat9M_16MB para la compilación N16R8 validada.
 
   LIBRERÍAS A INSTALAR (ver versiones exactas probadas en el README):
     1. "LiquidCrystal I2C"   - Frank de Brabander (para BLOQUE LCD)
     2. "DHT sensor library"  - Adafruit (para el DHT11 de temperatura/humedad)
     3. "Adafruit Unified Sensor" - Adafruit (dependencia de DHT sensor library)
 
-  VOZ FINAL PENDIENTE:
-    - detector TinyML de "Jarvis" + clasificador español int8
-    - PicoTTS español + MAX98357A
-    El bloque ESP-SR bajo bandera es legado y no debe activarse como solución
-    española; será reemplazado cuando existan los artefactos validados.
+  AUDIO:
+    - aplazado hasta definir una fuente de señal compatible con MAX98306;
+    - no existe ni se requiere una ruta de reconocimiento de voz.
   ============================================================================
 */
 
@@ -89,10 +81,6 @@
 // física. El esqueleto alfa sigue siendo el firmware de banco vigente.
 // Estado formal: CANDIDATO (ver nota 53); FINAL solo tras puertas F1-F7.
 
-// Jarvis local en español requiere un modelo TinyML entrenado para este
-// hardware. Mientras no exista ese artefacto, el resto de la casa debe seguir
-// compilando y funcionando sin el SDK de voz.
-#define JARVIS_LOCAL_HABILITADO false
 #ifndef MICROSD_HABILITADA
 #define MICROSD_HABILITADA false
 #endif
@@ -110,18 +98,9 @@
 #include "freertos/task.h"
 #include "domus_types.h"
 #include "domus_calibration.h"
-#include "domus_voice_contract.h"
 #include "domus_drivers.h"
 #include "domus_ir_casa.h"
 #include "esp_heap_caps.h"
-#if JARVIS_LOCAL_HABILITADO
-#include "esp_afe_sr_iface.h"
-#include "esp_afe_sr_models.h"
-#include "esp_mn_iface.h"
-#include "esp_mn_models.h"
-#include "esp_mn_speech_commands.h"
-#include "driver/i2s.h"
-#endif
 #include "esp_task_wdt.h"   // watchdog de hardware
 #include "esp_system.h"     // esp_get_free_heap_size(), esp_restart()
 
@@ -141,18 +120,6 @@
 // Direcciones esperadas (se detectan automáticamente, no hace falta tocarlas):
 #define DIR_LCD_1       0x27
 #define DIR_LCD_2       0x3F
-
-// --- Micrófono I2S (INMP441, FUTURO sin pines asignados) ---
-// SIN ASIGNAR en el candidato: el mapa autorizado 15/16/17 ya los usa para
-// suelo/nivel/SDA (nota 46/47/55). Se asignan con F4, nunca antes.
-#define MIC_WS_PIN      -1
-#define MIC_SD_PIN      -1
-#define MIC_SCK_PIN     -1
-#define TTS_BCLK_PIN    40   // provisional: confirmar exposición en placa
-#define TTS_WS_PIN      41
-#define TTS_DOUT_PIN    42
-// Fijos en el módulo (no son GPIO configurables):
-//   VDD -> 3.3V (¡JAMÁS 5V, se quema el chip!)   GND -> GND   L/R -> GND
 
 // --- Sensores y controles: VALORES SOLO EN MAPA_CASA (abajo) ---
 // Costado accesible autorizado (nota 46/47/55). No existen #define de pines
@@ -265,7 +232,7 @@ static_assert(!(BOMBA_DIRECTA_S8050 && SALIDA_FISICA_CASA[3]),
 // autorizado. Se asigna UART con F5, nunca antes.
 #define MP3_RX_PIN      -1
 #define MP3_TX_PIN      -1
-#define MP3_HABILITADO  false // legado opcional; Jarvis final usará PicoTTS + MAX98357A
+#define MP3_HABILITADO  false // reproductor opcional; no instalado en el banco
 // Pistas sugeridas a grabar en la microSD del módulo (archivos 0001.mp3, etc):
 //   0001.mp3 = "Regando ahora"      0002.mp3 = "Riego detenido"
 //   0003.mp3 = "Luz encendida"      0004.mp3 = "Luz apagada"
@@ -318,17 +285,6 @@ static_assert(!(BOMBA_DIRECTA_S8050 && SALIDA_FISICA_CASA[3]),
 #define UMBRAL_TEMP_ALTA_C       28.0   // a partir de esto, se enciende el ventilador solo
 #define UMBRAL_TEMP_NORMAL_C     26.0   // se apaga al bajar hasta aquí (histéresis de 2 °C)
 
-// Anti-rebote de voz: exige que el mismo comando no se repita antes de este
-// tiempo, para evitar que una sola frase dispare la acción varias veces
-#define DEBOUNCE_VOZ_MS         2000
-#define VOZ_MAX_FALLOS_CONSECUTIVOS 3
-#define VOZ_TIEMPO_MAX_CICLO_US 250000UL
-
-// Ventana de escucha activa tras detectar el wake word. Antes de v4, la
-// condición de v3 hacía que MultiNet corriera siempre (ver comentario en
-// revisarVoz()); ahora solo procesa comandos dentro de esta ventana.
-#define VENTANA_ESCUCHA_MS      5000
-
 // Intervalo de refresco de pantalla y de verificación de riego automático
 #define INTERVALO_PANTALLA_MS   1500
 #define INTERVALO_RIEGO_MS      5000
@@ -371,8 +327,7 @@ constexpr int PINES_RESERVADOS_DOMUS[] = {
   MAPA_CASA.vent, MAPA_CASA.inv,
   MAPA_CASA.pir, MAPA_CASA.paro, MAPA_CASA.micOff, MAPA_CASA.ir, MAPA_CASA.demo,
   MAPA_CASA.scl, MAPA_CASA.dht, MAPA_CASA.sda,
-  SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN,
-  TTS_BCLK_PIN, TTS_WS_PIN, TTS_DOUT_PIN
+  SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN
 };
 
 constexpr bool pinesDomusSonUnicos() {
@@ -458,22 +413,6 @@ PropietarioActuador propietarioSalidas[TOTAL_SALIDAS] = {
 };
 unsigned long bombaEncendidaDesdeMs = 0;
 
-// Motor de voz (ESP-SR/TinyML), únicamente cuando se ha validado un modelo.
-#if JARVIS_LOCAL_HABILITADO
-static esp_afe_sr_iface_t *afe_handle = NULL;
-static esp_afe_sr_data_t *afe_data = NULL;
-model_iface_data_t *modelo_mn = NULL;
-esp_mn_iface_t *multinet = NULL;
-bool motorVozListo = false;
-bool vozSuspendidaPorSalud = false;
-uint8_t fallosVozConsecutivos = 0;
-#endif
-unsigned long ultimoComandoVozMs = 0;
-int ultimoComandoVozID = -1;
-
-// Máquina de estados de la ventana de escucha (reemplaza el bug de v3)
-bool ventanaEscuchaActiva = false;
-unsigned long inicioVentanaEscuchaMs = 0;
 
 // Últimas lecturas válidas de sensores (para no mostrar basura si un sensor
 // falla momentáneamente)
@@ -558,25 +497,9 @@ String construirReporteDiagnostico() {
   r += "SD_DESCARTADOS=" + String(sdDescartados.load()) + ";";
   r += "SD_ERRORES=" + String(sdErrores.load()) + ";";
   r += "SD_PRUEBA=" + String(sdUltimaPrueba.load()) + ";";
-  #if JARVIS_LOCAL_HABILITADO
-    r += "VOZ=" + String(vozSuspendidaPorSalud ? "SUSPENDIDA" : (motorVozListo ? "LISTA" : "NO_LISTA")) + ";";
-  #else
-    r += "VOZ=DESHABILITADA;";
-  #endif
+  r += "RECONOCIMIENTO_VOZ=NO_USADO;AUDIO=APLAZADO;";
   return r;
 }
-
-// ============================================================================
-// SECCIÓN 4: COMANDOS DE VOZ
-// ============================================================================
-enum ComandoVoz {
-  CMD_RIEGO_ON = 0, CMD_RIEGO_OFF,
-  CMD_LUZ_SALA_ON, CMD_LUZ_SALA_OFF,
-  CMD_LUZ_CUARTO_ON, CMD_LUZ_CUARTO_OFF,
-  CMD_VENTILADOR_ON, CMD_VENTILADOR_OFF,
-  CMD_INVERNADERO_ON, CMD_INVERNADERO_OFF,
-  CMD_TOTAL
-};
 
 // ============================================================================
 // SECCIÓN 5: UTILIDAD DE LOG CON TIMESTAMP
@@ -883,9 +806,8 @@ String construirRespuestaJarvis(const OrdenActuador &orden, bool estadoAnterior,
     : "He apagado " + nombre + ".";
 }
 
-// Punto único de salida para PicoTTS. Por ahora deja la frase observable en
-// Serial; cuando se integre el motor, esta función entregará el texto a su
-// cola de audio sin cambiar el despachador ni las reglas de la casa.
+// Punto único de salida de Jarvis. Hoy deja la frase observable en Serial;
+// más adelante podrá disparar frases grabadas sin añadir reconocimiento.
 void responderJarvis(const String &texto) {
   log("JARVIS_TEXTO", texto);
 }
@@ -894,21 +816,6 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
   if (orden.indiceRele < 0 || orden.indiceRele >= TOTAL_SALIDAS) {
     registrarError("ORDEN", "Indice de rele fuera de rango");
     return {false, false, "indice_invalido"};
-  }
-
-  // Revalidar al ejecutar: MIC OFF también invalida resultados ya calculados.
-  if (orden.origen == ORIGEN_VOZ &&
-      (!micHabilitado || digitalRead(MAPA_CASA.micOff) == LOW)) {
-    return {false, false, "mic_off"};
-  }
-
-  // Una confianza baja jamás puede modificar la casa. Las fuentes que no
-  // dependen de inferencia deben enviar 1.0.
-  if (orden.origen == ORIGEN_VOZ && !domusVoiceConfidenceValid(orden.confianza)) {
-    log("VOZ", "Orden rechazada por baja confianza: " + String(orden.confianza, 2));
-    ResultadoOrden rechazo = {false, false, "confianza_baja"};
-    responderJarvis(construirRespuestaJarvis(orden, estadoSalidas[orden.indiceRele], rechazo));
-    return rechazo;
   }
 
   if (paroEmergenciaActivo && orden.encender) {
@@ -944,7 +851,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     if (!leerNivelAgua(nivelAgua) || nivelAgua < calibracion.nivelMinimo) {
       registrarError("SEGURIDAD", "Bomba bloqueada por nivel de agua bajo o invalido");
       ResultadoOrden bloqueo = {false, false, "nivel_agua_bajo"};
-      if (orden.origen == ORIGEN_VOZ) {
+      if (orden.origen == ORIGEN_IR) {
         responderJarvis("No puedo regar: el deposito no tiene agua suficiente.");
       }
       return bloqueo;
@@ -957,13 +864,13 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     : desactivarSalida(orden.indiceRele, false);
   if (!exito) {
     ResultadoOrden fallo = {false, false, "gpio_no_confirmado"};
-    if (orden.origen == ORIGEN_VOZ) {
+    if (orden.origen == ORIGEN_IR) {
       responderJarvis(construirRespuestaJarvis(orden, estadoAnterior, fallo));
     }
     return fallo;
   }
 
-  // Una orden manual/voz/Wi-Fi toma propiedad incluso si fue idempotente.
+  // Una orden manual/IR toma propiedad incluso si fue idempotente.
   // Así el automático no apagará después algo que el usuario decidió dejar ON.
   if (orden.encender) {
     propietarioSalidas[orden.indiceRele] = (orden.origen == ORIGEN_AUTOMATICO)
@@ -973,7 +880,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
     if (orden.origen == ORIGEN_AUTOMATICO) {
       propietarioSalidas[orden.indiceRele] = PROPIETARIO_NINGUNO;
     } else {
-      // Un apagado manual, por voz o por seguridad persiste hasta recibir
+      // Un apagado manual, por IR o por seguridad persiste hasta recibir
       // explícitamente el comando *_AUTO (o hasta un reinicio controlado).
       propietarioSalidas[orden.indiceRele] = PROPIETARIO_MANUAL_OFF;
     }
@@ -984,7 +891,7 @@ ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {
       ";origen=" + String((int)orden.origen) +
       ";estado=" + String(orden.encender ? 1 : 0));
   ResultadoOrden resultado = {true, estadoAnterior != orden.encender, "ok"};
-  if (orden.origen == ORIGEN_VOZ) {
+  if (orden.origen == ORIGEN_IR) {
     responderJarvis(construirRespuestaJarvis(orden, estadoAnterior, resultado));
   }
   return resultado;
@@ -1056,7 +963,7 @@ void refrescarPantallaFinal() {
   d.emergencia = paroEmergenciaActivo;
   d.modoSeguro = modoSeguroActivo;
   d.error = textoErrorPantalla;
-  d.escuchando = ventanaEscuchaActiva;
+  d.escuchando = false;
   d.micOn = micHabilitado;
   pantallaFinal.tick(d);
 }
@@ -1429,7 +1336,7 @@ void ejecutarComandoRele(const String &comando, int indice, bool encender,
 
 void alternarSalidaIR(int indice, const char* nombre) {
   String comando = String("IR_") + nombre + (estadoSalidas[indice] ? "_OFF" : "_ON");
-  ejecutarComandoRele(comando, indice, !estadoSalidas[indice]);
+  ejecutarComandoRele(comando, indice, !estadoSalidas[indice], ORIGEN_IR);
 }
 
 void ejecutarTeclaIRCasa(IRCasa::Tecla tecla) {
@@ -1442,10 +1349,10 @@ void ejecutarTeclaIRCasa(IRCasa::Tecla tecla) {
     case SIGUIENTE: case N_2: alternarSalidaIR(2, "LUZ2"); break;
     case N_3: alternarSalidaIR(4, "INVER"); break;
     case N_4: alternarSalidaIR(3, "VENT"); break;
-    case N_5: ejecutarComandoRele("IR_RIEGO_ON", 0, true); break;
+    case N_5: ejecutarComandoRele("IR_RIEGO_ON", 0, true, ORIGEN_IR); break;
     case N_0:
       for (int i = 0; i < TOTAL_SALIDAS; ++i)
-        ejecutarComandoRele("IR_TODO_OFF", i, false);
+        ejecutarComandoRele("IR_TODO_OFF", i, false, ORIGEN_IR);
       break;
     case N_200_MAS: rearmarSistema(); break;
     case EQ: emitirEventoLocal(construirReporteDiagnostico()); break;
@@ -1468,14 +1375,18 @@ bool procesarComandoIR(const String &comando) {
     return true;
   }
   if (comando == "IR_LISTA") {
+    emitirEventoLocal("IR;APRENDIDAS=" + String(receptorIR.totalAprendidas()) +
+      "/21;ESTADO=" + String(receptorIR.mapaCompleto() ? "COMPLETO" : "INCOMPLETO"));
     for (uint8_t i = 0; i < IRCasa::TOTAL; ++i)
       emitirEventoLocal("IR;INDICE=" + String(i) + ";TECLA=" +
-        IRCasa::Receptor::nombre(i) + ";CMD=0x" + String(receptorIR.codigo(i), HEX));
+        IRCasa::Receptor::nombre(i) + ";APRENDIDA=" +
+        String(receptorIR.aprendida(i) ? 1 : 0) + ";CMD=0x" +
+        String(receptorIR.codigo(i), HEX));
     return true;
   }
   if (comando == "IR_BORRAR") {
     receptorIR.borrar();
-    emitirEventoLocal("ACK;IR_BORRAR;MAPA_INICIAL_RESTAURADO");
+    emitirEventoLocal("ACK;IR_BORRAR;MAPA_SIN_APRENDER;SALIDAS_IR_BLOQUEADAS");
     return true;
   }
   if (comando.startsWith("IR_GRABAR_")) {
@@ -1506,7 +1417,8 @@ void revisarIRCasa() {
     teclaIrPendiente = -1;
     bool guardada = receptorIR.grabar(indice, evento.codigo);
     emitirEventoLocal(String(guardada ? "ACK" : "NACK") + ";IR_GRABAR;" +
-      IRCasa::Receptor::nombre(indice) + ";CMD=0x" + String(evento.codigo, HEX));
+      IRCasa::Receptor::nombre(indice) + ";CMD=0x" + String(evento.codigo, HEX) +
+      ";" + receptorIR.ultimoError());
     return;
   }
   if (evento.tecla == IRCasa::NINGUNA) {
@@ -1540,8 +1452,6 @@ void entrarModoSeguro(const char* motivo) {
   modoSeguroActivo = true;
   strncpy(motivoModoSeguro, motivo ? motivo : "desconocido", sizeof(motivoModoSeguro) - 1);
   motivoModoSeguro[sizeof(motivoModoSeguro) - 1] = '\0';
-  ventanaEscuchaActiva = false;
-
   for (int i = 0; i < TOTAL_SALIDAS; i++) {
     OrdenActuador orden = {i, false, ORIGEN_SISTEMA, 1.0f, "MODO_SEGURO"};
     ejecutarOrdenActuador(orden);
@@ -1765,8 +1675,7 @@ void revisarControlesFisicos() {
   bool nuevoMicHabilitado = digitalRead(MAPA_CASA.micOff) != LOW;
   if (nuevoMicHabilitado != micHabilitado) {
     micHabilitado = nuevoMicHabilitado;
-    if (!micHabilitado) ventanaEscuchaActiva = false;
-    emitirEventoLocal(String("EVENTO;MIC;") + (micHabilitado ? "ON" : "OFF"));
+    emitirEventoLocal(String("EVENTO;SILENCIO;") + (micHabilitado ? "OFF" : "ON"));
   }
 
   if (digitalRead(MAPA_CASA.paro) == LOW) {
@@ -1787,170 +1696,6 @@ void revisarControlesFisicos() {
 }
 
 // ============================================================================
-// SECCIÓN 12: RECONOCIMIENTO DE VOZ LOCAL (ESP-SR)
-// ============================================================================
-#if JARVIS_LOCAL_HABILITADO
-// NOTA SOBRE ESPAÑOL: el soporte de español en MultiNet depende de la
-// versión de ESP-SR instalada. Verifica en github.com/espressif/esp-sr qué
-// modelos trae la tuya. Si no hay español, usa comandos en inglés como
-// alternativa - es una limitación de la librería, no de este código.
-
-void inicializarVoz() {
-  log("VOZ", "Inicializando motor de reconocimiento...");
-  motorVozListo = false;
-  vozSuspendidaPorSalud = false;
-  fallosVozConsecutivos = 0;
-
-  afe_handle = (esp_afe_sr_iface_t*)&ESP_AFE_SR_HANDLE;
-  afe_config_t afe_config = AFE_CONFIG_DEFAULT();
-  afe_data = afe_handle->create_from_config(&afe_config);
-
-  if (afe_data == NULL) {
-    registrarError("VOZ", "No se pudo inicializar AFE. Revisar INMP441 (WS/SD/SCK) y PSRAM.");
-    return;
-  }
-
-  srmodel_list_t *models = esp_srmodel_init("model");
-  if (models == NULL) {
-    registrarError("VOZ", "No se pudo cargar la lista de modelos");
-    vozSuspendidaPorSalud = true;
-    return;
-  }
-  char *nombre_modelo_mn = esp_srmodel_filter(models, ESP_MN_PREFIX, NULL);
-  if (nombre_modelo_mn == NULL) {
-    registrarError("VOZ", "Modelo MultiNet no encontrado. Revisar particion SPIFFS/modelo.");
-    return;
-  }
-
-  multinet = esp_mn_handle_from_name(nombre_modelo_mn);
-  if (multinet == NULL) {
-    registrarError("VOZ", "Interfaz MultiNet no disponible");
-    vozSuspendidaPorSalud = true;
-    return;
-  }
-  modelo_mn = multinet->create(nombre_modelo_mn, 6000);
-  if (modelo_mn == NULL) {
-    registrarError("VOZ", "No se pudo crear el modelo MultiNet");
-    vozSuspendidaPorSalud = true;
-    return;
-  }
-
-  esp_mn_commands_clear();
-  esp_mn_commands_add(CMD_RIEGO_ON,        "riego encender");
-  esp_mn_commands_add(CMD_RIEGO_OFF,       "riego apagar");
-  esp_mn_commands_add(CMD_LUZ_SALA_ON,     "luz sala encender");
-  esp_mn_commands_add(CMD_LUZ_SALA_OFF,    "luz sala apagar");
-  esp_mn_commands_add(CMD_LUZ_CUARTO_ON,   "luz cuarto encender");
-  esp_mn_commands_add(CMD_LUZ_CUARTO_OFF,  "luz cuarto apagar");
-  esp_mn_commands_add(CMD_VENTILADOR_ON,   "ventilador encender");
-  esp_mn_commands_add(CMD_VENTILADOR_OFF,  "ventilador apagar");
-  esp_mn_commands_add(CMD_INVERNADERO_ON,  "invernadero encender");   // NUEVO en v4:
-  esp_mn_commands_add(CMD_INVERNADERO_OFF, "invernadero apagar");    // faltaba en v3
-  esp_mn_commands_update();
-
-  multinet->print_active_speech_commands(modelo_mn);
-  motorVozListo = true;
-  log("VOZ", "Motor de voz listo");
-}
-
-void registrarFalloVoz(const char* motivo) {
-  if (fallosVozConsecutivos < 255) fallosVozConsecutivos++;
-  log("VOZ", "Fallo " + String(fallosVozConsecutivos) + ": " + String(motivo));
-  if (fallosVozConsecutivos >= VOZ_MAX_FALLOS_CONSECUTIVOS) {
-    vozSuspendidaPorSalud = true;
-    motorVozListo = false;
-    ventanaEscuchaActiva = false;
-    emitirEventoLocal("EVENTO;VOZ_SUSPENDIDA;" + String(motivo));
-  }
-}
-
-void procesarResultadoVoz(int comandoID) {
-  unsigned long ahora = millis();
-  if (comandoID == ultimoComandoVozID && (ahora - ultimoComandoVozMs) < DEBOUNCE_VOZ_MS) {
-    log("VOZ", "Comando repetido ignorado (debounce)");
-    return;
-  }
-  ultimoComandoVozID = comandoID;
-  ultimoComandoVozMs = ahora;
-
-  log("VOZ", "Comando detectado, ID: " + String(comandoID));
-
-  int indice = -1;
-  bool encender = false;
-  String comandoTexto = "";
-  switch (comandoID) {
-    case CMD_RIEGO_ON:        indice = 0; encender = true;  comandoTexto = "RIEGO_ON"; break;
-    case CMD_RIEGO_OFF:       indice = 0; encender = false; comandoTexto = "RIEGO_OFF"; break;
-    case CMD_LUZ_SALA_ON:     indice = 1; encender = true;  comandoTexto = "LUZ1_ON"; break;
-    case CMD_LUZ_SALA_OFF:    indice = 1; encender = false; comandoTexto = "LUZ1_OFF"; break;
-    case CMD_LUZ_CUARTO_ON:   indice = 2; encender = true;  comandoTexto = "LUZ2_ON"; break;
-    case CMD_LUZ_CUARTO_OFF:  indice = 2; encender = false; comandoTexto = "LUZ2_OFF"; break;
-    case CMD_VENTILADOR_ON:   indice = 3; encender = true;  comandoTexto = "VENT_ON"; break;
-    case CMD_VENTILADOR_OFF:  indice = 3; encender = false; comandoTexto = "VENT_OFF"; break;
-    case CMD_INVERNADERO_ON:  indice = 4; encender = true;  comandoTexto = "INVER_ON"; break;
-    case CMD_INVERNADERO_OFF: indice = 4; encender = false; comandoTexto = "INVER_OFF"; break;
-    default: log("VOZ", "ID de comando no mapeado"); return;
-  }
-  OrdenActuador orden = {indice, encender, ORIGEN_VOZ, 1.0f, comandoTexto.c_str()};
-  ResultadoOrden resultado = ejecutarOrdenActuador(orden);
-  // La app también se entera de los comandos disparados por voz, no solo
-  // los que ella misma mandó, para que la UI no se quede desincronizada.
-  emitirEventoLocal((resultado.exito ? "ACK;" : "NACK;") + comandoTexto + ";voz");
-}
-
-// Máquina de estados de la ventana de escucha. Corrige el bug de v3 donde
-// "afe_data != NULL" (verdadero casi siempre) hacía que MultiNet corriera
-// de forma continua en vez de solo tras el wake word.
-void revisarVoz() {
-  if (!motorVozListo || vozSuspendidaPorSalud || afe_handle == NULL ||
-      afe_data == NULL || multinet == NULL || modelo_mn == NULL) return;
-
-  const unsigned long inicioCicloUs = micros();
-
-  afe_fetch_result_t* resultado = afe_handle->fetch(afe_data);
-  if (!resultado || resultado->ret_value == ESP_FAIL) {
-    registrarFalloVoz("afe_fetch");
-    return;
-  }
-
-  if (resultado->wakeup_state == WAKENET_DETECTED) {
-    log("VOZ", "Palabra de activación detectada, abriendo ventana de escucha");
-    ventanaEscuchaActiva = true;
-    inicioVentanaEscuchaMs = millis();
-    // La vista de escucha la dibuja refrescarPantallaFinal() mientras la
-    // ventana siga abierta; aqui basta con abrirla.
-  }
-
-  // Cierra la ventana sola si expiró, sin esperar a la siguiente vuelta de detect()
-  if (ventanaEscuchaActiva && (millis() - inicioVentanaEscuchaMs > VENTANA_ESCUCHA_MS)) {
-    ventanaEscuchaActiva = false;
-    log("VOZ", "Ventana de escucha cerrada (timeout sin comando)");
-  }
-
-  // Solo se corre MultiNet (que consume CPU) mientras la ventana está
-  // abierta - ya no de forma continua como en v3.
-  if (ventanaEscuchaActiva) {
-    esp_mn_state_t estado_mn = multinet->detect(modelo_mn, resultado->data);
-    if (estado_mn == ESP_MN_STATE_DETECTED) {
-      esp_mn_results_t *resultados_mn = multinet->get_results(modelo_mn);
-      if (resultados_mn->num > 0) {
-        procesarResultadoVoz(resultados_mn->command_id[0]);
-      }
-      // Un comando reconocido cierra la ventana de inmediato; no hace falta
-      // esperar el timeout completo para volver a exigir el wake word.
-      ventanaEscuchaActiva = false;
-    }
-  }
-
-  const unsigned long duracionCicloUs = micros() - inicioCicloUs;
-  if (duracionCicloUs > VOZ_TIEMPO_MAX_CICLO_US) {
-    registrarFalloVoz("tiempo_excedido");
-  } else {
-    fallosVozConsecutivos = 0;
-  }
-}
-#endif // JARVIS_LOCAL_HABILITADO
-
 // ============================================================================
 // SECCIÓN 12B: SUPERVISOR DE SALUD
 // ============================================================================
@@ -2067,11 +1812,7 @@ void setup() {
     log("MP3", "UART iniciado para módulo reproductor");
   }
 
-  #if JARVIS_LOCAL_HABILITADO
-    inicializarVoz();
-  #else
-    log("VOZ", "Jarvis local deshabilitado: falta modelo TinyML español validado");
-  #endif
+  log("JARVIS", "Control por IR activo; audio aplazado, sin reconocimiento de voz");
 
   if (MP3_HABILITADO) reproducirPista(6); // "Sistema listo"
   delay(1000);
@@ -2094,15 +1835,10 @@ void loop() {
   supervisarSalud();
   revisarIRCasa();
 
-  // 2. Voz local: nunca escucha con MIC OFF o emergencia activa.
-  #if JARVIS_LOCAL_HABILITADO
-    if (micHabilitado && !paroEmergenciaActivo && !modoSeguroActivo) revisarVoz();
-  #endif
-
-  // 3. Diagnóstico/control local por USB, sin red ni aplicación móvil.
+  // 2. Diagnóstico/control local por USB, sin red ni aplicación móvil.
   revisarComandosSerial();
 
-  // 4. Automatización local. En modo seguro queda suspendida para no generar
+  // 3. Automatización local. En modo seguro queda suspendida para no generar
   // intentos repetidos de encendido ni más presión sobre memoria/registros.
   if (!modoSeguroActivo) {
     verificarRiegoAutomatico();
@@ -2113,7 +1849,7 @@ void loop() {
   // Corte independiente: se mantiene aun si el supervisor está degradado.
   verificarLimiteBomba();
 
-  // 5. Pantalla final: refresco temporizado; el saludo, la prioridad de
+  // 4. Pantalla final: refresco temporizado; el saludo, la prioridad de
   // emergencia y la escritura diferencial viven en PantallaFinal.
   if (millis() - ultimaActualizacionPantalla > INTERVALO_PANTALLA_MS) {
     refrescarPantallaFinal();

@@ -159,8 +159,7 @@ def build_parts() -> list[Part]:
         p("Torre Jarvis cuerpo", 750, 245, 12, 105, 118, 290, "roof", "jarvis"),
         p("Panel azul central", 766, 239, 55, 73, 7, 220, "blue", "jarvis"),
         p("Pantalla de estado", 773, 236, 82, 60, 7, 32, "blue_light", "jarvis"),
-        p("Botón físico MIC OFF", 790, 233, 38, 25, 12, 25, "red", "jarvis", "Corte físico del micrófono"),
-        p("Micrófono INMP441", 799, 235, 222, 9, 6, 9, "electronics", "sensors"),
+        p("Botón físico SILENCIO", 790, 233, 38, 25, 12, 25, "red", "jarvis", "Silencia respuestas de audio futuras"),
         p("Altavoz local", 784, 235, 160, 37, 7, 37, "metal", "jarvis"),
     ]
     for i in range(16):
@@ -306,7 +305,7 @@ def compact_footprint(parts: list[Part]) -> list[Part]:
     fixed_hardware = {
         "Depósito de agua", "Mini bomba 5V", "Sensor nivel depósito",
         "Sensor humedad suelo", "PIR entrada", "Pantalla de estado",
-        "Botón físico MIC OFF", "Micrófono INMP441", "Altavoz local",
+        "Botón físico SILENCIO", "Altavoz local",
         "ESP32-S3 N16R8", "Módulo relés 4 canales", "Fusible 3A",
         "Distribuidor 5V-GND", "Regleta de terminales", "Interruptor general",
         "DHT11 interior", "LDR bajo alero", "LED sala", "LED dormitorio",
@@ -341,7 +340,7 @@ def compact_footprint(parts: list[Part]) -> list[Part]:
 def prepare_raw_model(parts: list[Part]) -> list[Part]:
     """Quita instalaciones y deja únicamente reservas para una integración posterior."""
     excluded_layers = {"boards", "sensors", "lights", "power", "signal", "solar", "water"}
-    excluded_names = {"Pantalla de estado", "Botón físico MIC OFF", "Micrófono INMP441", "Altavoz local", "Interruptor general"}
+    excluded_names = {"Pantalla de estado", "Botón físico SILENCIO", "Altavoz local", "Interruptor general"}
     shell = [
         item for item in parts
         if item.layer not in excluded_layers
@@ -357,7 +356,7 @@ def prepare_raw_model(parts: list[Part]) -> list[Part]:
         p("Reserva panel solar derecho", 428, 304, 255, 145, 105, 2, "acrylic", "reservations", reserve_note),
         p("Reserva PIR de entrada", 484, 188, 60, 28, 15, 3, "acrylic", "reservations", reserve_note),
         p("Reserva pantalla Jarvis", 618, 186, 82, 60, 7, 32, "acrylic", "reservations", reserve_note),
-        p("Reserva micrófono Jarvis", 639, 188, 222, 12, 8, 12, "acrylic", "reservations", reserve_note),
+        p("Reserva interfaz Jarvis", 639, 188, 222, 12, 8, 12, "acrylic", "reservations", reserve_note),
         p("Reserva electrónica gabinete", 710, 250, 55, 64, 96, 3, "acrylic", "reservations", reserve_note),
         p("Reserva DHT11 interior", 456, 488, 145, 20, 12, 3, "acrylic", "reservations", reserve_note),
         p("Reserva LDR bajo alero", 563, 229, 208, 16, 10, 3, "acrylic", "reservations", reserve_note),
@@ -824,7 +823,7 @@ def write_pdf_v3() -> Path:
 
     # 5 · Carcasas y pasos vacíos.
     _pdf_header(c,5,'PL-04','CARCASAS Y PASOS VACÍOS','Preparación mecánica para que el circuito se integre después')
-    boxes=[(30,125,92,70,'TORRE JARVIS','Frente removible; reserva pantalla/micrófono'),(165,115,105,90,'GABINETE','Frente removible; interior completamente vacío'),(315,125,75,70,'CANAL TÉCNICO','Tapa removible; no pasar cables todavía')]
+    boxes=[(30,125,92,70,'TORRE JARVIS','Frente removible; reserva pantalla/altavoz'),(165,115,105,90,'GABINETE','Frente removible; interior completamente vacío'),(315,125,75,70,'CANAL TÉCNICO','Tapa removible; no pasar cables todavía')]
     for x,y,w,h,title,desc in boxes:
         c.setFillColor(rl_colors.HexColor('#f7f9fb'));c.setStrokeColor(rl_colors.HexColor('#10233f'));c.rect(x*mm,y*mm,w*mm,h*mm,fill=1,stroke=1);c.setFillColor(rl_colors.HexColor('#155eef'));c.setFont('Helvetica-Bold',10);c.drawString((x+8)*mm,(y+h-15)*mm,title);c.setFillColor(rl_colors.HexColor('#10233f'));c.setFont('Helvetica',7);c.drawString((x+8)*mm,(y+12)*mm,desc)
     c.setFillColor(rl_colors.HexColor('#eef3f7'));c.rect(30*mm,40*mm,360*mm,50*mm,fill=1,stroke=0);c.setFillColor(rl_colors.HexColor('#10233f'));c.setFont('Helvetica-Bold',10);c.drawString(43*mm,76*mm,'ENTREGA ESPERADA');c.setFont('Helvetica',9);c.drawString(43*mm,62*mm,'1. Estructura firme y escuadrada.  2. Tapas removibles.  3. Reservas marcadas, sin agujeros definitivos.');c.drawString(43*mm,49*mm,'4. Ninguna conexión, placa, sensor, actuador, manguera o fuente instalada.')

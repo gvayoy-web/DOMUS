@@ -1,72 +1,32 @@
-# Plan del código: esqueleto v2 → firmware FINAL
+# Plan vigente del firmware
 
-> [!WARNING]
-> **Documento histórico (corrección 2026-09-12, nota 51).** Describe
-> `BANCO_IR_LCD` con `HABILITAR_BOMBA/USAR_DRV8833`; el banco vigente es
-> `ALFA_UN_COSTADO_SIN_IR` con `PERFIL_HARDWARE` y `HABILITAR_MOTOR_*`
-> derivados (nota 46/50). Guía física vigente: nota 47 + SVG alfa, no
-> `diagrama-final.html`. Se conserva como historia, no autoriza cableado.
+## Dueño único
 
-Fuente vigente de pines: `firmware/domus_esqueleto/domus_config.h`.
-Guía física: `visualizaciones/diagrama-final.html`. Estado real medido abajo.
+`firmware/casa_inteligente_v4` contiene toda la lógica. El directorio
+`firmware/domus_esqueleto` únicamente selecciona el perfil 3 e incluye ese
+mismo producto. La implementación anterior está archivada en `firmware/legacy`.
 
-## v2 actual (verificado 2026-09-10)
+## Capacidades cerradas en software
 
-- Compila N16R8: 405749 programa / 25652 globales (`build/esqueleto_v2`).
-- Subido por COM9 y verificado en serie real: `DIAGNOSTICO` 4/4 líneas,
-  `IR LISTA` 21/21, `TX_OMITIDOS` estable (solo ráfaga de arranque).
-- Medido en placa: `FIS=01101 OUT=00000 PARO=0 SEGURO=0`, sensores ADC vivos,
-  `LCD=0 DHT=0` = aún sin cablear (pendiente banco, pasos 2 y 7 del diagrama).
-- Contratos: `firmware/tests/test_domus_esqueleto_contract.py` + nativos
-  (`test_native_*.py`, `test_voice_gate.py`) + HIL real
-  (`test_hil_esqueleto.py`, 8 pruebas contra COM9 sin flashear).
-  Nota PC: g++ MinGW instalado vía winget; si App Control bloquea un .exe
-  recién compilado (WinError 4551), el harness lo reporta SKIP (no FAIL):
-  ese caso corre en CI Ubuntu. `pytest firmware/tests` debe quedar verde.
-- Cuello real encontrado y parchado: ráfagas UART 115200 perdían líneas
-  (FIFO 128 B del CH343) → `Serial.flush()` tras cada línea de
-  `informarEstado()` (`domus_esqueleto.ino:241`) y de `IR LISTA`.
-  Regla: una línea TX por vez; lo periódico (SENSORES 1/s) no necesita flush.
+- Sensores DHT11, suelo, nivel, LDR y PIR.
+- LCD1602 I2C con cinco vistas y errores prioritarios.
+- Luces, riego y ventilación manual/automática con histéresis.
+- PARO, rearme, timeout de bomba, modo seguro y watchdog.
+- Calibración validada y persistente en NVS.
+- Mando IR de 21 teclas persistente, sin duplicados ni autoridad antes de ser
+  aprendido.
+- Jarvis como respuestas fijas a órdenes IR, visibles en Serial.
+- Diagnóstico sin salidas para obtener dirección LCD, lecturas y códigos.
+- Pruebas locales, nativas, semirreales, HIL preparado y CI Arduino.
 
-## Archivos (no duplicar lógica entre firmwares)
+## Audio
 
-| Archivo | Dueño de |
-|---|---|
-| `domus_config.h` | Pines, flags `HABILITAR_BOMBA/USAR_DRV8833/DFPLAYER_HABILITADO`, tiempos |
-| `domus_control.h` | Calibración, decisiones auto con histéresis |
-| `domus_protocol.h` | Comandos serie (PARO > todo; `!` = paro inmediato) |
-| `domus_ir.h` | Mapa CAR MP3 + aprender NVS + filtro repeat |
-| `domus_lcd.h` | 4 páginas, feedback+animación, nunca % sin `CAL` |
-| `domus_voice.h` | Frases fijas: Serial+LCD siempre; DFPlayer si hay; si no, buzzer |
-| `domus_esqueleto.ino` | Orquestación: seguridad → botón → IR → serie → sensores → auto → LCD |
-| `protocol_tests.cpp` | Regresiones constexpr (rompen la compilación si mienten) |
+La reproducción audible está aplazada. El MAX98306 comprado necesita una
+fuente analógica; no es un receptor I2S ni un reproductor. El núcleo no usa
+micrófono ni reconocimiento de voz.
 
-Toda función nueva entra primero aquí con prueba o contrato. No copiar
-lógica al firmware principal y a la base a la vez.
+## Pendiente físico
 
-## Camino a FINAL (en orden, cada paso con su PASS físico)
-
-1. **Banco completo sin motores** (hoy): cablear pasos 0–15 del diagrama,
-   `CAL … GUARDAR`, `IR LEER` + 21 teclas. PASS: LCD sin `SIN DATOS`,
-   `VA=1`, riego manual con agua.
-2. **Fuente final**: medir 5.0 V centro positivo → fusible 4 A → switch →
-   bus. PASS: 5 V bajo carga, sin reinicios. `USAR_DRV8833` sigue false.
-3. **DRV8833 sin motores**: VM/GND/nSLEEP/AIN1=4/AIN2=GND/BIN1=7/BIN2=GND.
-   PASS: no calienta. Luego `USAR_DRV8833=true`, `HABILITAR_BOMBA=true`,
-   recompilar, re-subir, probar bomba en agua (10 s) y ventilador por separado.
-4. **Audio**: opción A DFPlayer (`DFPLAYER_HABILITADO=true`, SD con
-   `0001.mp3…` según tabla del README esqueleto) u opción B MAX98357A
-   (16/17/18, **exclusivo** con DF). PASS: tecla 1 suena limpio.
-5. **Cierre**: `BOMBA_MAX_MS` 10000 → 120000 solo tras medir consumo y
-   timeout real; campaña semireal + `validate_project.py` en verde.
-
-## Fuera del núcleo (no prometen demo)
-
-TinyML/PicoTTS/INMP441/microSD-SPI/relés de potencia/solar funcional:
-experimentales, no bloquean feria. Jarvis = IR + frases fijas.
-
-## Chuleta serie (115200)
-
-`ESTADO · DIAGNOSTICO · IR LEER · IR LISTA · IR GRABAR <0-20> · IR BORRAR ·`
-`MODO AUTO/MANUAL · VOL+/- · MUTE ON/OFF · VOZ ON/OFF · PAGINA [0-3] ·`
-`SALA/CUARTO/VENTILADOR/INVERNADERO/BOMBA ON|OFF|AUTO · PARO · REARMAR`
+Calibrar sensores reales, aprender el mando concreto, observar LCD, ejecutar
+HIL, probar la bomba sumergida e integrar DRV8833/ventilador cuando lleguen.
+Ver `firmware/PRUEBA_HOY.md` y la nota Obsidian 62.

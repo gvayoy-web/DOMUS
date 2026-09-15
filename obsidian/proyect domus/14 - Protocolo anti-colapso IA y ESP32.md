@@ -2,9 +2,14 @@
 proyecto: PROJECT DOMUS
 tipo: seguridad-operativa
 actualizado: 2026-09-03
+estado: historico_idea_ia_retirada
 ---
 
 # Protocolo anti-colapso de IA y ESP32
+
+> [!DANGER]
+> HISTÓRICO. DOMUS ya no usa IA, TinyML, micrófono ni reconocimiento de voz.
+> Sólo siguen vigentes las reglas generales presentes en el firmware actual.
 
 ## Objetivo
 

@@ -2,11 +2,15 @@
 proyecto: PROJECT DOMUS
 tipo: compras-verificadas
 actualizado: 2026-09-09
-estado: cotizacion_nacional_vigente
+estado: historico_cotizacion
 moneda: HNL
 ---
 
 # Compra nacional mínima y banco de soldadura
+
+> [!DANGER]
+> COTIZACIÓN HISTÓRICA. No representa exactamente la compra realizada y no
+> autoriza conexiones. Ver [[63 - Auditoria total de Obsidian y estado real]].
 
 > [!IMPORTANT]
 > La cotización vigente cambió la fuente candidata a 5 V/5 A y eliminó toda

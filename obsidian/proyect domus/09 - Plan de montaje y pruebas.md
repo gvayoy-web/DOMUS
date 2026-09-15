@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: pruebas
 actualizado: 2026-09-07
+estado: historico_plan
 ---
 
 # Plan de montaje y pruebas

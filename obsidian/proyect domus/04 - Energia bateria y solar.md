@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: energia
 actualizado: 2026-09-04
+estado: historico_idea_descartada
 ---
 
 # Energía, batería y solar

@@ -108,12 +108,13 @@ class FirmwareContractTests(unittest.TestCase):
         self.assertIn("RECUPERAR", self.source)
         self.assertNotIn('esp_restart();', self.source)
 
-    def test_voice_circuit_breaker_prevents_partial_init_crashes(self):
-        self.assertIn("VOZ_MAX_FALLOS_CONSECUTIVOS", self.source)
-        self.assertIn("VOZ_TIEMPO_MAX_CICLO_US", self.source)
-        self.assertIn("multinet == NULL || modelo_mn == NULL", self.source)
-        self.assertIn("EVENTO;VOZ_SUSPENDIDA", self.source)
-        self.assertIn("models == NULL", self.source)
+    def test_no_speech_recognition_or_tinyml_runtime(self):
+        for token in (
+            "JARVIS_LOCAL_HABILITADO", "esp_afe_sr", "esp_mn_", "multinet",
+            "modelo_mn", "MIC_WS_PIN", "TTS_BCLK_PIN",
+        ):
+            self.assertNotIn(token, self.source)
+        self.assertIn("RECONOCIMIENTO_VOZ=NO_USADO", self.source)
 
     def test_serial_flood_is_limited_but_emergency_bypasses_limit(self):
         self.assertIn("MAX_COMANDOS_POR_SEGUNDO", self.source)
@@ -135,10 +136,7 @@ class FirmwareContractTests(unittest.TestCase):
         self.assertIn("domus_selftest.txt", self.source)
         self.assertIn("PROJECT_DOMUS_SD_OK", self.source)
 
-    def test_unvalidated_voice_and_sd_stay_disabled(self):
-        self.assertRegex(
-            self.source, r"#define\s+JARVIS_LOCAL_HABILITADO\s+false\b"
-        )
+    def test_uninstalled_sd_stays_disabled(self):
         self.assertRegex(self.source, r"#define\s+MICROSD_HABILITADA\s+false\b")
 
     def test_compile_time_pin_registry_prevents_duplicates(self):
@@ -163,14 +161,12 @@ class FirmwareContractTests(unittest.TestCase):
 
     def test_future_buses_stay_unassigned(self):
         import re
-        for symbol in ("MIC_WS_PIN", "MIC_SD_PIN", "MIC_SCK_PIN",
-                       "MP3_RX_PIN", "MP3_TX_PIN"):
+        for symbol in ("MP3_RX_PIN", "MP3_TX_PIN"):
             match = re.search(rf"^#define\s+{symbol}\s+(-1)\b", self.source, re.M)
             self.assertIsNotNone(match, symbol)
         registry = self.source.split(
             "constexpr int PINES_RESERVADOS_DOMUS[] = {", 1
         )[1].split("};", 1)[0]
-        self.assertNotIn("MIC_WS_PIN", registry)
         self.assertNotIn("MP3_RX_PIN", registry)
 
     def test_map_is_the_single_pin_source(self):
@@ -204,11 +200,12 @@ class FirmwareContractTests(unittest.TestCase):
         setup = self.source.split("void setup()", 1)[1]
         self.assertLess(setup.index(preload), setup.index(output))
 
-    def test_mic_off_rechecked_at_dispatch_and_cancels_window(self):
+    def test_silence_button_does_not_block_ir_or_safety(self):
         dispatch = self.source.split("ResultadoOrden ejecutarOrdenActuador(const OrdenActuador &orden) {", 1)[1].split("\n}", 1)[0]
-        self.assertIn("!micHabilitado || digitalRead(MAPA_CASA.micOff) == LOW", dispatch)
-        self.assertIn('return {false, false, "mic_off"}', dispatch)
-        self.assertIn("if (!micHabilitado) ventanaEscuchaActiva = false;", self.source)
+        self.assertNotIn("MAPA_CASA.micOff", dispatch)
+        self.assertIn("EVENTO;SILENCIO;", self.source)
+        self.assertIn("ORIGEN_IR", self.source)
+        self.assertIn("EVENTO;SILENCIO;", self.source)
 
 
 if __name__ == "__main__":

@@ -2,9 +2,14 @@
 proyecto: PROJECT DOMUS
 tipo: jarvis
 actualizado: 2026-09-03
+estado: historico_idea_audio_voz
 ---
 
 # Jarvis, audio, pantalla y microSD
+
+> [!DANGER]
+> HISTÓRICO. El reconocimiento de voz, TinyML, INMP441 y PicoTTS fueron
+> retirados. MAX98306 requiere una futura fuente analógica de audio.
 
 ## Opciones actuales, no integraciones terminadas
 

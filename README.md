@@ -21,8 +21,7 @@ Estados del producto en [`obsidian/proyect domus/53`](obsidian/proyect%20domus/5
 | Leer códigos IR y tomar calibraciones, sin salidas | `firmware/diagnosticos/domus_banco_integracion` | Mapa actual, GPIO4-8 sin configurar |
 
 El esqueleto modular anterior vive en `firmware/legacy/domus_esqueleto` sólo
-para regresiones. `JARVIS_LOCAL_HABILITADO=false`
-y `MICROSD_HABILITADA=false` hasta superar sus puertas. No hay app móvil, BLE
+para regresiones. `MICROSD_HABILITADA=false` hasta instalarla. No hay app móvil, BLE
 ni dependencia de internet en funciones críticas.
 
 ## Documentos vigentes
@@ -43,7 +42,8 @@ ni dependencia de internet en funciones críticas.
 
 Órdenes por control IR CAR MP3 (21 teclas, códigos del mando real) y respuestas
 fijas en español. Sin reconocimiento de voz, sin entrenamiento, sin INMP441.
-`GPIO12` reservado; audio solo tras puerta F5.
+`GPIO12` recibe el HX1838 en el perfil 3; audio solo tras definir una fuente
+analógica compatible con el MAX98306.
 
 ## Compilación
 
@@ -69,13 +69,13 @@ Monitor Serial a 115200 baudios, una orden por línea: `RIEGO_ON/OFF`,
 ## Protección contra bloqueos
 
 Watchdog + supervisor (memoria, reinicios, sensores, ráfagas). Ante riesgo:
-apaga cargas, suspende automatización/voz y deja Serial. `DIAGNOSTICO` da la
+apaga cargas, suspende automatización y deja Serial. `DIAGNOSTICO` da la
 causa; `RECUPERAR` libera el modo seguro con memoria suficiente; las cargas
 quedan apagadas hasta orden explícita. Detalle: nota `14`.
 
 ## Límites honestos
 
-- Sin driver identificado no hay bomba/ventilador en banco (F1).
+- La bomba del banco usa el S8050; el ventilador espera al DRV8833.
 - Sin mapa IR/audio no hay Jarvis hablado (F4/F5).
 - IA/TinyML y reconocimiento por micrófono están fuera del alcance aprobado.
   Jarvis significa mando IR y respuestas fijas; el audio sigue aplazado (F5).

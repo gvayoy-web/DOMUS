@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: bitacora
 actualizado: 2026-09-03
+estado: historico_bitacora
 ---
 
 # Bitácora de implementación

@@ -1,4 +1,12 @@
+---
+estado: historico_plan_superado
+fecha: 2026-09-14
+---
+
 # Plan B: DOMUS ampliable y reutilizable
+
+> [!WARNING]
+> HISTÓRICO. Su arquitectura fue absorbida por el firmware y las notas 59–63.
 
 **Objetivo:** ahorrar recompras y permitir cambios de módulos sin reescribir el control.
 **Arquitectura:** mismo ESP32 y cinco salidas; alimentación, sensores, potencia y

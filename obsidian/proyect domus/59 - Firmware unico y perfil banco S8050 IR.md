@@ -78,8 +78,10 @@ IR_BORRAR
 ```
 
 Las repeticiones sostenidas no vuelven a disparar acciones críticas. Una tecla
-desconocida solo genera `NACK` y no modifica salidas. PARO físico conserva
-prioridad sobre IR.
+desconocida o todavía no aprendida solo genera `NACK` y no modifica salidas.
+El firmware conserva una máscara NVS de posiciones aprendidas, rechaza códigos
+duplicados y muestra `APRENDIDAS=n/21`. `IR_BORRAR` deja todo el mando sin
+autoridad hasta volver a grabarlo. PARO físico conserva prioridad sobre IR.
 
 ## Funciones disponibles para probar
 

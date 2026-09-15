@@ -22,7 +22,7 @@ se conserva solamente en `firmware/legacy/domus_esqueleto` para regresión.
 
 El 6 de septiembre de 2026 pasaron los cinco perfiles del firmware principal,
 la base modular, el autotest y la demostracion de pantallas. Tambien pasaron el
-validador consolidado, las pruebas de IA y una campaña semirreal determinista
+validador consolidado y una campaña semirreal determinista
 de 10,000 pasos. La evidencia y los tamanos exactos
 estan en `obsidian/proyect domus/34 - Cierre de software y matriz de verificacion.md`.
 
@@ -34,22 +34,21 @@ estan en `obsidian/proyect domus/34 - Cierre de software y matriz de verificacio
 - `firmware/domus_selftest`: diagnóstico histórico de mapa antiguo; no usar
   para cablear el banco actual.
 - `firmware/domus_anim`: demostracion de pantallas; no controla la casa.
-- `firmware/inmp441_poc` y `firmware/picotts_poc`: pruebas aisladas de audio.
 
 Toda función nueva entra únicamente en `casa_inteligente_v4`; el esqueleto la
 recibe automáticamente mediante inclusión y debe tener una prueba o contrato.
 
 ## Pendiente exclusivamente físico
 
-1. Documentar la placa N16R8 confirmada y comprobar GPIO 2, 9 y 13.
-2. Probar sensores y guardar calibracion real.
-3. Identificar las cinco patas del rele por esquema/continuidad y validar solo la etapa GPIO4-S8050-rele.
-4. Ejecutar cinco arranques y PARO/rearme bajo carga.
-5. Completar la matriz de la nota 33 y ensayo prolongado.
-6. Solo entonces considerar la base candidata a reemplazar el firmware principal.
+1. Probar sensores y guardar calibracion real.
+2. Aprender las 21 teclas del mando y comprobar cada acción.
+3. Observar dirección, contraste y cinco vistas del LCD.
+4. Probar la bomba S8050 sumergida, PARO, timeout y rearme bajo vigilancia.
+5. Integrar el DRV8833 y ventilador cuando llegue el módulo.
+6. Ejecutar HIL y ensayo prolongado antes de declarar validación física.
 
 La alimentación operativa será una fuente común regulada de 5 V; batería y
-solar quedan como elementos estéticos, eléctricamente desconectados. Jarvis y
+solar quedan como elementos estéticos, eléctricamente desconectados. El audio y
 microSD no forman parte del cierre de banco actual.
 
 Arduino IDE requiere `DHT sensor library`, `Adafruit Unified Sensor` y

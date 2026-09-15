@@ -2,11 +2,15 @@
 proyecto: PROJECT DOMUS
 tipo: solicitud-cotizacion
 actualizado: 2026-09-10
-estado: lista_para_enviar_sin_uv
+estado: historico_cotizacion
 proveedor: C&D Technologia Honduras
 ---
 
 # Solicitud final de cotización C&D
+
+> [!DANGER]
+> COTIZACIÓN HISTÓRICA, no es la compra vigente. Ver el inventario consolidado
+> en [[63 - Auditoria total de Obsidian y estado real]].
 
 Lista cerrada tras revisar inventario, alimentación, motores, audio, LCD y
 montaje. No cotizar cable, estaño, pines macho, herramientas, sensores, ESP32,

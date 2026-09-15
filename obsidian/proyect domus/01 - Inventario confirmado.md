@@ -3,12 +3,17 @@ proyecto: PROJECT DOMUS
 tipo: inventario
 fuente: lista confirmada por Isaac
 actualizado: 2026-09-07
+estado: historico_inventario_inicial
 ---
 
 # Inventario confirmado
 
+> [!WARNING]
+> Inventario histórico inicial. No es una lista de compra vigente. El estado
+> real está resumido en [[63 - Auditoria total de Obsidian y estado real]].
+
 > [!IMPORTANT]
-> Esta nota es la fuente de verdad del inventario confirmado. La alimentación
+> Esta tabla conserva el inventario confirmado en ese corte histórico. La alimentación
 > decidida es una fuente común regulada de 5 V; falta confirmar su corriente y
 > medirla bajo carga. Batería y panel solar son decoración desconectada.
 

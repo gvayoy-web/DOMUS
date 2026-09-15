@@ -2,11 +2,15 @@
 proyecto: PROJECT DOMUS
 tipo: plan-maestro
 actualizado: 2026-09-10
-estado: plan vigente para ejecutar
-autoridad: sustituira 43-45 al terminar la consolidacion
+estado: historico_plan_ejecutado_y_superado
+autoridad: superado_por_59_61_62_63
 ---
 
 # Plan maestro de consolidación: montaje por un solo costado
+
+> [!WARNING]
+> PLAN HISTÓRICO, ejecutado parcialmente y superado. No usar sus perfiles o
+> pines como autoridad. Ver [[59 - Firmware unico y perfil banco S8050 IR]].
 
 ## 0. Resultado buscado
 

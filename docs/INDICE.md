@@ -26,8 +26,6 @@
 | Lector seguro IR + calibración | `firmware/diagnosticos/domus_banco_integracion/` |
 | Diagnóstico de placa | `firmware/domus_selftest/` |
 | Pruebas firmware | `firmware/tests/` (contratos, sim, nativas, HIL) |
-| PoCs de audio | `firmware/inmp441_poc/`, `firmware/picotts_poc/` |
-| Voz/entrenamiento | `ai/` + `ai/tests/` |
 
 ## Hardware y planos
 
@@ -46,7 +44,7 @@ Históricos, no cablear/comprar: `43`, `44`, `45`, `18`, `docs/PLAN_PROYECTO.md`
 ## Validar antes de commitear
 
 ```powershell
-python -m pytest firmware/tests/ ai/tests/ -q
+python -m unittest discover -s firmware/tests -v
 python tools/validate_project.py
 python tools/validate_markdown.py
 python tools/check_perfil_matrix.py

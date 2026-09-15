@@ -2,10 +2,12 @@
 proyecto: PROJECT DOMUS
 tipo: auditoria
 actualizado: 2026-09-03
+estado: historico_auditoria
 ---
 
 > [!WARNING]
-> DOCUMENTO HISTÓRICO. Lo vigente es [[43 - Manual final completo PROJECT DOMUS]] + irmware/domus_esqueleto v2.1 + [[42 - Solicitud final de cotizacion C&D]]. No comprar ni cablear desde aquí.
+> AUDITORÍA HISTÓRICA. Sus contradicciones explican decisiones anteriores; la
+> autoridad actual es [[63 - Auditoria total de Obsidian y estado real]].
 
 # Errores y contradicciones encontradas
 

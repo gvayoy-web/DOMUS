@@ -2,10 +2,14 @@
 proyecto: PROJECT DOMUS
 tipo: estado_vigente
 actualizado: 2026-09-12
-estado: autoridad_operativa
+estado: superado_por_nota_63
 ---
 
 # Estado vigente: firmware, sensores, control y documentos
+
+> [!NOTE]
+> Corte histórico anterior al cierre de software. La autoridad actual es
+> [[63 - Auditoria total de Obsidian y estado real]].
 
 > [!IMPORTANT]
 > La decisión más reciente de firmware y banco es [[59 - Firmware unico y perfil banco S8050 IR]]. Para el montaje actual manda su diagrama `visualizaciones/domus-banco-final-s8050-ir.svg` junto con [[49 - Prueba de una carga con un S8050 y TP4056]].

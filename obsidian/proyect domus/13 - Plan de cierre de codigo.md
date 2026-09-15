@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: plan-cierre
 actualizado: 2026-09-04
+estado: historico_plan
 estado_codigo: nucleo_compilado_voz_y_banco_pendientes
 ---
 

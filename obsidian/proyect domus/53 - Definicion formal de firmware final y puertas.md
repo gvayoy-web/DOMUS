@@ -2,10 +2,14 @@
 proyecto: PROJECT DOMUS
 tipo: definicion-firmware-final
 actualizado: 2026-09-12
-estado: vigente_definicion
+estado: historico_definicion_de_puertas
 ---
 
 # Firmware final: definición formal y puertas
+
+> [!NOTE]
+> Definición histórica útil para trazabilidad. El estado y las pendientes
+> actuales están en [[63 - Auditoria total de Obsidian y estado real]].
 
 Resuelve la contradicción “histórico y final a la vez”: `casa_inteligente_v4`
 no es ninguno de los dos. Estados oficiales:

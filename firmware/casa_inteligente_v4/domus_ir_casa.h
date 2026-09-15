@@ -38,6 +38,7 @@ class Receptor {
  public:
   void begin(uint8_t pin) {
     preferencias_.begin("domus-ir", false);
+    mascaraAprendida_ = preferencias_.getUInt("mask", 0) & MASCARA_TOTAL;
     for (uint8_t i = 0; i < TOTAL; ++i) {
       uint16_t valor = preferencias_.getUShort(clave(i), 0xFFFF);
       tabla_[i] = valor == 0xFFFF ? CODIGOS_INICIALES[i] : valor;
@@ -69,24 +70,47 @@ class Receptor {
   }
 
   bool grabar(uint8_t indice, uint16_t codigo) {
-    if (indice >= TOTAL) return false;
+    ultimoError_ = "error_nvs";
+    if (indice >= TOTAL || codigo == 0) { ultimoError_ = "codigo_invalido"; return false; }
+    for (uint8_t i = 0; i < TOTAL; ++i) {
+      if (i != indice && aprendida(i) && tabla_[i] == codigo) {
+        ultimoError_ = "codigo_duplicado";
+        return false;
+      }
+    }
+    if (preferencias_.putUShort(clave(indice), codigo) != sizeof(uint16_t)) return false;
+    const uint32_t nuevaMascara = mascaraAprendida_ | (1UL << indice);
+    if (preferencias_.putUInt("mask", nuevaMascara) != sizeof(uint32_t)) return false;
     tabla_[indice] = codigo;
-    return preferencias_.putUShort(clave(indice), codigo) == sizeof(uint16_t);
+    mascaraAprendida_ = nuevaMascara;
+    ultimoError_ = "ok";
+    return true;
   }
   void borrar() {
+    preferencias_.clear();
+    mascaraAprendida_ = 0;
     for (uint8_t i = 0; i < TOTAL; ++i) {
       tabla_[i] = CODIGOS_INICIALES[i];
-      preferencias_.remove(clave(i));
     }
   }
   uint16_t codigo(uint8_t indice) const { return indice < TOTAL ? tabla_[indice] : 0; }
+  bool aprendida(uint8_t indice) const {
+    return indice < TOTAL && (mascaraAprendida_ & (1UL << indice)) != 0;
+  }
+  uint8_t totalAprendidas() const {
+    uint8_t total = 0;
+    for (uint8_t i = 0; i < TOTAL; ++i) if (aprendida(i)) ++total;
+    return total;
+  }
+  bool mapaCompleto() const { return totalAprendidas() == TOTAL; }
+  const char* ultimoError() const { return ultimoError_; }
   uint16_t ultimoCodigo() const { return ultimoCodigo_; }
   static const char* nombre(uint8_t indice) { return indice < TOTAL ? NOMBRES[indice] : "?"; }
 
  private:
   Tecla buscar(uint16_t codigo) const {
     for (uint8_t i = 0; i < TOTAL; ++i)
-      if (tabla_[i] == codigo) return static_cast<Tecla>(i);
+      if (aprendida(i) && tabla_[i] == codigo) return static_cast<Tecla>(i);
     return NINGUNA;
   }
   const char* clave(uint8_t indice) {
@@ -95,7 +119,10 @@ class Receptor {
     return buffer;
   }
   Preferences preferencias_;
+  static constexpr uint32_t MASCARA_TOTAL = (1UL << TOTAL) - 1UL;
   uint16_t tabla_[TOTAL] = {};
+  uint32_t mascaraAprendida_ = 0;
+  const char* ultimoError_ = "sin_error";
   uint16_t ultimoCodigo_ = 0;
   uint32_t ultimoVolumenMs_ = 0;
 };

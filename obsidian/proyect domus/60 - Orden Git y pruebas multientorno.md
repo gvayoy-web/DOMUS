@@ -255,10 +255,9 @@ HIL con supervisión.
   y ejecución para Windows.
 
 El esqueleto funcional de hoy es el perfil 3 del firmware de producto. El
-directorio `firmware/domus_esqueleto` permanece compilable como regresión
-histórica, pero no recibe funciones nuevas ni se presenta como firmware de
-montaje. Así se conserva un solo cerebro y se evita probar por error el mapa
-antiguo.
+directorio `firmware/domus_esqueleto` lo incluye literalmente; la implementación
+anterior vive en `firmware/legacy/domus_esqueleto` solamente para regresión.
+Así se conserva un solo cerebro y se evita probar por error el mapa antiguo.
 
 Todo lo cerrable sin hardware queda cerrado. Lo restante requiere observación
 física: puerto real, salida del LCD/sensores/botones/IR y bomba sumergida. El
@@ -280,3 +279,10 @@ el S8050/TP4056 ya disponibles. El ventilador y el audio quedan desconectados.
 
 Portafusible y fusibles coinciden en formato 5 × 20 mm. La mención anterior de
 6 × 20 mm fue corregida por el dueño.
+
+## Addendum — cierre de software no físico
+
+Se retiraron el entrenador, su CI y las PoC del antiguo plan de reconocimiento
+por micrófono. También se eliminó el bloque ESP-SR inactivo del producto. El IR
+ahora exige aprendizaje persistido y códigos únicos antes de ejecutar acciones.
+Ver [[62 - Cierre total de software no fisico]].

@@ -31,7 +31,9 @@ IR_GRABAR_0
 
 Pulsa la tecla física indicada y continúa hasta `IR_GRABAR_20`. Consulta el
 mapa con `IR_LISTA`, el último código con `IR_LEER` y restaura el mapa inicial
-con `IR_BORRAR`.
+con `IR_BORRAR`. Hasta aprender una posición, su código no puede ejecutar una
+acción. El firmware rechaza asignar el mismo código a dos teclas y `IR_LISTA`
+muestra `APRENDIDAS=n/21`.
 
 Acciones principales: 1/Anterior sala, 2/Siguiente cuarto, 3 cultivo, 4
 ventilador (responde bloqueado), 5 riego, 0 todo apagado, 200+ rearme, CH/CH-
@@ -72,3 +74,7 @@ reporta la dirección detectada.
 No conectar bocinas de 1–2 ohmios directamente a ningún GPIO, 3V3 ni al S8050
 de la bomba. El audio permanece deshabilitado hasta disponer de un amplificador
 compatible y confirmar la impedancia admitida por este.
+
+El MAX98306 de la compra es un amplificador con entrada analógica, no I2S y no
+reproduce archivos por sí solo. Jarvis ya genera respuestas de texto al ejecutar
+órdenes IR; la fuente que convertirá esas frases en audio se decidirá después.

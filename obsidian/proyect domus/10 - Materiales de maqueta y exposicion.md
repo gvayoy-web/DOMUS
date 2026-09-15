@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: construccion
 actualizado: 2026-09-01
+estado: historico_materiales
 ---
 
 # Materiales de maqueta y exposición

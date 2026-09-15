@@ -95,7 +95,7 @@ constexpr const DescriptorBackendMotor& descriptorBackendMotor(BackendMotor b) {
 // y tabla aprendible viven en domus_ir_casa.h; el perfil activo decide si usa
 // GPIO12. Esto evita mantener dos banderas contradictorias.
 
-// --- Audio Jarvis (puerta F5) ---
-// Frases fijas en español vía responderJarvis() cuando exista MAX98357A en
-// pines sin colisiones. MUTE nunca bloquea seguridad (nota 46).
+// --- Audio Jarvis (aplazado) ---
+// El MAX98306 comprado es un amplificador analógico: no acepta I2S y por sí
+// solo no reproduce archivos. La fuente de señal se decidirá después.
 constexpr bool AUDIO_CANDIDATO_HABILITADO = false;

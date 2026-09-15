@@ -2,6 +2,7 @@
 proyecto: PROJECT DOMUS
 tipo: migracion
 actualizado: 2026-09-01
+estado: historico_migracion
 fuente: assets/new/deliverables/execute
 ---
 

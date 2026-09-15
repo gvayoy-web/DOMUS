@@ -1,4 +1,12 @@
+---
+estado: historico_idea_voz_retirada
+fecha: 2026-09-14
+---
+
 # Plan C: Jarvis offline por etapas
+
+> [!DANGER]
+> HISTÓRICO. El reconocimiento, TinyML e INMP441 fueron retirados del proyecto.
 
 **Objetivo:** añadir audio y después reconocimiento, sin hacer depender el riego de IA.
 **Arquitectura:** núcleo B intacto; elegir un motor de salida de audio, no comprar

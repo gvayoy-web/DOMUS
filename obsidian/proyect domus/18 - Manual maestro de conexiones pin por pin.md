@@ -2,10 +2,14 @@
 proyecto: PROJECT DOMUS
 tipo: manual-maestro-cableado
 actualizado: 2026-09-04
-estado: listo_para_banco
+estado: historico_no_cablear
 ---
 
 # Manual maestro de conexiones pin por pin
+
+> [!DANGER]
+> HISTÓRICO — NO CABLEAR. Usa `visualizaciones/domus-banco-final-s8050-ir.svg`
+> y [[59 - Firmware unico y perfil banco S8050 IR]].
 
 Este manual usa el inventario real: bomba de 3-6 V controlada directamente por
 S8050 y diodo 1N4007. El rele azul queda reservado. GPIO5-8 quedan sin etapa y

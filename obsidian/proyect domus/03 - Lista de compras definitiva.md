@@ -3,12 +3,18 @@ proyecto: PROJECT DOMUS
 tipo: compras
 moneda: HNL
 actualizado: 2026-09-07
+estado: historico_no_comprar
 ---
 
-> [!WARNING]
-> DOCUMENTO HISTÓRICO. Lo vigente es [[43 - Manual final completo PROJECT DOMUS]] + irmware/domus_esqueleto v2.1 + [[42 - Solicitud final de cotizacion C&D]]. No comprar ni cablear desde aquí.
+> [!DANGER]
+> DOCUMENTO HISTÓRICO. No comprar ni cablear desde aquí. La autoridad actual es
+> [[63 - Auditoria total de Obsidian y estado real]].
 
 # Lista de compras definitiva
+
+> [!DANGER]
+> HISTÓRICO. La compra real cambió; no comprar ni cablear desde esta nota. Ver
+> [[63 - Auditoria total de Obsidian y estado real]].
 
 > [!IMPORTANT]
 > Esta lista quedó archivada por cambios posteriores. No comprar desde las
