@@ -15,6 +15,11 @@ firmware/**/.pio/
 
 # Archivos temporales y cachés
 __pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 *.py[cod]
 *.tmp
 *.bak
@@ -46,3 +51,4 @@ obsidian/**/.obsidian/graph.json
 ai/data/
 ai/runs/
 .venv-ia/
+obsidian/**/.obsidian/workspace*.json

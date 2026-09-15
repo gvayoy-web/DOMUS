@@ -1,82 +1,34 @@
-# PROJECT DOMUS — casa inteligente local (ESP32-S3 N16R8)
+# PROJECT DOMUS
 
-Maqueta de feria sin nube: sensores, automatización con histéresis, seguridad
-(PARO, nivel, timeout, rearme) y Jarvis por control IR con frases fijas.
-Estados del producto en [`obsidian/proyect domus/53`](obsidian/proyect%20domus/53%20-%20Definicion%20formal%20de%20firmware%20final%20y%20puertas.md):
-`BANCO` (vigente) → `CANDIDATO` → `FINAL` (puertas F1–F7, ninguna superada aún).
+Casa inteligente local para una maqueta con ESP32-S3 N16R8. El firmware reúne sensores, LCD1602, luces, riego y control IR. El estado del software y los límites de las pruebas están en la [auditoría vigente](obsidian/proyect%20domus/63%20-%20Auditoria%20total%20de%20Obsidian%20y%20estado%20real.md).
 
-## Qué abrir primero
+## Empezar
 
-- Índice canónico: [`docs/INDICE.md`](docs/INDICE.md)
-- Bóveda técnica: [`obsidian/proyect domus/00 - Inicio.md`](obsidian/proyect%20domus/00%20-%20Inicio.md) (autoridad: nota 46)
-- Plan de orden del repo: nota `54`
+1. Leer [el inicio de la bóveda](obsidian/proyect%20domus/00%20-%20Inicio.md) y el [índice de rutas](docs/INDICE.md).
+2. Para el banco actual, abrir [firmware/domus_esqueleto](firmware/domus_esqueleto/README.md). Es un envoltorio literal del [firmware de producto](firmware/casa_inteligente_v4/README.md) con el perfil BANCO_COMPLETO_S8050_IR.
+3. Seguir la [prueba de hoy](firmware/PRUEBA_HOY.md) y el [diagrama vigente del banco](visualizaciones/domus-banco-final-s8050-ir.svg). Para capturar códigos IR y calibraciones sin activar salidas, usar firmware/diagnosticos/domus_banco_integracion/.
 
-## Qué firmware cargar
+El producto vive únicamente en firmware/casa_inteligente_v4/. firmware/legacy/ conserva el esqueleto anterior para regresiones. Jarvis es el mando IR con respuestas fijas de texto; no hay reconocimiento de voz ni IA en el producto.
 
-| Necesidad | Firmware | Perfil |
-|---|---|---|
-| Banco actual: sensores, LCD, botones, LED, bomba S8050 e IR | `firmware/casa_inteligente_v4` | `BANCO_COMPLETO_S8050_IR` (GPIO4 bomba; GPIO7 ventilador bloqueado) |
-| El mismo banco, abierto como “esqueleto” | `firmware/domus_esqueleto` | Incluye literalmente el producto con el perfil anterior |
-| Candidato a producto | `firmware/casa_inteligente_v4` | `CANDIDATO_BANCO_SIN_ACTUADORES` por defecto (`-DDOMUS_PERFIL_CASA=1` LED, `=2` motor pendiente) |
-| Leer códigos IR y tomar calibraciones, sin salidas | `firmware/diagnosticos/domus_banco_integracion` | Mapa actual, GPIO4-8 sin configurar |
+## Organización
 
-El esqueleto modular anterior vive en `firmware/legacy/domus_esqueleto` sólo
-para regresiones. `MICROSD_HABILITADA=false` hasta instalarla. No hay app móvil, BLE
-ni dependencia de internet en funciones críticas.
+| Carpeta | Contenido |
+|---|---|
+| firmware/ | Producto, envoltorio de banco, diagnósticos y pruebas |
+| hardware/planos/ | Planos y fuentes constructivas canónicas |
+| visualizaciones/ | Diagramas SVG y vistas web; el SVG del banco indicado arriba manda para cablear |
+| obsidian/proyect domus/ | Decisiones, estado y bitácora; la nota 63 clasifica qué está vigente |
+| docs/ | Índice y documentos generales de entrega |
+| tools/ | Validadores y generadores |
+| assets/new/ y documentos/ | Entregables y documentos históricos; consultar sus índices antes de reutilizarlos |
+| output/ | Exportaciones generadas para consulta o impresión |
 
-## Documentos vigentes
-
-- Mapa y banco por un costado: notas `46`, `47` (guía), `49` (una carga)
-- Olas y correcciones: notas `50`, `51`, `52`, `53`, `54`, `55`
-- Ronda B01-B05: nota `37` · IDE: nota `35` · Cierre SW: nota `34`
-- Históricos (no cablear/comprar): notas `43`, `44`, `45`, `18`, `docs/PLAN_PROYECTO.md`
-
-## Diagramas vigentes
-
-- Guía final pin por pin: `visualizaciones/domus-final-guia-principiantes.svg`
-- Arquitectura general: `visualizaciones/domus-arquitectura-feria.svg`
-- Banco alfa: `domus-alfa-guia-principiantes.svg` · potencia: `domus-alfa-una-carga-s8050.svg`
-- Interactivo (revisar vigencia por nota): `visualizaciones/diagrama-cableado-interactivo/index.html`
-
-## Jarvis (sin micrófono)
-
-Órdenes por control IR CAR MP3 (21 teclas, códigos del mando real) y respuestas
-fijas en español. Sin reconocimiento de voz, sin entrenamiento, sin INMP441.
-`GPIO12` recibe el HX1838 en el perfil 3; audio solo tras definir una fuente
-analógica compatible con el MAX98306.
-
-## Compilación
-
-CI (`firmware-ci.yml`) compila el producto en 7 configuraciones, su envoltorio
-de esqueleto, el diagnóstico seguro y los 3 perfiles históricos (+3 rechazos),
-con Arduino-ESP32 3.3.10:
+## Validación local
 
 ```powershell
-arduino-cli compile --fqbn "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB" firmware/casa_inteligente_v4
-python tools/check_perfil_matrix.py   # 3 perfiles alfa OK + 3 prohibidos rechazados
+python tools/validate_project.py
+python tools/validate_markdown.py
+python tools/check_perfil_matrix.py
 ```
 
-La compilación comprueba software; sensores, etapas y fuente se validan en
-físico (notas 33/37). Batería y solar son estética desconectada.
-
-## Comandos locales por USB
-
-Monitor Serial a 115200 baudios, una orden por línea: `RIEGO_ON/OFF`,
-`LUZ1/2_ON/OFF`, `VENT_ON/OFF`, `INVER_ON/OFF`, `*_AUTO`, `ESTADO`,
-`DIAGNOSTICO` (incluye `PERFIL_CANDIDATO=`), `PARO`, `REARMAR`, `RECUPERAR`,
-`MIC_ESTADO`, `SD_PRUEBA`, `CAL_*`.
-
-## Protección contra bloqueos
-
-Watchdog + supervisor (memoria, reinicios, sensores, ráfagas). Ante riesgo:
-apaga cargas, suspende automatización y deja Serial. `DIAGNOSTICO` da la
-causa; `RECUPERAR` libera el modo seguro con memoria suficiente; las cargas
-quedan apagadas hasta orden explícita. Detalle: nota `14`.
-
-## Límites honestos
-
-- La bomba del banco usa el S8050; el ventilador espera al DRV8833.
-- Sin mapa IR/audio no hay Jarvis hablado (F4/F5).
-- IA/TinyML y reconocimiento por micrófono están fuera del alcance aprobado.
-  Jarvis significa mando IR y respuestas fijas; el audio sigue aplazado (F5).
-- Riego y ventilación funcionan sin Wi-Fi. Spotify requeriría gateway local con internet.
+La compilación de producto para ESP32-S3 usa Arduino-ESP32 3.3.10 y las bibliotecas declaradas en la [guía de firmware](firmware/casa_inteligente_v4/README.md). La CI compila varias configuraciones. Simulación y compilación prueban lógica, no el montaje: LCD, sensores, mando real, bomba, calibraciones y HIL siguen pendientes de observación física. El DRV8833, la fuente, el fusible y el audio esperan componentes. No se ha declarado el producto FINAL.

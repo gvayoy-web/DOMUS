@@ -1,51 +1,25 @@
-# Índice canónico del repositorio (nota 54)
+# Índice de PROJECT DOMUS
 
-> Fuente de navegación. La autoridad técnica vive en la bóveda (`obsidian`,
-> nota 46). Este índice no duplica decisiones, solo rutas.
+La [nota 63](../obsidian/proyect%20domus/63%20-%20Auditoria%20total%20de%20Obsidian%20y%20estado%20real.md) clasifica la bóveda y prevalece sobre los planes antiguos. El código define el comportamiento y el [diagrama vigente](../visualizaciones/domus-banco-final-s8050-ir.svg) define el cableado del banco.
 
-## Entrar por rol
-
-| Quiero… | Abrir |
+| Para | Abrir |
 |---|---|
-| Entender el proyecto en 5 min | `README.md` → nota `00` |
-| Montar el banco alfa | Nota `47` + `visualizaciones/domus-final-guia-principiantes.svg` |
-| Probar una carga | Nota `49` + `visualizaciones/domus-alfa-una-carga-s8050.svg` |
-| Ver la arquitectura y el guion demo | `visualizaciones/domus-arquitectura-feria.svg` |
-| Cargar firmware de banco | `firmware/casa_inteligente_v4` (`BANCO_COMPLETO_S8050_IR`) |
-| Cargar candidato | `firmware/casa_inteligente_v4` (`CANDIDATO_*`, nota 53) |
-| Ordenar el repo | Nota `54` (plan) + nota `56` (fase 1) |
+| Entender estado y alcance | [Inicio](../obsidian/proyect%20domus/00%20-%20Inicio.md) y [auditoría 63](../obsidian/proyect%20domus/63%20-%20Auditoria%20total%20de%20Obsidian%20y%20estado%20real.md) |
+| Preparar el banco | [Prueba de hoy](../firmware/PRUEBA_HOY.md), nota 61 y SVG del banco |
+| Cargar el firmware | firmware/domus_esqueleto/ para banco; firmware/casa_inteligente_v4/ para producto |
+| Consultar pruebas y límites | Nota 60 y [estado breve](ESTADO_ACTUAL.md) |
+| Construir la maqueta | hardware/planos/ y hardware/GUIA_MONTAJE.md; confirmar antes el perfil físico |
+| Consultar entregables antiguos | [Archivo de entregables](../assets/new/README.md) y [documentos](../documentos/README.md) |
 
-## Firmware (único producto: `casa_inteligente_v4`)
+## Rutas estables
 
-| Pieza | Ruta |
-|---|---|
-| Candidato | `firmware/casa_inteligente_v4/casa_inteligente_v4.ino` |
-| Interfaces futuras (driver/IR/audio) | `firmware/casa_inteligente_v4/domus_drivers.h` |
-| Esqueleto actual (misma fuente del producto, perfil 3) | `firmware/domus_esqueleto/` |
-| Esqueleto v2 archivado para regresión | `firmware/legacy/domus_esqueleto/` |
-| Lector seguro IR + calibración | `firmware/diagnosticos/domus_banco_integracion/` |
-| Diagnóstico de placa | `firmware/domus_selftest/` |
-| Pruebas firmware | `firmware/tests/` (contratos, sim, nativas, HIL) |
+- firmware/casa_inteligente_v4/: una implementación de producto; firmware/domus_esqueleto/ la incluye literalmente para el banco.
+- firmware/diagnosticos/domus_banco_integracion/: lector seguro de sensores, LCD, IR y calibración, sin accionar salidas.
+- firmware/legacy/: código anterior conservado para regresión.
+- firmware/tests/: contratos, simulación, nativas y HIL.
+- hardware/planos/: planos constructivos canónicos, sus fuentes y pruebas.
+- visualizaciones/: diagramas fuente y vistas web.
+- obsidian/proyect domus/: autoridad, operación y bitácora; las notas antiguas quedan para trazabilidad.
+- tools/: validadores y generadores; output/: exportaciones.
 
-## Hardware y planos
-
-| Pieza | Ruta |
-|---|---|
-| Planos canónicos | `hardware/planos/` (base 800 × 520, familia Ultimate) |
-| Guías y SVG fuente | `visualizaciones/` |
-| Manuales impresos generados | `output/pdf/` (se regeneran; futuro: `artefactos/`) |
-
-## Documentos vigentes (bóveda)
-
-`00` (índice) · `46` (autoridad) · `47` (guía) · `49` (una carga) ·
-`50`–`56` (olas y correcciones) · `34` (cierre SW) · `35` (IDE) · `37` (B01-B05).
-Históricos, no cablear/comprar: `43`, `44`, `45`, `18`, `docs/PLAN_PROYECTO.md`.
-
-## Validar antes de commitear
-
-```powershell
-python -m unittest discover -s firmware/tests -v
-python tools/validate_project.py
-python tools/validate_markdown.py
-python tools/check_perfil_matrix.py
-```
+La [entrega de software](ENTREGA_FINAL.md) describe lo comprobado por código. La prueba física y las mediciones eléctricas conservan su estado pendiente o SKIP en la nota 63.
