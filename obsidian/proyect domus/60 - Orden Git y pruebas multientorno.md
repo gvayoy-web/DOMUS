@@ -286,3 +286,17 @@ Se retiraron el entrenador, su CI y las PoC del antiguo plan de reconocimiento
 por micrófono. También se eliminó el bloque ESP-SR inactivo del producto. El IR
 ahora exige aprendizaje persistido y códigos únicos antes de ejecutar acciones.
 Ver [[62 - Cierre total de software no fisico]].
+
+## Addendum 2026-09-16 — primera sesión física
+
+La ESP32-S3 fue identificada definitivamente como **COM9**. Se cargó el perfil
+3 y la escritura fue verificada por hash. El diagnóstico respondió, el receptor
+IR captó al menos `CMD 0x19` y el LCD había sido detectado anteriormente en
+`0x27`; en la lectura más reciente estaba desconectado y reportó
+`PANTALLA=NINGUNA`.
+
+El DHT11 sigue en NaN, suelo/nivel no tienen calibración estable y un pulso
+GPIO4 de 250 ms no hizo girar la bomba. Por tanto, las líneas antiguas de esta
+nota que dicen COM3/COM4 o “hardware no ejecutado” son evidencia histórica del
+corte anterior. El estado vigente y detallado está en
+[[64 - Sesion fisica COM9 LCD IR sensores y bomba]].

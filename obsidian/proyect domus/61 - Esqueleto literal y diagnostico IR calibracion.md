@@ -1,7 +1,7 @@
 ---
 estado: vigente
-fecha: 2026-09-13
-autoridad: 59
+fecha: 2026-09-16
+autoridad: 64
 ---
 
 # Esqueleto literal y diagnóstico IR/calibración
@@ -29,3 +29,7 @@ listas para copiar al firmware principal.
 El diagnóstico no guarda NVS ni asigna acciones. Eso se hace en el producto
 con `CAL_GUARDAR` e `IR_GRABAR_0` a `IR_GRABAR_20`. Tampoco prueba bomba,
 ventilador, DRV8833, fuente, fusible ni audio.
+
+El producto cargado en COM9 también funciona ahora como lector: muestra cada
+código en el LCD durante cinco segundos y lo emite por Serial. Para detectar la
+pantalla, hay que conectarla antes de encender o pulsar RESET.

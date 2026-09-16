@@ -1,7 +1,7 @@
 ---
 proyecto: PROJECT DOMUS
 tipo: decision_arquitectura
-actualizado: 2026-09-12
+actualizado: 2026-09-16
 estado: vigente
 autoridad: firmware_y_banco_actual
 ---
@@ -20,9 +20,9 @@ automatización, control manual, propiedad de salidas, PARO, modo seguro,
 histéresis, nivel mínimo y timeout. Mantener un segundo firmware completo
 permitiría que banco y producto se separaran silenciosamente.
 
-El antiguo `firmware/domus_esqueleto/` queda como referencia histórica de banco
-y como conjunto de pruebas heredadas. No es la fuente para nuevas funciones ni
-autoriza un mapa distinto.
+`firmware/domus_esqueleto/` es el envoltorio vigente que selecciona perfil 3 e
+incluye literalmente el producto. La implementación antigua y sus pruebas
+heredadas viven en `firmware/legacy/domus_esqueleto/`; no autorizan otro mapa.
 
 ## Perfil físico vigente
 
@@ -83,10 +83,14 @@ El firmware conserva una máscara NVS de posiciones aprendidas, rechaza códigos
 duplicados y muestra `APRENDIDAS=n/21`. `IR_BORRAR` deja todo el mando sin
 autoridad hasta volver a grabarlo. PARO físico conserva prioridad sobre IR.
 
+Desde el commit `9bb9684`, cada pulsación recibida se muestra cinco segundos en
+el LCD como protocolo/dirección y comando (`IR P7 A00FF` / `CMD 0x0019`). Los
+errores ordinarios de sensores no tapan esta vista; PARO y modo seguro sí.
+
 ## Funciones disponibles para probar
 
 - Lectura de DHT11, suelo, nivel, LDR y PIR.
-- Cinco vistas del LCD y navegación con MODO/IR.
+- Cinco vistas del LCD, lector temporal de códigos IR y navegación con MODO/IR.
 - Luces manuales y automáticas.
 - Bomba manual o automática con nivel, histéresis y timeout.
 - PARO, rearme, modo seguro, diagnósticos y comandos Serial.
@@ -97,6 +101,9 @@ energizar. `RIEGO_ON` permite la prueba manual con la bomba sumergida y
 `RIEGO_AUTO` entrega después el control a humedad+nivel. El comando `PRUEBA`
 genera un bloque copiable con sensores, LCD, dirección I2C, IR, salidas y
 diagnóstico.
+
+La vista de cultivo muestra suelo y agua en porcentaje. Agua usa provisionalmente
+600 ADC = 0% y 2500 ADC = 100%; esos extremos no son calibración física aprobada.
 
 ## Hardware expresamente deshabilitado
 

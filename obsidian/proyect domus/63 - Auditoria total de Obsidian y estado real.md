@@ -1,14 +1,18 @@
 ---
 estado: autoridad_documental
-fecha: 2026-09-14
+fecha: 2026-09-16
 alcance: toda_la_boveda
 ---
 
 # Auditoría total de Obsidian y estado real
 
-Esta nota clasifica las 64 notas Markdown que existían antes de esta auditoría.
+Esta nota clasifica las notas Markdown históricas que existían antes de esta
+auditoría y enlaza la evidencia creada después.
 Si otra nota contradice esta clasificación, gana esta nota. El código es la
 autoridad del comportamiento y el SVG vigente es la autoridad del cableado.
+La evidencia física más nueva está en
+[[64 - Sesion fisica COM9 LCD IR sensores y bomba]] y prevalece sobre estados
+anteriores que digan “no ejecutado”.
 
 ## Hecho
 
@@ -34,12 +38,12 @@ autoridad del comportamiento y el SVG vigente es la autoridad del cableado.
 
 | Pendiente físico | Evidencia que debe anotarse |
 |---|---|
-| LCD1602 | dirección I2C detectada, contraste y texto visible |
-| DHT11 | temperatura/humedad razonables y estabilidad |
+| LCD1602 | `0x27` fue observado antes; repetir con el lector IR y guardar foto/tabla |
+| DHT11 | actualmente NaN en GPIO14; corregir cableado/pull-up y validar estabilidad |
 | Suelo, nivel y LDR | seco/húmedo, vacío/lleno, oscuro/claro y polaridad |
 | PIR | alimentación usada, OUT seguro y retención real |
-| Mando IR | 21 códigos del mando real y cero duplicados |
-| S8050 + bomba | diodo, diez pulsos supervisados y ausencia de reinicios |
+| Mando IR | receptor responde y se observó `CMD 0x19`; faltan 21 códigos y duplicados |
+| S8050 + bomba | un pulso GPIO4 no movió la bomba; revisar etapa y luego hacer diez pulsos |
 | DRV8833 | llegada, rotulado/pinout y prueba de bomba y ventilador |
 | Fuente, fusible y capacitores | llegada y montaje; mediciones siguen `SKIP por decisión del dueño` |
 | Baquelita | distribución definitiva después de aprobar el banco |
@@ -62,7 +66,7 @@ No son defectos ocultos del código y no se convierten en PASS por simulación.
 
 | Grupo | Notas | Uso permitido |
 |---|---|---|
-| Entrada y autoridad | `Bienvenido`, `00`, `63` | Navegación y estado actual |
+| Entrada y autoridad | `Bienvenido`, `00`, `63`, `64` | Navegación y estado actual |
 | Operación vigente | `49`, `59`, `60`, `61`, `62` | Banco, S8050, software y evidencia |
 | Bitácora aplicada | `50–57` | Saber qué cambió; no cablear desde ellas |
 | Historia fundacional | `01–13` | Inventario, ideas y planes originales |
@@ -78,12 +82,13 @@ no vuelve vigente toda la nota antigua.
 ## Orden de lectura
 
 1. [[00 - Inicio]].
-2. Esta auditoría.
-3. [[61 - Esqueleto literal y diagnostico IR calibracion]].
-4. [[59 - Firmware unico y perfil banco S8050 IR]].
-5. `visualizaciones/domus-banco-final-s8050-ir.svg`.
-6. [[60 - Orden Git y pruebas multientorno]].
-7. [[62 - Cierre total de software no fisico]].
+2. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
+3. Esta auditoría.
+4. [[61 - Esqueleto literal y diagnostico IR calibracion]].
+5. [[59 - Firmware unico y perfil banco S8050 IR]].
+6. `visualizaciones/domus-banco-final-s8050-ir.svg`.
+7. [[60 - Orden Git y pruebas multientorno]].
+8. [[62 - Cierre total de software no fisico]].
 
 ## Regla de mantenimiento
 

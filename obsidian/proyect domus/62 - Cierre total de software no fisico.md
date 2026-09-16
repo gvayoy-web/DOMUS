@@ -1,6 +1,6 @@
 ---
 estado: vigente
-fecha: 2026-09-13
+fecha: 2026-09-16
 autoridad: software
 ---
 
@@ -20,7 +20,8 @@ Todo lo que puede completarse sin observar hardware queda cerrado en software.
   rechazo de repetición y salidas bloqueadas para teclas no aprendidas.
 - Seguridad: arranque OFF, PARO, rearme OFF, nivel, timeout, modo seguro,
   watchdog, sensores inválidos y límite Serial.
-- LCD: cinco vistas, prioridad de errores y escritura diferencial.
+- LCD: cinco vistas, lector temporal IR, porcentajes de suelo/agua, prioridad
+  de seguridad y escritura diferencial.
 - Automatización: riego, ventilación y luces con histéresis y propiedad manual.
 - CI: simulación, contratos, compilación nativa y matrices Arduino.
 
@@ -40,6 +41,10 @@ Requiere el mundo físico: valores reales de calibración, dirección y aspecto
 del LCD, códigos del mando concreto, HIL, bomba vigilada, DRV8833/ventilador y
 montaje final. Las mediciones eléctricas siguen `SKIP por decisión del dueño`.
 No se convierten en PASS mediante simulación.
+
+La primera sesión física ya comenzó y está registrada en
+[[64 - Sesion fisica COM9 LCD IR sensores y bomba]]. Sus fallos observados no
+reabren el cierre de software, pero sí mantienen abiertas las puertas físicas.
 
 Relacionada: [[59 - Firmware unico y perfil banco S8050 IR]],
 [[60 - Orden Git y pruebas multientorno]] y

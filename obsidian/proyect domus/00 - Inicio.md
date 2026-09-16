@@ -1,7 +1,7 @@
 ---
 estado: vigente
-fecha: 2026-09-14
-autoridad: 63
+fecha: 2026-09-16
+autoridad: 64
 ---
 
 # PROJECT DOMUS — inicio
@@ -21,12 +21,13 @@ ventilación en modo automático o manual mediante mando IR.
 
 ## Autoridad vigente
 
-1. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
-2. [[62 - Cierre total de software no fisico]] — estado del software.
-3. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
-4. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
-5. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
-6. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
+1. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]] — evidencia física más reciente.
+2. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
+3. [[62 - Cierre total de software no fisico]] — estado del software.
+4. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
+5. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
+6. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
+7. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
 
 El único diagrama cableable del banco es
 `visualizaciones/domus-banco-final-s8050-ir.svg`. Ninguna nota histórica
@@ -35,8 +36,9 @@ autoriza cableado, compras o compilación por sí sola.
 ## Estado honesto
 
 - Software no físico: cerrado y sometido a pruebas automatizadas.
-- Banco: listo para comenzar pruebas con el hardware disponible.
-- Hardware: todavía no validado; faltan calibraciones, mando real, LCD y HIL.
+- Banco: ESP32-S3 identificada en COM9 y firmware de perfil 3 cargado.
+- Hardware: IR recibe; LCD funcionó antes en `0x27` pero está desconectado en la
+  prueba vigente; DHT11 no responde; bomba S8050 no giró; sensores sin calibrar.
 - DRV8833, fuente, fusible, capacitores y audio: esperan las compras.
 - Jarvis: mando IR y respuestas fijas. No usa IA ni reconocimiento por voz.
 
