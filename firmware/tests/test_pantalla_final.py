@@ -193,7 +193,7 @@ int main() {
     CHEQUEA(LiquidCrystal_I2C::barridos == 1);
     g_ahora = 5000;
     p.tick(d);
-    CHEQUEA(LiquidCrystal_I2C::barridos == 2);
+    CHEQUEA(LiquidCrystal_I2C::barridos == 1);
     int movs = LiquidCrystal_I2C::movimientosCursor;
     p.tick(d);
     CHEQUEA(LiquidCrystal_I2C::movimientosCursor == movs);

@@ -1081,6 +1081,9 @@ bool leerLuz(int &crudoSalida, int &pctSalida) {
 // razonable, no se promedia como los sensores ADC (el DHT11 es lento,
 // máximo ~1 lectura/segundo, promediar 8 muestras lo saturaría).
 bool leerAmbiente(float &tempCSalida, float &humAireSalida) {
+  static uint8_t fallosDhtConsecutivos = 0;
+  static bool dhtSuspendido = false;
+  if (dhtSuspendido) return false;
   if (millis() - ultimaLecturaDhtMs < DHT_INTERVALO_LECTURA_MS) {
     // Todavía no toca leer de nuevo: devuelve la última lectura válida en
     // vez de forzar al DHT11 fuera de su límite de velocidad.
@@ -1095,7 +1098,13 @@ bool leerAmbiente(float &tempCSalida, float &humAireSalida) {
   float hum = dht.readHumidity();
 
   if (isnan(temp) || isnan(hum)) {
-    registrarError("SENSOR", "DHT11 no respondio (lectura NaN), revisar cableado/pin 14");
+    fallosDhtConsecutivos++;
+    if (fallosDhtConsecutivos >= 3) {
+      dhtSuspendido = true;
+      registrarError("SENSOR", "DHT11 suspendido tras 3 fallos; revisa pin 14 y reinicia");
+    } else {
+      registrarError("SENSOR", "DHT11 no respondio (lectura NaN), revisar cableado/pin 14");
+    }
     return false;
   }
   if (temp < DHT_TEMP_MIN_VALIDA_C || temp > DHT_TEMP_MAX_VALIDA_C ||
@@ -1106,6 +1115,7 @@ bool leerAmbiente(float &tempCSalida, float &humAireSalida) {
 
   ultimaTempCValida = temp;
   ultimaHumAireValida = hum;
+  fallosDhtConsecutivos = 0;
   tempCSalida = temp;
   humAireSalida = hum;
   return true;

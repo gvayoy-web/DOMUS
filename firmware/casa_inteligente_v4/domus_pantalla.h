@@ -320,7 +320,6 @@ class PantallaFinal {
       return;
     }
     if (cambio) {
-      lcd_->clear();
       for (uint8_t f = 0; f < 2; ++f) {
         const char* n = (f == 0) ? l0 : l1;
         lcd_->setCursor(0, f);

@@ -16,11 +16,40 @@ Serial demuestra lo que vio el ESP32; no certifica por sí solo un componente.
 - La carga por USB terminó y el hash de flash fue verificado.
 - `DIAGNOSTICO` respondió con `IR=ON`, watchdog activo y bomba declarada como
   `S8050_GPIO4`.
-- El receptor infrarrojo produjo al menos un comando real: `0x19` al pulsar el
-  control. Esto confirma recepción básica, no la tabla completa.
+- El receptor infrarrojo produjo los 21 comandos del mando CAR MP3. Protocolo
+  observado: `P7`; dirección: `A0000`. La tabla completa está abajo.
 - En una prueba anterior de esta sesión el LCD respondió en dirección `0x27`.
   Después fue desconectado; el diagnóstico posterior dice `PANTALLA=NINGUNA`.
 - Un pulso de prueba de 250 ms en GPIO4 se ejecutó sin reiniciar la placa.
+
+## Tabla física del mando CAR MP3
+
+| Botón | Código |
+|---|---:|
+| CH- | `0x0045` |
+| CH | `0x0046` |
+| CH+ | `0x0047` |
+| Anterior | `0x0044` |
+| Pausa/Play | `0x0043` |
+| Siguiente | `0x0040` |
+| Volumen - | `0x0007` |
+| Volumen + | `0x0015` |
+| EQ | `0x0009` |
+| 0 | `0x0016` |
+| 100+ | `0x0019` |
+| 200+ | `0x000D` |
+| 1 | `0x000C` |
+| 2 | `0x0018` |
+| 3 | `0x005E` |
+| 4 | `0x0008` |
+| 5 | `0x001C` |
+| 6 | `0x005A` |
+| 7 | `0x0042` |
+| 8 | `0x0052` |
+| 9 | `0x004A` |
+
+La captura reveló que `Pausa/Play` y `Siguiente` estaban intercambiados en la
+tabla inicial del firmware. Se corrigió antes de conceder autoridad al mando.
 
 ## Falló o sigue abierto
 
@@ -34,6 +63,20 @@ Serial demuestra lo que vio el ESP32; no certifica por sí solo un componente.
 - PIR leyó HIGH, pero falta una prueba controlada de reposo, movimiento y tiempo
   de retención. LDR sí reaccionó a cambios de luz, aún sin calibración final.
 - No se ejecutó el HIL completo y no se aprendieron las 21 teclas del mando.
+
+### Diagnóstico pasivo posterior
+
+Se tomaron seis muestras sin activar salidas. La bomba y los cuatro canales
+permanecieron en 0. LDR fue estable en 76–77%, PIR pasó a 1, mientras DHT11,
+suelo y nivel permanecieron inválidos. Después apareció un
+`Interrupt watchdog timeout` y la placa reinició. El backtrace localizó el
+bloqueo en `DHT::expectPulse()` desde `leerAmbiente()`, no en I2C. Para evitar
+reinicios repetidos con el DHT mal conectado, el firmware suspende sus lecturas
+tras tres respuestas NaN y exige corregir el sensor y reiniciar.
+
+El aparente apagado del LCD también coincidía con los cinco segundos de la
+vista temporal IR. Se eliminó `lcd.clear()` de los cambios de vista; ahora se
+sobrescriben las 32 celdas sin un intervalo blanco.
 
 ## Firmware instalado para la prueba actual
 
@@ -52,10 +95,11 @@ cambia de página.
 
 ## Próxima evidencia a capturar
 
-1. Anotar las 21 teclas: nombre físico, protocolo, dirección y comando.
-2. Confirmar que el LCD muestra cada código y ambas páginas de sensores.
-3. Reparar DHT11 y registrar temperatura/humedad estables.
-4. Registrar ADC de suelo seco/húmedo y agua vacío/lleno.
+1. Confirmar que el LCD muestra ambas páginas de sensores sin destellos.
+2. Reparar DHT11 y registrar temperatura/humedad estables.
+3. Registrar ADC de suelo seco/húmedo y agua vacío/lleno.
+4. Importar/aprender la tabla únicamente durante una prueba supervisada: el
+   botón 5 tiene autoridad para solicitar riego cuando el mapa está aprendido.
 5. Revisar la etapa S8050 sin energizar; luego repetir una prueba breve y
    vigilada antes de intentar automatización.
 
