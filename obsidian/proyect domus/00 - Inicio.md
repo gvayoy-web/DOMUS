@@ -37,8 +37,9 @@ autoriza cableado, compras o compilación por sí sola.
 
 - Software no físico: cerrado y sometido a pruebas automatizadas.
 - Banco: ESP32-S3 identificada en COM9 y firmware de perfil 3 cargado.
-- Hardware: IR recibe; LCD funcionó antes en `0x27` pero está desconectado en la
-  prueba vigente; DHT11 no responde; bomba S8050 no giró; sensores sin calibrar.
+- Hardware: IR capturó las 21 teclas; LCD conectado y detectado en `0x27`, pero
+  parpadea con los reinicios; DHT11 provoca timeout, bomba no giró y suelo/nivel
+  siguen inválidos. La corrección `89eb3f4` aún no está cargada en COM9.
 - DRV8833, fuente, fusible, capacitores y audio: esperan las compras.
 - Jarvis: mando IR y respuestas fijas. No usa IA ni reconocimiento por voz.
 

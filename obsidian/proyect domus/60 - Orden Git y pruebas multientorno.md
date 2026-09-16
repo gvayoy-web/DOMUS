@@ -144,7 +144,7 @@ Los tests confirmaron que:
 
 Falta ver el LCD real. El warning de arquitectura de `LiquidCrystal I2C` no
 impidió compilar, pero sólo una prueba física confirma iluminación, contraste,
-dirección, caracteres y ausencia de parpadeo. También faltan los 21 códigos
+dirección, caracteres y ausencia de parpadeo. En ese corte faltaban los 21 códigos
 reales del mando; los tests prueban la lógica del mapa, no conocen todavía las
 teclas del control concreto.
 
@@ -292,7 +292,7 @@ Ver [[62 - Cierre total de software no fisico]].
 La ESP32-S3 fue identificada definitivamente como **COM9**. Se cargó el perfil
 3 y la escritura fue verificada por hash. El diagnóstico respondió, el receptor
 IR captó al menos `CMD 0x19` y el LCD había sido detectado anteriormente en
-`0x27`; en la lectura más reciente estaba desconectado y reportó
+`0x27`; en una lectura intermedia estaba desconectado y reportó
 `PANTALLA=NINGUNA`.
 
 El DHT11 sigue en NaN, suelo/nivel no tienen calibración estable y un pulso
@@ -300,3 +300,12 @@ GPIO4 de 250 ms no hizo girar la bomba. Por tanto, las líneas antiguas de esta
 nota que dicen COM3/COM4 o “hardware no ejecutado” son evidencia histórica del
 corte anterior. El estado vigente y detallado está en
 [[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
+
+### Addendum final de la sesión 2026-09-16
+
+La captura IR terminó con las 21 teclas, protocolo 7 y dirección 0. El LCD está
+conectado y responde en `0x27`. Una observación pasiva reveló un reinicio por
+`Interrupt watchdog timeout`; el backtrace señaló `DHT::expectPulse()` desde
+`leerAmbiente()`. El commit `89eb3f4` limita el DHT a tres fallos y elimina el
+`clear()` entre vistas LCD, pero el compilador local de Windows se bloqueó y
+esa revisión **no fue cargada en COM9**. La placa conserva `9bb9684`.

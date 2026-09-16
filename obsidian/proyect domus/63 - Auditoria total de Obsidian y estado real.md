@@ -38,11 +38,11 @@ anteriores que digan “no ejecutado”.
 
 | Pendiente físico | Evidencia que debe anotarse |
 |---|---|
-| LCD1602 | `0x27` fue observado antes; repetir con el lector IR y guardar foto/tabla |
-| DHT11 | actualmente NaN en GPIO14; corregir cableado/pull-up y validar estabilidad |
+| LCD1602 | conectado en `0x27`; eliminar parpadeo y validar tras cargar `89eb3f4` |
+| DHT11 | NaN y watchdog en `DHT::expectPulse()`; corregir cableado y validar `89eb3f4` |
 | Suelo, nivel y LDR | seco/húmedo, vacío/lleno, oscuro/claro y polaridad |
 | PIR | alimentación usada, OUT seguro y retención real |
-| Mando IR | receptor responde y se observó `CMD 0x19`; faltan 21 códigos y duplicados |
+| Mando IR | 21 códigos capturados, protocolo 7/dirección 0; falta aprendizaje supervisado |
 | S8050 + bomba | un pulso GPIO4 no movió la bomba; revisar etapa y luego hacer diez pulsos |
 | DRV8833 | llegada, rotulado/pinout y prueba de bomba y ventilador |
 | Fuente, fusible y capacitores | llegada y montaje; mediciones siguen `SKIP por decisión del dueño` |

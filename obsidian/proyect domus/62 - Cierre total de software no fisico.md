@@ -37,9 +37,10 @@ tarea incompleta del núcleo doméstico.
 
 ## Único trabajo restante
 
-Requiere el mundo físico: valores reales de calibración, dirección y aspecto
-del LCD, códigos del mando concreto, HIL, bomba vigilada, DRV8833/ventilador y
-montaje final. Las mediciones eléctricas siguen `SKIP por decisión del dueño`.
+Requiere el mundo físico: valores reales de calibración, estabilidad del LCD,
+reparación del DHT11, HIL, bomba vigilada, DRV8833/ventilador y montaje final.
+La dirección LCD `0x27` y los 21 códigos IR ya fueron capturados. Las mediciones
+eléctricas siguen `SKIP por decisión del dueño`.
 No se convierten en PASS mediante simulación.
 
 La primera sesión física ya comenzó y está registrada en

@@ -18,8 +18,8 @@ Serial demuestra lo que vio el ESP32; no certifica por sí solo un componente.
   `S8050_GPIO4`.
 - El receptor infrarrojo produjo los 21 comandos del mando CAR MP3. Protocolo
   observado: `P7`; dirección: `A0000`. La tabla completa está abajo.
-- En una prueba anterior de esta sesión el LCD respondió en dirección `0x27`.
-  Después fue desconectado; el diagnóstico posterior dice `PANTALLA=NINGUNA`.
+- El LCD conectado responde en dirección `0x27`. Durante la captura mostró los
+  códigos, pero quedaba en blanco o parpadeaba cada 5–10 segundos.
 - Un pulso de prueba de 250 ms en GPIO4 se ejecutó sin reiniciar la placa.
 
 ## Tabla física del mando CAR MP3
@@ -70,15 +70,15 @@ Se tomaron seis muestras sin activar salidas. La bomba y los cuatro canales
 permanecieron en 0. LDR fue estable en 76–77%, PIR pasó a 1, mientras DHT11,
 suelo y nivel permanecieron inválidos. Después apareció un
 `Interrupt watchdog timeout` y la placa reinició. El backtrace localizó el
-bloqueo en `DHT::expectPulse()` desde `leerAmbiente()`, no en I2C. Para evitar
-reinicios repetidos con el DHT mal conectado, el firmware suspende sus lecturas
-tras tres respuestas NaN y exige corregir el sensor y reiniciar.
+bloqueo en `DHT::expectPulse()` desde `leerAmbiente()`, no en I2C. El código del
+commit `89eb3f4` suspende el DHT tras tres respuestas NaN, pero esa revisión aún
+no está cargada en la placa.
 
 El aparente apagado del LCD también coincidía con los cinco segundos de la
-vista temporal IR. Se eliminó `lcd.clear()` de los cambios de vista; ahora se
-sobrescriben las 32 celdas sin un intervalo blanco.
+vista temporal IR. `89eb3f4` elimina `lcd.clear()` de los cambios de vista para
+sobrescribir las 32 celdas sin intervalo blanco; falta compilarlo y cargarlo.
 
-## Firmware instalado para la prueba actual
+## Firmware instalado y corrección pendiente
 
 Commit `9bb9684` en `DOMUS/main`:
 
@@ -88,6 +88,12 @@ Commit `9bb9684` en `DOMUS/main`:
 - vista 0: temperatura y humedad ambiental;
 - vista 1: humedad de suelo y porcentaje de agua;
 - agua usa provisionalmente 600 ADC = 0% y 2500 ADC = 100%.
+
+La placa conserva `9bb9684`. El commit posterior `89eb3f4` está publicado en
+`DOMUS/main`, corrige Pausa/Siguiente, evita `clear()` entre vistas y suspende
+el DHT tras tres fallos. Dos compilaciones locales quedaron bloqueadas en las
+herramientas de Windows, así que no debe describirse como instalado ni probado
+en hardware.
 
 El LCD se escanea al arrancar. Debe conectarse a 3V3, GND, SDA GPIO17 y SCL
 GPIO13 **antes** de encender o pulsar RESET. El botón MODO entre GPIO18 y GND
