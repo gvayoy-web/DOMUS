@@ -38,7 +38,7 @@ anteriores que digan “no ejecutado”.
 
 | Pendiente físico | Evidencia que debe anotarse |
 |---|---|
-| LCD1602 | `0x27`; firmware a 50 kHz cargado, falta repetir con SDA/SCL reconectados |
+| LCD1602 | PASS físico en `0x27`: estable, legible y sin parpadeos a 50 kHz |
 | DHT11 | NaN; protección de tres fallos cargada y 56 s sin reinicios; reparar cableado |
 | Suelo, nivel y LDR | seco/húmedo, vacío/lleno, oscuro/claro y polaridad |
 | PIR | alimentación usada, OUT seguro y retención real |

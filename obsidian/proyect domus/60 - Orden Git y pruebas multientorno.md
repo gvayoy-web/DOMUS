@@ -313,4 +313,8 @@ esa revisión **no fue cargada en COM9**. La placa conserva `9bb9684`.
 Corrección posterior: la compilación finalmente terminó y la revisión se cargó
 por COM9 con hash verificado, incorporando además I²C a 50 kHz. Con SDA/SCL
 desconectados, el firmware permaneció 56 segundos sin reinicios y reportó
-correctamente `PANTALLA=NINGUNA`; falta el ensayo visual con el bus reconectado.
+correctamente `PANTALLA=NINGUNA`; en ese momento faltaba el ensayo visual.
+
+Resultado del ensayo visual: con SDA/SCL reconectados, el LCD `0x27` permaneció
+estable, legible y sin parpadeos. La reducción a 50 kHz, el dibujo sin `clear()`
+y el aislamiento del DHT cerraron el fallo observado. LCD: **PASS físico**.

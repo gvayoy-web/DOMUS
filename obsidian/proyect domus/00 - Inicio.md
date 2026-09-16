@@ -37,10 +37,9 @@ autoriza cableado, compras o compilación por sí sola.
 
 - Software no físico: cerrado y sometido a pruebas automatizadas.
 - Banco: ESP32-S3 identificada en COM9 y firmware de perfil 3 cargado.
-- Hardware: IR capturó las 21 teclas; LCD conectado y detectado en `0x27`, pero
-  parpadea con los reinicios; DHT11 provoca timeout, bomba no giró y suelo/nivel
-  siguen inválidos. La protección DHT y el bus I²C a 50 kHz ya están cargados
-  en COM9; falta repetir la prueba visual con SDA/SCL reconectados al arrancar.
+- Hardware: IR capturó las 21 teclas; LCD `0x27` estable y sin parpadeos con
+  I²C a 50 kHz. DHT11 sigue pendiente, bomba no giró y suelo/nivel continúan
+  inválidos. La placa y el bus I²C quedan descartados como causa del LCD.
 - DRV8833, fuente, fusible, capacitores y audio: esperan las compras.
 - Jarvis: mando IR y respuestas fijas. No usa IA ni reconocimiento por voz.
 

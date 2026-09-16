@@ -95,8 +95,18 @@ suspende el DHT tras tres fallos y baja I²C a 50 kHz. La escritura fue verifica
 por hash. En 56 segundos no hubo reinicios; `REINICIOS_CRITICOS=0`.
 
 En esa verificación SDA/SCL seguían desconectados, por lo que el resultado
-correcto fue `PANTALLA=NINGUNA`. Falta reconectar SDA GPIO17 y SCL GPIO13 con la
-placa apagada, arrancar de nuevo y observar si el LCD deja de parpadear.
+correcto fue `PANTALLA=NINGUNA`. Quedó pendiente entonces reconectar SDA GPIO17
+y SCL GPIO13 con la placa apagada y repetir el arranque.
+
+## Resultado final del LCD
+
+Tras reconectar SDA GPIO17 y SCL GPIO13 y arrancar con la revisión a 50 kHz, el
+propietario confirmó que el LCD se mantiene estable, no parpadea y funciona
+correctamente. La pantalla `0x27` queda en **PASS físico funcional** para esta
+configuración. No hay evidencia de daño en el ESP32.
+
+El cierre aplica al LCD y su comunicación. El DHT11, suelo, nivel y etapa de la
+bomba conservan sus estados pendientes independientes.
 
 El LCD se escanea al arrancar. Debe conectarse a 3V3, GND, SDA GPIO17 y SCL
 GPIO13 **antes** de encender o pulsar RESET. El botón MODO entre GPIO18 y GND
