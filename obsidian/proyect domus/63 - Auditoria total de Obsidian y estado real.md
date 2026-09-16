@@ -38,8 +38,8 @@ anteriores que digan “no ejecutado”.
 
 | Pendiente físico | Evidencia que debe anotarse |
 |---|---|
-| LCD1602 | conectado en `0x27`; eliminar parpadeo y validar tras cargar `89eb3f4` |
-| DHT11 | NaN y watchdog en `DHT::expectPulse()`; corregir cableado y validar `89eb3f4` |
+| LCD1602 | `0x27`; firmware a 50 kHz cargado, falta repetir con SDA/SCL reconectados |
+| DHT11 | NaN; protección de tres fallos cargada y 56 s sin reinicios; reparar cableado |
 | Suelo, nivel y LDR | seco/húmedo, vacío/lleno, oscuro/claro y polaridad |
 | PIR | alimentación usada, OUT seguro y retención real |
 | Mando IR | 21 códigos capturados, protocolo 7/dirección 0; falta aprendizaje supervisado |

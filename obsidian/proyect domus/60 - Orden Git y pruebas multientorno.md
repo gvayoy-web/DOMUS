@@ -309,3 +309,8 @@ conectado y responde en `0x27`. Una observación pasiva reveló un reinicio por
 `leerAmbiente()`. El commit `89eb3f4` limita el DHT a tres fallos y elimina el
 `clear()` entre vistas LCD, pero el compilador local de Windows se bloqueó y
 esa revisión **no fue cargada en COM9**. La placa conserva `9bb9684`.
+
+Corrección posterior: la compilación finalmente terminó y la revisión se cargó
+por COM9 con hash verificado, incorporando además I²C a 50 kHz. Con SDA/SCL
+desconectados, el firmware permaneció 56 segundos sin reinicios y reportó
+correctamente `PANTALLA=NINGUNA`; falta el ensayo visual con el bus reconectado.

@@ -636,6 +636,9 @@ void detectarPantalla() {
     return;
   }
   Wire.setTimeOut(I2C_TIMEOUT_MS);
+  // Banco en protoboard con cables jumper: 50 kHz reduce flancos y errores
+  // observados en el LCD/PCF8574 sin afectar su velocidad de refresco.
+  Wire.setClock(50000);
   delay(50);
 
   bool hayLcd = false;

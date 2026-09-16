@@ -89,15 +89,25 @@ Commit `9bb9684` en `DOMUS/main`:
 - vista 1: humedad de suelo y porcentaje de agua;
 - agua usa provisionalmente 600 ADC = 0% y 2500 ADC = 100%.
 
-La placa conserva `9bb9684`. El commit posterior `89eb3f4` está publicado en
-`DOMUS/main`, corrige Pausa/Siguiente, evita `clear()` entre vistas y suspende
-el DHT tras tres fallos. Dos compilaciones locales quedaron bloqueadas en las
-herramientas de Windows, así que no debe describirse como instalado ni probado
-en hardware.
+La placa conservó `9bb9684` durante la captura inicial. Después se compiló y
+cargó la revisión que corrige Pausa/Siguiente, evita `clear()` entre vistas,
+suspende el DHT tras tres fallos y baja I²C a 50 kHz. La escritura fue verificada
+por hash. En 56 segundos no hubo reinicios; `REINICIOS_CRITICOS=0`.
+
+En esa verificación SDA/SCL seguían desconectados, por lo que el resultado
+correcto fue `PANTALLA=NINGUNA`. Falta reconectar SDA GPIO17 y SCL GPIO13 con la
+placa apagada, arrancar de nuevo y observar si el LCD deja de parpadear.
 
 El LCD se escanea al arrancar. Debe conectarse a 3V3, GND, SDA GPIO17 y SCL
 GPIO13 **antes** de encender o pulsar RESET. El botón MODO entre GPIO18 y GND
 cambia de página.
+
+Prueba adicional del propietario: añadió aproximadamente 880 µF de filtrado,
+cambió el jumper del LCD y alimentó el montaje sin pasar por la PC; el fallo
+continuó. Al desconectar SDA/SCL cesó el parpadeo y la imagen quedó más nítida.
+Esto ubica el problema en el tráfico o niveles eléctricos I²C/backpack, sin
+demostrar todavía daño del ESP32. Se bajó el bus de 100 kHz a 50 kHz para la
+siguiente prueba.
 
 ## Próxima evidencia a capturar
 

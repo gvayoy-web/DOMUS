@@ -39,7 +39,8 @@ autoriza cableado, compras o compilación por sí sola.
 - Banco: ESP32-S3 identificada en COM9 y firmware de perfil 3 cargado.
 - Hardware: IR capturó las 21 teclas; LCD conectado y detectado en `0x27`, pero
   parpadea con los reinicios; DHT11 provoca timeout, bomba no giró y suelo/nivel
-  siguen inválidos. La corrección `89eb3f4` aún no está cargada en COM9.
+  siguen inválidos. La protección DHT y el bus I²C a 50 kHz ya están cargados
+  en COM9; falta repetir la prueba visual con SDA/SCL reconectados al arrancar.
 - DRV8833, fuente, fusible, capacitores y audio: esperan las compras.
 - Jarvis: mando IR y respuestas fijas. No usa IA ni reconocimiento por voz.
 
