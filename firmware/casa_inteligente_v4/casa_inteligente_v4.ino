@@ -259,6 +259,8 @@ static_assert(!(BOMBA_DIRECTA_S8050 && SALIDA_FISICA_CASA[3]),
 #define NIVEL_AGUA_MAX_VALIDO          4079
 #define NIVEL_AGUA_MUESTRAS_ESTABLES   3
 #define NIVEL_AGUA_MINIMO_CRUDO        600 // PROVISIONAL: calibrar con deposito casi vacio
+#define NIVEL_AGUA_VACIO_CRUDO         600 // 0%: medir con sensor fuera del agua
+#define NIVEL_AGUA_LLENO_CRUDO        2500 // 100%: medir a la altura maxima permitida
 #define PIR_RETENCION_MS              30000UL
 
 // Calibración del LDR (fotoresistor), mismo principio que la humedad de
@@ -954,6 +956,10 @@ void refrescarPantallaFinal() {
   d.sueloPct = humedadPct;
   d.sueloValido = humedadValida;
   d.nivelRaw = nivelAgua;
+  long nivelRango = (long)NIVEL_AGUA_LLENO_CRUDO - NIVEL_AGUA_VACIO_CRUDO;
+  long nivelPct = nivelRango == 0 ? 0 :
+    ((long)nivelAgua - NIVEL_AGUA_VACIO_CRUDO) * 100L / nivelRango;
+  d.nivelPct = constrain((int)nivelPct, 0, 100);
   d.nivelValido = nivelValido;
   d.nivelMin = calibracion.nivelMinimo;
   d.luzPct = luzPct;
@@ -1410,7 +1416,9 @@ void revisarIRCasa() {
   if (!IR_CASA_HABILITADO) return;
   IRCasa::Evento evento = receptorIR.actualizar();
   if (!evento.hay) return;
-  emitirEventoLocal("IR;CMD=0x" + String(evento.codigo, HEX) + ";TECLA=" +
+  pantallaFinal.mostrarIR(evento.protocolo, evento.direccion, evento.codigo);
+  emitirEventoLocal("IR;PROTO=" + String(evento.protocolo) + ";ADDR=0x" +
+    String(evento.direccion, HEX) + ";CMD=0x" + String(evento.codigo, HEX) + ";TECLA=" +
     String(IRCasa::Receptor::nombre(evento.tecla)) + ";REP=" + String(evento.repeticion ? 1 : 0));
   if (teclaIrPendiente >= 0) {
     const int indice = teclaIrPendiente;

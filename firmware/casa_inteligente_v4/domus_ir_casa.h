@@ -31,6 +31,7 @@ struct Evento {
   Tecla tecla = NINGUNA;
   bool repeticion = false;
   uint16_t codigo = 0;
+  uint16_t direccion = 0;
   uint8_t protocolo = 0;
 };
 
@@ -50,6 +51,7 @@ class Receptor {
     Evento evento;
     if (!IrReceiver.decode()) return evento;
     evento.codigo = IrReceiver.decodedIRData.command;
+    evento.direccion = IrReceiver.decodedIRData.address;
     evento.protocolo = IrReceiver.decodedIRData.protocol;
     evento.repeticion =
       (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) != 0;

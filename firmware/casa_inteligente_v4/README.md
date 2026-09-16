@@ -23,6 +23,12 @@ paralelo con la bomba, con la raya hacia `OUT+`.
 
 ## Aprender el mando IR
 
+Con el LCD conectado antes de encender o reiniciar, cada pulsación válida se
+muestra durante 5 segundos. La primera línea contiene protocolo y dirección
+(`IR P7 A00FF`) y la segunda el comando que debes anotar (`CMD 0x0019`). Los
+fallos normales de sensores no tapan esta lectura; PARO y modo seguro sí tienen
+prioridad. El mismo dato se emite por Serial como `IR;PROTO=...;ADDR=...;CMD=...`.
+
 Monitor Serial a 115200. Para cada índice de 0 a 20:
 
 ```text
@@ -38,6 +44,11 @@ muestra `APRENDIDAS=n/21`.
 Acciones principales: 1/Anterior sala, 2/Siguiente cuarto, 3 cultivo, 4
 ventilador (responde bloqueado), 5 riego, 0 todo apagado, 200+ rearme, CH/CH-
 cambian la pantalla y EQ muestra diagnóstico.
+
+La vista 0 del LCD muestra temperatura y humedad del aire. La vista 1 muestra
+humedad de suelo y agua en porcentaje. El porcentaje de agua usa provisionalmente
+`NIVEL_AGUA_VACIO_CRUDO=600` como 0% y `NIVEL_AGUA_LLENO_CRUDO=2500` como 100%;
+anota las lecturas reales vacío/lleno y sustituye esos dos valores para calibrarlo.
 
 ## Primera prueba completa
 

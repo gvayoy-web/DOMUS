@@ -96,7 +96,7 @@ static DatosPantallaFinal datosBase() {
   d.tempC = 25.0f; d.tempValida = true;
   d.humAire = 60.0f; d.humAireValida = true;
   d.sueloPct = 45; d.sueloValido = true;
-  d.nivelRaw = 1500; d.nivelValido = true; d.nivelMin = 600;
+  d.nivelRaw = 1500; d.nivelPct = 47; d.nivelValido = true; d.nivelMin = 600;
   d.luzPct = 70; d.luzValida = true;
   d.presencia = true;
   for (int i = 0; i < 5; ++i) d.salidas[i] = SAL_OFF;
@@ -175,6 +175,7 @@ int main() {
     CHEQUEA(std::strstr(l0, "25") && !std::strstr(l0, "ERR"));
     p.formatear(1, d, l0, l1);
     CHEQUEA(std::strstr(l0, "45") && !std::strstr(l0, "ERR"));
+    CHEQUEA(std::strstr(l1, "47%") && !std::strstr(l1, "1500"));
     if (fallos == base) std::puts("ERR_OK");
   }
   {
@@ -199,6 +200,13 @@ int main() {
     p.siguiente();
     p.tick(d);
     CHEQUEA(p.indice() == 1);
+    p.mostrarIR(7, 0x00FF, 0x0019);
+    p.tick(d);
+    CHEQUEA(std::strstr(p.linea(0), "P7 A00FF") != nullptr);
+    CHEQUEA(std::strstr(p.linea(1), "0x0019") != nullptr);
+    g_ahora = 10001;
+    p.tick(d);
+    CHEQUEA(std::strstr(p.linea(0), "Suelo") != nullptr);
     if (fallos == base) std::puts("TICK_OK");
   }
   return fallos == 0 ? 0 : 1;

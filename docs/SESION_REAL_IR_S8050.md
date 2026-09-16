@@ -31,7 +31,15 @@ y Serial**, no prueba física de sensores, IR ni bomba.
 
 ## Etapa A — códigos crudos, sin salidas
 
-Si todavía no sabes qué códigos produce el mando, carga temporalmente `firmware/diagnosticos/domus_banco_integracion` **en el puerto ya identificado**. Este sketch no configura GPIO4–8. Abre Serial y pulsa cada tecla una vez. Copia cada línea `IR;PROTO=...;DIR=...;CMD=...;REPEAT=0` en la tabla. `REPEAT=1` significa que la tecla se mantuvo pulsada; evita contarla dos veces. Escribe `IR_LISTA` al final; `IR_CLEAR` reinicia la lista RAM si quieres repetir. `LECTURAS` y `MUESTRA_SECO/HUMEDO/OSCURO/CLARO/NIVEL` permiten observar sensores sin activar la bomba.
+El firmware de producto muestra directamente cada pulsación en el LCD durante
+5 segundos: arriba `IR P7 A00FF` (protocolo y dirección) y abajo `CMD 0x0019`.
+Pulsa una tecla a la vez y copia ambos renglones. Conecta el LCD antes de
+encender o reiniciar, porque la pantalla se detecta durante el arranque. También
+puedes usar temporalmente `firmware/diagnosticos/domus_banco_integracion`, que
+no configura GPIO4–8. Por Serial copia cada línea
+`IR;PROTO=...;DIR=...;CMD=...;REPEAT=0`; `REPEAT=1` indica una tecla sostenida.
+`LECTURAS` y `MUESTRA_SECO/HUMEDO/OSCURO/CLARO/NIVEL` permiten observar sensores
+sin activar la bomba.
 
 | Índice | Tecla física | PROTO / DIR / CMD observado | ¿Respondió? |
 |---:|---|---|---|

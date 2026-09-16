@@ -41,6 +41,7 @@ struct DatosPantallaFinal {
   int sueloPct;
   bool sueloValido;
   int nivelRaw;
+  int nivelPct;
   bool nivelValido;
   int nivelMin;
   int luzPct;
@@ -64,7 +65,11 @@ class PantallaFinal {
         indice_(0),
         ultimaDibujada_(ID_SPLASH),
         splashHecho_(false),
-        inicioMs_(0) {
+        inicioMs_(0),
+        irVisibleHastaMs_(0),
+        irProtocolo_(0),
+        irDireccion_(0),
+        irCodigo_(0) {
     for (uint8_t f = 0; f < 2; ++f) {
       for (uint8_t c = 0; c < 17; ++c) sombra_[f][c] = 0;
     }
@@ -101,6 +106,15 @@ class PantallaFinal {
   }
 
   uint8_t indice() const { return indice_; }
+
+  // Muestra cada tecla recibida durante unos segundos para poder copiar
+  // protocolo, direccion y comando sin depender del Monitor Serial.
+  void mostrarIR(uint8_t protocolo, uint16_t direccion, uint16_t codigo) {
+    irProtocolo_ = protocolo;
+    irDireccion_ = direccion;
+    irCodigo_ = codigo;
+    irVisibleHastaMs_ = millis() + IR_VISIBLE_MS;
+  }
 
   // Vista que realmente se dibuja: la 4 se impone ante paro, modo
   // seguro o mensaje de error; si no, manda el indice manual.
@@ -139,9 +153,9 @@ class PantallaFinal {
         if (!d.nivelValido) {
           snprintf(b, sizeof(b), "Nivel ERR");
         } else if (d.nivelRaw < d.nivelMin) {
-          snprintf(b, sizeof(b), "Nivel BAJO");
+          snprintf(b, sizeof(b), "Agua %d%% BAJA", d.nivelPct);
         } else {
-          snprintf(b, sizeof(b), "Nivel %d", d.nivelRaw);
+          snprintf(b, sizeof(b), "Agua %d%%", d.nivelPct);
         }
         break;
       case 2:  // Luz ambiental + presencia.
@@ -209,8 +223,13 @@ class PantallaFinal {
       }
       splashHecho_ = true;
     }
-    if (d.emergencia || d.modoSeguro ||
-        (d.error != nullptr && d.error[0] != '\0')) {
+    if (d.emergencia || d.modoSeguro) {
+      id = P_EMERGENCIA;
+      formatear(P_EMERGENCIA, d, l0, l1);
+    } else if (irVisible()) {
+      id = ID_IR;
+      lineasIR(l0, l1);
+    } else if (d.error != nullptr && d.error[0] != '\0') {
       id = P_EMERGENCIA;
       formatear(P_EMERGENCIA, d, l0, l1);
     } else if (d.escuchando) {
@@ -231,8 +250,24 @@ class PantallaFinal {
 
  private:
   static const uint8_t ID_ESCUCHA = 98;
+  static const uint8_t ID_IR = 97;
   static const uint8_t ID_SPLASH = 99;
   static const unsigned long SPLASH_MS = 2000;
+  static const unsigned long IR_VISIBLE_MS = 5000;
+
+  bool irVisible() const {
+    return irVisibleHastaMs_ != 0 &&
+      (long)(irVisibleHastaMs_ - millis()) > 0;
+  }
+
+  void lineasIR(char l0[17], char l1[17]) const {
+    char a[24];
+    char b[24];
+    snprintf(a, sizeof(a), "IR P%u A%04X", irProtocolo_, irDireccion_);
+    snprintf(b, sizeof(b), "CMD 0x%04X", irCodigo_);
+    snprintf(l0, 17, "%-16.16s", a);
+    snprintf(l1, 17, "%-16.16s", b);
+  }
 
   static const char* etiq(EstadoSalidaFinal e) {
     switch (e) {
@@ -313,5 +348,9 @@ class PantallaFinal {
   uint8_t ultimaDibujada_;
   bool splashHecho_;
   unsigned long inicioMs_;
+  unsigned long irVisibleHastaMs_;
+  uint8_t irProtocolo_;
+  uint16_t irDireccion_;
+  uint16_t irCodigo_;
   char sombra_[2][17];
 };
