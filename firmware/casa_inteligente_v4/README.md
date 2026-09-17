@@ -87,5 +87,6 @@ de la bomba. El audio permanece deshabilitado hasta disponer de un amplificador
 compatible y confirmar la impedancia admitida por este.
 
 El MAX98306 de la compra es un amplificador con entrada analógica, no I2S y no
-reproduce archivos por sí solo. Jarvis ya genera respuestas de texto al ejecutar
-órdenes IR; la fuente que convertirá esas frases en audio se decidirá después.
+reproduce archivos por sí solo. La fuente definida es DFPlayer Mini con microSD
+y cuatro pistas por evento; sigue deshabilitada hasta asignar UART libre y
+validar alimentación, tarjeta y parlante. Ver la nota Obsidian 65.

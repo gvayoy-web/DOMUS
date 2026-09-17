@@ -113,6 +113,11 @@ La vista de cultivo muestra suelo y agua en porcentaje. Agua usa provisionalment
 - microSD.
 - Audio y bocinas.
 
+El bloqueo actual no cancela la arquitectura futura: [[65 - Arquitectura de
+audios Jarvis con DFPlayer]] define microSD FAT32, carpetas numéricas, cuatro
+frases por evento y reproducción UART no bloqueante. Sigue deshabilitada hasta
+asignar GPIO libres y validar parlante, alimentación y módulo.
+
 Las bocinas disponibles de 1–2 Ω no se conectan directamente a GPIO, 3V3,
 TP4056 ni al S8050 de la bomba. Solo podrán probarse con un amplificador cuya
 impedancia mínima admita explícitamente esa carga.

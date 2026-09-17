@@ -22,12 +22,13 @@ ventilación en modo automático o manual mediante mando IR.
 ## Autoridad vigente
 
 1. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]] — evidencia física más reciente.
-2. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
-3. [[62 - Cierre total de software no fisico]] — estado del software.
-4. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
-5. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
-6. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
-7. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
+2. [[65 - Arquitectura de audios Jarvis con DFPlayer]] — diseño de voz MP3.
+3. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
+4. [[62 - Cierre total de software no fisico]] — estado del software.
+5. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
+6. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
+7. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
+8. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
 
 El único diagrama cableable del banco es
 `visualizaciones/domus-banco-final-s8050-ir.svg`. Ninguna nota histórica
@@ -40,7 +41,8 @@ autoriza cableado, compras o compilación por sí sola.
 - Hardware: IR capturó las 21 teclas; LCD `0x27` estable y sin parpadeos con
   I²C a 50 kHz. DHT11 sigue pendiente, bomba no giró y suelo/nivel continúan
   inválidos. La placa y el bus I²C quedan descartados como causa del LCD.
-- DRV8833, fuente, fusible, capacitores y audio: esperan las compras.
-- Jarvis: mando IR y respuestas fijas. No usa IA ni reconocimiento por voz.
+- DRV8833, fuente, fusible y parte del audio esperan componentes/pruebas.
+- Jarvis: mando IR y respuestas MP3 pregrabadas mediante DFPlayer; arquitectura
+  definida, integración pendiente. No usa IA ni reconocimiento por voz.
 
 Las mediciones eléctricas están `SKIP por decisión del dueño`; no son PASS.

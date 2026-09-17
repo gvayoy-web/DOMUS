@@ -13,6 +13,8 @@ autoridad del comportamiento y el SVG vigente es la autoridad del cableado.
 La evidencia física más nueva está en
 [[64 - Sesion fisica COM9 LCD IR sensores y bomba]] y prevalece sobre estados
 anteriores que digan “no ejecutado”.
+La autoridad del audio futuro es
+[[65 - Arquitectura de audios Jarvis con DFPlayer]].
 
 ## Hecho
 
@@ -47,7 +49,8 @@ anteriores que digan “no ejecutado”.
 | DRV8833 | llegada, rotulado/pinout y prueba de bomba y ventilador |
 | Fuente, fusible y capacitores | llegada y montaje; mediciones siguen `SKIP por decisión del dueño` |
 | Baquelita | distribución definitiva después de aprobar el banco |
-| MAX98306 + parlante | elegir fuente analógica; el amplificador solo no genera voz |
+| DFPlayer + microSD + parlante | validar tarjeta, UART, BUSY, volumen y cuatro pistas |
+| MAX98306 | ampliación analógica opcional; no decodifica MP3 por sí solo |
 | HIL | ejecución vigilada del firmware en la placa real |
 
 No son defectos ocultos del código y no se convierten en PASS por simulación.
@@ -66,7 +69,7 @@ No son defectos ocultos del código y no se convierten en PASS por simulación.
 
 | Grupo | Notas | Uso permitido |
 |---|---|---|
-| Entrada y autoridad | `Bienvenido`, `00`, `63`, `64` | Navegación y estado actual |
+| Entrada y autoridad | `Bienvenido`, `00`, `63`, `64`, `65` | Estado y arquitectura actual |
 | Operación vigente | `49`, `59`, `60`, `61`, `62` | Banco, S8050, software y evidencia |
 | Bitácora aplicada | `50–57` | Saber qué cambió; no cablear desde ellas |
 | Historia fundacional | `01–13` | Inventario, ideas y planes originales |
@@ -83,12 +86,13 @@ no vuelve vigente toda la nota antigua.
 
 1. [[00 - Inicio]].
 2. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
-3. Esta auditoría.
-4. [[61 - Esqueleto literal y diagnostico IR calibracion]].
-5. [[59 - Firmware unico y perfil banco S8050 IR]].
-6. `visualizaciones/domus-banco-final-s8050-ir.svg`.
-7. [[60 - Orden Git y pruebas multientorno]].
-8. [[62 - Cierre total de software no fisico]].
+3. [[65 - Arquitectura de audios Jarvis con DFPlayer]].
+4. Esta auditoría.
+5. [[61 - Esqueleto literal y diagnostico IR calibracion]].
+6. [[59 - Firmware unico y perfil banco S8050 IR]].
+7. `visualizaciones/domus-banco-final-s8050-ir.svg`.
+8. [[60 - Orden Git y pruebas multientorno]].
+9. [[62 - Cierre total de software no fisico]].
 
 ## Regla de mantenimiento
 

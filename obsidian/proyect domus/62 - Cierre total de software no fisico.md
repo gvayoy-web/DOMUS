@@ -32,8 +32,10 @@ micrófono. DOMUS no usa IA. Jarvis significa mando IR más respuestas fijas; la
 reproducción audible se resolverá posteriormente sin cambiar la seguridad.
 
 El MAX98306 comprado amplifica una señal analógica y no recibe I2S ni reproduce
-archivos por sí mismo. Elegir su fuente de audio es una decisión futura, no una
-tarea incompleta del núcleo doméstico.
+archivos por sí mismo. La fuente ya fue definida como DFPlayer Mini con pistas
+MP3 pregrabadas; su diseño está en [[65 - Arquitectura de audios Jarvis con
+DFPlayer]]. La integración continúa pendiente de GPIO, microSD, parlante y
+prueba física, sin reabrir reconocimiento de voz o IA.
 
 ## Único trabajo restante
 
