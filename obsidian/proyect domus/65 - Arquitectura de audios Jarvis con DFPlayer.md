@@ -146,4 +146,6 @@ baja potencia; MAX98306 queda como ampliación si su salida y parlante se valida
 
 Relacionadas: [[00 - Inicio]], [[01 - Inventario confirmado]],
 [[59 - Firmware unico y perfil banco S8050 IR]] y
-[[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
+[[64 - Sesion fisica COM9 LCD IR sensores y bomba]]. La integración dentro del
+producto completo está definida en
+[[66 - Arquitectura final software hardware y funciones]].

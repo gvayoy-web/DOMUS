@@ -95,7 +95,8 @@ constexpr const DescriptorBackendMotor& descriptorBackendMotor(BackendMotor b) {
 // y tabla aprendible viven en domus_ir_casa.h; el perfil activo decide si usa
 // GPIO12. Esto evita mantener dos banderas contradictorias.
 
-// --- Audio Jarvis (aplazado) ---
-// El MAX98306 comprado es un amplificador analógico: no acepta I2S y por sí
-// solo no reproduce archivos. La fuente de señal se decidirá después.
+// --- Audio Jarvis (arquitectura definida, hardware aún bloqueado) ---
+// La fuente será DFPlayer Mini por UART con MP3 en microSD. MAX98306 solo puede
+// amplificar su salida DAC analógica. GPIO UART/BUSY siguen sin asignarse hasta
+// la auditoría física descrita en la nota Obsidian 66.
 constexpr bool AUDIO_CANDIDATO_HABILITADO = false;

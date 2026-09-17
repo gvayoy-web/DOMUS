@@ -15,6 +15,8 @@ La evidencia física más nueva está en
 anteriores que digan “no ejecutado”.
 La autoridad del audio futuro es
 [[65 - Arquitectura de audios Jarvis con DFPlayer]].
+La arquitectura completa del producto final es
+[[66 - Arquitectura final software hardware y funciones]].
 
 ## Hecho
 
@@ -69,7 +71,7 @@ No son defectos ocultos del código y no se convierten en PASS por simulación.
 
 | Grupo | Notas | Uso permitido |
 |---|---|---|
-| Entrada y autoridad | `Bienvenido`, `00`, `63`, `64`, `65` | Estado y arquitectura actual |
+| Entrada y autoridad | `Bienvenido`, `00`, `63`, `64`, `65`, `66` | Estado y arquitectura actual |
 | Operación vigente | `49`, `59`, `60`, `61`, `62` | Banco, S8050, software y evidencia |
 | Bitácora aplicada | `50–57` | Saber qué cambió; no cablear desde ellas |
 | Historia fundacional | `01–13` | Inventario, ideas y planes originales |
@@ -85,14 +87,15 @@ no vuelve vigente toda la nota antigua.
 ## Orden de lectura
 
 1. [[00 - Inicio]].
-2. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
-3. [[65 - Arquitectura de audios Jarvis con DFPlayer]].
-4. Esta auditoría.
-5. [[61 - Esqueleto literal y diagnostico IR calibracion]].
-6. [[59 - Firmware unico y perfil banco S8050 IR]].
-7. `visualizaciones/domus-banco-final-s8050-ir.svg`.
-8. [[60 - Orden Git y pruebas multientorno]].
-9. [[62 - Cierre total de software no fisico]].
+2. [[66 - Arquitectura final software hardware y funciones]].
+3. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]].
+4. [[65 - Arquitectura de audios Jarvis con DFPlayer]].
+5. Esta auditoría.
+6. [[61 - Esqueleto literal y diagnostico IR calibracion]].
+7. [[59 - Firmware unico y perfil banco S8050 IR]].
+8. `visualizaciones/domus-banco-final-s8050-ir.svg`.
+9. [[60 - Orden Git y pruebas multientorno]].
+10. [[62 - Cierre total de software no fisico]].
 
 ## Regla de mantenimiento
 

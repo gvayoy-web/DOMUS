@@ -21,14 +21,15 @@ ventilación en modo automático o manual mediante mando IR.
 
 ## Autoridad vigente
 
-1. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]] — evidencia física más reciente.
-2. [[65 - Arquitectura de audios Jarvis con DFPlayer]] — diseño de voz MP3.
-3. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
-4. [[62 - Cierre total de software no fisico]] — estado del software.
-5. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
-6. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
-7. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
-8. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
+1. [[66 - Arquitectura final software hardware y funciones]] — destino completo.
+2. [[64 - Sesion fisica COM9 LCD IR sensores y bomba]] — evidencia física reciente.
+3. [[65 - Arquitectura de audios Jarvis con DFPlayer]] — diseño de voz MP3.
+4. [[63 - Auditoria total de Obsidian y estado real]] — clasificación completa.
+5. [[62 - Cierre total de software no fisico]] — estado del software.
+6. [[61 - Esqueleto literal y diagnostico IR calibracion]] — programas de hoy.
+7. [[60 - Orden Git y pruebas multientorno]] — evidencia y límites.
+8. [[59 - Firmware unico y perfil banco S8050 IR]] — mapa lógico del banco.
+9. [[49 - Prueba de una carga con un S8050 y TP4056]] — prueba temporal.
 
 El único diagrama cableable del banco es
 `visualizaciones/domus-banco-final-s8050-ir.svg`. Ninguna nota histórica
